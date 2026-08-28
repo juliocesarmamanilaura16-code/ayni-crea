@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ayni Crea — Presentación Profesional</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --gold:#D4A843;--gold2:#F0C86A;--gold3:#A07820;
+  --dark:#08080F;--dark2:#0E0E1A;--dark3:#161625;--dark4:#1E1E30;
+  --txt:#F0EDE8;--muted:#8A879A;
+  --pu:#7C6AF7;--pu2:#A99FF5;
+  --re:#E8645A;--re2:#F09090;
+  --te:#2DD4BF;--te2:#6FFAEC;
+}
+
+html,body{width:100%;height:100%;font-family:'Outfit',sans-serif;background:var(--dark);color:var(--txt);overflow:hidden;user-select:none}
+
+/* ══ CANVAS PARTICLES ══ */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ══ PROGRESS ══ */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2));z-index:1000;transition:width .7s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px var(--gold)}
+
+/* ══ TOP BAR ══ */
+.topbar{position:fixed;top:0;left:0;right:0;padding:18px 40px;display:flex;justify-content:space-between;align-items:center;z-index:900;background:linear-gradient(to bottom,rgba(8,8,15,.9),transparent);backdrop-filter:blur(2px)}
+.tb-brand{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold);letter-spacing:4px;text-transform:uppercase}
+.tb-section{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;transition:opacity .4s}
+
+/* ══ SLIDE NUMBER BADGE ══ */
+.slide-num-badge{position:fixed;top:18px;right:40px;z-index:900;display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;border:1px solid rgba(212,168,67,.25);background:rgba(212,168,67,.07);font-size:12px;font-weight:600;letter-spacing:2px;color:var(--gold);transition:all .4s}
+.slide-num-badge .cur{font-size:18px;font-weight:900}
+
+/* ══ PRESENTATION ══ */
+.pres{width:100vw;height:100vh;position:relative;overflow:hidden}
+
+/* ══ SLIDES ══ */
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:80px 80px 100px;opacity:0;pointer-events:none;z-index:1}
+.slide.active{opacity:1;pointer-events:all}
+.slide.active .anim-item{animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both}
+.slide.active .anim-item:nth-child(1){animation-delay:.1s}
+.slide.active .anim-item:nth-child(2){animation-delay:.22s}
+.slide.active .anim-item:nth-child(3){animation-delay:.34s}
+.slide.active .anim-item:nth-child(4){animation-delay:.46s}
+.slide.active .anim-item:nth-child(5){animation-delay:.58s}
+.slide.active .anim-item:nth-child(6){animation-delay:.70s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes slideRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes countUp{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+@keyframes borderGlow{0%,100%{box-shadow:0 0 0 0 rgba(212,168,67,0)}50%{box-shadow:0 0 24px 4px rgba(212,168,67,.18)}}
+
+/* Background orbs for each slide */
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:float 8s ease-in-out infinite}
+.orb1{width:500px;height:500px;top:-150px;left:-150px;background:radial-gradient(circle,rgba(212,168,67,.12),transparent 70%)}
+.orb2{width:400px;height:400px;bottom:-120px;right:-120px;background:radial-gradient(circle,rgba(124,106,247,.1),transparent 70%);animation-delay:3s}
+.orb3{width:300px;height:300px;top:40%;left:60%;background:radial-gradient(circle,rgba(45,212,191,.07),transparent 70%);animation-delay:5s}
+
+.sc{position:relative;z-index:2;width:100%;max-width:1140px}
+
+/* ══ SLIDE NUMBER CORNER ══ */
+.slide-corner-num{position:absolute;bottom:100px;right:40px;font-size:120px;font-weight:900;line-height:1;color:rgba(212,168,67,.05);font-family:'Playfair Display',serif;pointer-events:none;z-index:0;transition:all .5s}
+
+/* ══ BACKGROUNDS ══ */
+.bg1{background:radial-gradient(ellipse at 20% 60%,#130D1F 0%,var(--dark) 55%),radial-gradient(ellipse at 80% 10%,#190808 0%,transparent 50%)}
+.bg2{background:linear-gradient(150deg,#0B0B18 0%,#111120 60%,#080810 100%)}
+.bg3{background:linear-gradient(160deg,#0F0F1A 0%,#14142A 70%,#08080E 100%)}
+.bg4{background:linear-gradient(140deg,#130E00 0%,#1A1200 60%,#0A0800 100%)}
+.bg5{background:linear-gradient(140deg,#0C0A1C 0%,#11102A 60%,#07060F 100%)}
+.bg6{background:linear-gradient(140deg,#130608 0%,#1C0C0E 60%,#09040505 100%)}
+
+/* ══ TYPOGRAPHY ══ */
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:20px}
+.badge-gold{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.3);color:var(--gold)}
+.badge-pu{background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.3);color:var(--pu2)}
+.badge-re{background:rgba(232,100,90,.1);border:1px solid rgba(232,100,90,.3);color:var(--re2)}
+.badge-te{background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.3);color:var(--te2)}
+
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(60px,9vw,110px);font-weight:900;line-height:1;background:linear-gradient(135deg,#FFF8E0 0%,var(--gold) 35%,#FFE29A 65%,var(--gold2) 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+
+.title{font-family:'Playfair Display',serif;font-size:clamp(30px,4vw,52px);font-weight:700;line-height:1.15;margin-bottom:12px}
+.title .hl{background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.title .hl-pu{background:linear-gradient(135deg,var(--pu2),var(--pu));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.title .hl-te{background:linear-gradient(135deg,var(--te2),var(--te));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.subtitle{font-size:15px;color:var(--muted);line-height:1.7;max-width:640px;margin-bottom:32px}
+
+.sep{width:64px;height:3px;border-radius:2px;margin-bottom:28px}
+.sep-gold{background:linear-gradient(90deg,var(--gold),transparent)}
+.sep-pu{background:linear-gradient(90deg,var(--pu),transparent)}
+.sep-re{background:linear-gradient(90deg,var(--re),transparent)}
+.sep-te{background:linear-gradient(90deg,var(--te),transparent)}
+
+/* ══ CARDS ══ */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+
+.card{padding:26px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s,box-shadow .3s}
+.card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.04),transparent);opacity:0;transition:opacity .3s}
+.card:hover{transform:translateY(-6px);border-color:rgba(212,168,67,.25);box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 20px rgba(212,168,67,.06)}
+.card:hover::after{opacity:1}
+.card-top{height:3px;width:100%;border-radius:2px;margin-bottom:20px}
+.card-top-gold{background:linear-gradient(90deg,var(--gold),var(--gold2),transparent)}
+.card-top-pu{background:linear-gradient(90deg,var(--pu),var(--pu2),transparent)}
+.card-top-re{background:linear-gradient(90deg,var(--re),var(--re2),transparent)}
+.card-top-te{background:linear-gradient(90deg,var(--te),var(--te2),transparent)}
+
+.card-icon{font-size:30px;margin-bottom:14px;display:block;animation:float 5s ease-in-out infinite}
+.card-title{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:8px}
+.card-body{font-size:12.5px;color:var(--muted);line-height:1.7}
+
+/* ══ HERO SLIDE ══ */
+.hero-eyebrow{font-size:11px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+.hero-eyebrow::before{content:'';width:40px;height:1px;background:var(--gold)}
+.hero-line{width:100px;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2),transparent);margin:28px 0;border-radius:2px}
+.hero-sub{font-size:18px;font-weight:300;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:44px}
+.hero-meta{display:flex;gap:40px;flex-wrap:wrap}
+.hm-item{display:flex;flex-direction:column;gap:4px}
+.hm-lbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.hm-val{font-size:15px;font-weight:700;color:var(--txt)}
+
+/* ══ INDEX ══ */
+.idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+.idx-item{padding:20px 22px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);display:flex;gap:18px;cursor:pointer;transition:all .3s;animation:borderGlow 3s ease infinite}
+.idx-item:hover{border-color:rgba(212,168,67,.4);background:rgba(212,168,67,.05);transform:translateX(6px)}
+.idx-n{font-size:32px;font-weight:900;color:rgba(212,168,67,.2);line-height:1;min-width:48px;font-family:'Playfair Display',serif}
+.idx-t{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.idx-s{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* ══ LIST ══ */
+.list{list-style:none;display:flex;flex-direction:column;gap:12px}
+.list li{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);font-size:14px;line-height:1.6;transition:all .3s}
+.list li:hover{background:rgba(255,255,255,.04);transform:translateX(4px)}
+.dot{width:8px;height:8px;border-radius:50%;margin-top:8px;flex-shrink:0}
+.dot-gold{background:var(--gold)}
+.dot-pu{background:var(--pu)}
+.dot-re{background:var(--re)}
+.dot-te{background:var(--te)}
+
+/* ══ TWO COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+
+/* ══ STAT BOXES ══ */
+.stats-row{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap}
+.stat-box{flex:1;min-width:120px;padding:18px 16px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);text-align:center;transition:all .3s;animation:countUp .8s cubic-bezier(.22,1,.36,1) both}
+.stat-box:hover{transform:scale(1.05);border-color:rgba(212,168,67,.3)}
+.stat-num{font-size:28px;font-weight:900;color:var(--gold);display:block;font-family:'Playfair Display',serif}
+.stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+
+/* ══ ACTOR MAP ══ */
+.actor-map{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.actor-node{padding:18px;border-radius:14px;text-align:center;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);transition:all .3s;cursor:default}
+.actor-node:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+.actor-node.center{background:rgba(212,168,67,.08);border-color:rgba(212,168,67,.3);animation:borderGlow 2s ease infinite}
+.act-icon{font-size:26px;margin-bottom:10px;display:block}
+.act-name{font-size:13px;font-weight:700;color:var(--txt)}
+.act-desc{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* ══ PERSONA ══ */
+.persona-wrap{display:flex;gap:28px;padding:28px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(212,168,67,.2);margin-top:8px;align-items:flex-start;animation:borderGlow 3s ease infinite}
+.avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:flex;align-items:center;justify-content:center;font-size:40px;flex-shrink:0;animation:float 6s ease-in-out infinite;box-shadow:0 0 30px rgba(212,168,67,.3)}
+.p-name{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold2);margin-bottom:4px}
+.p-role{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.tag{padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);color:var(--gold2)}
+
+/* ══ ORG CHART ══ */
+.org{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:12px}
+.org-n{padding:12px 24px;border-radius:10px;font-size:13px;font-weight:700;text-align:center}
+.org-n.top{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#0A0800;font-size:15px;box-shadow:0 8px 30px rgba(212,168,67,.35)}
+.org-n.mid{background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.3);color:var(--gold2);min-width:130px}
+.org-n.low{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;padding:8px 14px}
+.org-line{width:2px;height:26px;background:rgba(212,168,67,.25);margin:0 auto}
+.org-h{height:2px;background:rgba(212,168,67,.2);width:75%;margin:0 auto}
+.org-row{display:flex;gap:16px;justify-content:center}
+.org-col{display:flex;flex-direction:column;align-items:center}
+
+/* ══ OBJECTIVES ══ */
+.obj-main{padding:22px 24px;border-radius:14px;background:rgba(212,168,67,.07);border:1px solid rgba(212,168,67,.25);margin-bottom:18px;animation:borderGlow 3s ease infinite}
+.obj-lbl{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.obj-lbl p{font-size:15px;line-height:1.6;color:var(--txt)}
+
+/* ══ SEGMENTATION ══ */
+.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.seg-item{padding:16px 20px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);transition:all .3s}
+.seg-item:hover{border-color:rgba(212,168,67,.2);transform:translateX(4px)}
+.seg-lbl{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:7px}
+.seg-val{font-size:13.5px;color:var(--txt);line-height:1.55}
+
+/* ══ SECTION SEPARATOR SLIDE ══ */
+.sep-slide-num{font-family:'Playfair Display',serif;font-size:clamp(100px,15vw,180px);font-weight:900;line-height:1;background:linear-gradient(135deg,rgba(212,168,67,.3),rgba(212,168,67,.05));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:absolute;right:60px;bottom:-20px}
+
+/* ══ FINAL GLOW ══ */
+.final-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(212,168,67,.1) 0%,transparent 65%);pointer-events:none;animation:pulse 4s ease infinite}
+
+/* ══ NAV ══ */
+.nav{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:900;padding:10px 18px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px)}
+.nav-btn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(212,168,67,.35);background:rgba(212,168,67,.08);color:var(--gold);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;font-family:'Outfit',sans-serif}
+.nav-btn:hover:not(:disabled){background:rgba(212,168,67,.22);border-color:var(--gold);transform:scale(1.12);box-shadow:0 0 16px rgba(212,168,67,.3)}
+.nav-btn:disabled{opacity:.25;cursor:not-allowed}
+.nav-dots{display:flex;gap:6px;align-items:center}
+.ndot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .35s}
+.ndot.active{background:var(--gold);width:22px;border-radius:3px;box-shadow:0 0 8px var(--gold)}
+
+/* ══ KEYBOARD HINT ══ */
+.hint{position:fixed;bottom:34px;right:40px;font-size:10px;color:rgba(255,255,255,.18);letter-spacing:1px;z-index:900}
+
+@media(max-width:768px){
+  .slide{padding:60px 20px 90px}
+  .two-col,.g2,.g4,.g5{grid-template-columns:1fr}
+  .actor-map,.seg-grid,.idx-grid{grid-template-columns:1fr}
+  .persona-wrap{flex-direction:column}
+  .hero-title{font-size:clamp(48px,12vw,80px)}
+  .sep-slide-num{font-size:clamp(80px,20vw,120px)}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<div class="progress-bar" id="pb"></div>
+<div class="topbar">
+  <div class="tb-brand">AYNI CREA</div>
+  <div class="tb-section" id="tbs"></div>
+</div>
+<div class="slide-num-badge"><span class="cur" id="cur">01</span><span>/</span><span id="tot">15</span></div>
+
+<div class="pres" id="pres">
+
+<!-- ════════════════════════════════
+     01 — PORTADA
+════════════════════════════════ -->
+<div class="slide bg1" data-title="Portada">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num">01</div>
+  <div class="sc">
+    <div class="hero-eyebrow anim-item">Proyecto Empresarial · 2024</div>
+    <h1 class="hero-title anim-item">Ayni<br/>Crea</h1>
+    <div class="hero-line anim-item"></div>
+    <p class="hero-sub anim-item">Plataforma digital que conecta artesanos peruanos con el mundo, preservando la cultura y tradición ancestral.</p>
+    <div class="hero-meta anim-item">
+      <div class="hm-item"><span class="hm-lbl">Tipo</span><span class="hm-val">Startup Digital</span></div>
+      <div class="hm-item"><span class="hm-lbl">Sector</span><span class="hm-val">Artesanía & E-commerce</span></div>
+      <div class="hm-item"><span class="hm-lbl">Año</span><span class="hm-val">2024</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     02 — ÍNDICE
+════════════════════════════════ -->
+<div class="slide bg2" data-title="Índice">
+  <div class="orb orb1" style="background:radial-gradient(circle,rgba(124,106,247,.1),transparent 70%)"></div>
+  <div class="orb orb2"></div>
+  <div class="sep-slide-num">02</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Contenido</div>
+    <h2 class="title anim-item">Tabla de <span class="hl">Contenidos</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="idx-grid anim-item">
+      <div class="idx-item"><div class="idx-n">01</div><div><div class="idx-t">Introducción</div><div class="idx-s">Diseño · Design Thinking · Mapa Actores · Buyer Person</div></div></div>
+      <div class="idx-item"><div class="idx-n">02</div><div><div class="idx-t">Planificación Estratégica</div><div class="idx-s">Filosofía · Objetivos · Diseño Organizacional</div></div></div>
+      <div class="idx-item"><div class="idx-n">1.3</div><div><div class="idx-t">Segmentación y Público</div><div class="idx-s">Análisis de mercado meta y perfil del consumidor</div></div></div>
+      <div class="idx-item"><div class="idx-n">2.2</div><div><div class="idx-t">Estructura y Manuales</div><div class="idx-s">Organigrama · Manuales Administrativos</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     03 — 1.1 INTRODUCCIÓN
+════════════════════════════════ -->
+<div class="slide bg3" data-title="1.1 · Introducción">
+  <div class="orb orb1"></div><div class="orb orb3"></div>
+  <div class="sep-slide-num">03</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 1.1</div>
+    <h2 class="title anim-item">Introducción</h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="two-col anim-item">
+      <div>
+        <p class="subtitle">Ayni Crea surge como respuesta a la brecha digital que separa a los artesanos peruanos del mercado moderno global.</p>
+        <ul class="list">
+          <li><span class="dot dot-gold"></span><span>El <b>80% de artesanos peruanos</b> carece de acceso a canales digitales de venta</span></li>
+          <li><span class="dot dot-gold"></span><span>La artesanía es un patrimonio cultural invaluable con riesgo de desaparecer</span></li>
+          <li><span class="dot dot-gold"></span><span>Demanda creciente por productos <b>auténticos y hechos a mano</b> a nivel global</span></li>
+        </ul>
+      </div>
+      <div class="grid" style="gap:14px">
+        <div class="card">
+          <div class="card-top card-top-gold"></div>
+          <span class="card-icon">🌍</span>
+          <div class="card-title">Impacto Global</div>
+          <div class="card-body">Conectamos artesanos locales con compradores en todo el mundo usando tecnología accesible.</div>
+        </div>
+        <div class="card">
+          <div class="card-top card-top-gold"></div>
+          <span class="card-icon">🏺</span>
+          <div class="card-title">Cultura Viva</div>
+          <div class="card-body">Preservamos técnicas ancestrales a través del comercio justo y la digitalización.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     04 — 1.2 DISEÑO DE LA IDEA
+════════════════════════════════ -->
+<div class="slide bg4" data-title="1.2 · Diseño de la Idea">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num">04</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 1.2</div>
+    <h2 class="title anim-item">Diseño y <span class="hl">Elección de la Idea</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="grid g4 anim-item" style="margin-top:8px">
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">💡</span><div class="card-title">Problema</div><div class="card-body">Brecha digital entre artesanos y el mercado moderno. Dificultad para comercializar fuera de su comunidad.</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">🔍</span><div class="card-title">Investigación</div><div class="card-body">Análisis de plataformas similares y detección de oportunidades en el mercado peruano.</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">🎯</span><div class="card-title">Propuesta de Valor</div><div class="card-body">Marketplace especializado con personalización de pedidos y storytelling de cada artesano.</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">✅</span><div class="card-title">Validación</div><div class="card-body">Encuestas a 150+ artesanos y compradores confirmaron la necesidad y disposición de uso.</div></div>
+    </div>
+    <div class="stats-row anim-item">
+      <div class="stat-box"><span class="stat-num">150+</span><span class="stat-lbl">Encuestados</span></div>
+      <div class="stat-box"><span class="stat-num">87%</span><span class="stat-lbl">Aceptación</span></div>
+      <div class="stat-box"><span class="stat-num">3</span><span class="stat-lbl">Meses investigación</span></div>
+      <div class="stat-box"><span class="stat-num">4</span><span class="stat-lbl">Prototipos</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     05 — 1.3 DESIGN THINKING
+════════════════════════════════ -->
+<div class="slide bg5" data-title="1.3 · Design Thinking">
+  <div class="orb orb1" style="background:radial-gradient(circle,rgba(124,106,247,.15),transparent 70%)"></div>
+  <div class="orb orb2" style="background:radial-gradient(circle,rgba(45,212,191,.08),transparent 70%)"></div>
+  <div class="sep-slide-num" style="background:linear-gradient(135deg,rgba(124,106,247,.3),rgba(124,106,247,.05));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">05</div>
+  <div class="sc">
+    <div class="badge badge-pu anim-item">Sección 1.3 · Metodología</div>
+    <h2 class="title anim-item"><span class="hl-pu">Design Thinking</span></h2>
+    <div class="sep sep-pu anim-item"></div>
+    <p class="subtitle anim-item" style="margin-bottom:20px">Metodología centrada en el usuario para resolver problemas complejos de forma creativa e innovadora — 5 fases iterativas.</p>
+    <div class="grid g5 anim-item" style="gap:12px">
+      <div class="card" style="text-align:center;padding:20px 12px"><div class="card-top card-top-pu"></div><span class="card-icon">❤️</span><div class="card-title" style="font-size:13px">Empatizar</div><div class="card-body" style="font-size:11px">Comprender al artesano y al comprador desde su perspectiva</div></div>
+      <div class="card" style="text-align:center;padding:20px 12px"><div class="card-top card-top-pu"></div><span class="card-icon">🔎</span><div class="card-title" style="font-size:13px">Definir</div><div class="card-body" style="font-size:11px">Necesidades clave y puntos de dolor identificados</div></div>
+      <div class="card" style="text-align:center;padding:20px 12px"><div class="card-top card-top-pu"></div><span class="card-icon">💭</span><div class="card-title" style="font-size:13px">Idear</div><div class="card-body" style="font-size:11px">Brainstorming y generación de soluciones creativas</div></div>
+      <div class="card" style="text-align:center;padding:20px 12px"><div class="card-top card-top-pu"></div><span class="card-icon">🛠️</span><div class="card-title" style="font-size:13px">Prototipar</div><div class="card-body" style="font-size:11px">MVP de la plataforma digital desarrollado</div></div>
+      <div class="card" style="text-align:center;padding:20px 12px"><div class="card-top card-top-pu"></div><span class="card-icon">🧪</span><div class="card-title" style="font-size:13px">Testear</div><div class="card-body" style="font-size:11px">Pruebas con usuarios reales e iteración continua</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     06 — 1.3.1 MAPA DE ACTORES
+════════════════════════════════ -->
+<div class="slide bg3" data-title="1.3.1 · Mapa de Actores">
+  <div class="orb orb1"></div><div class="orb orb3"></div>
+  <div class="sep-slide-num">06</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 1.3.1</div>
+    <h2 class="title anim-item">Mapa de <span class="hl">Actores</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="actor-map anim-item">
+      <div class="actor-node"><span class="act-icon">🏛️</span><div class="act-name">Estado / MINCETUR</div><div class="act-desc">Apoyo y regulación del sector artesanal peruano</div></div>
+      <div class="actor-node center"><span class="act-icon" style="font-size:32px">🌟</span><div class="act-name" style="font-size:15px;color:var(--gold)">AYNI CREA</div><div class="act-desc">Plataforma central conectora</div></div>
+      <div class="actor-node"><span class="act-icon">📦</span><div class="act-name">Logística</div><div class="act-desc">Envío y entrega nacional e internacional</div></div>
+      <div class="actor-node"><span class="act-icon">🎨</span><div class="act-name">Artesanos</div><div class="act-desc">Creadores de productos únicos y auténticos</div></div>
+      <div class="actor-node"><span class="act-icon">🛍️</span><div class="act-name">Compradores</div><div class="act-desc">Nacionales e internacionales que valoran lo artesanal</div></div>
+      <div class="actor-node"><span class="act-icon">💳</span><div class="act-name">Pasarelas de Pago</div><div class="act-desc">Yape · Plin · Tarjetas · PayPal</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     07 — 1.3.2 SEGMENTACIÓN
+════════════════════════════════ -->
+<div class="slide bg4" data-title="1.3.2 · Segmentación">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num">07</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 1.3.2</div>
+    <h2 class="title anim-item">Segmentación y <span class="hl">Público Objetivo</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="seg-grid anim-item">
+      <div class="seg-item"><div class="seg-lbl">📍 Geográfico</div><div class="seg-val">Perú (Lima, Cusco, Puno, Ayacucho) + mercados en EE.UU., Europa y Latinoamérica</div></div>
+      <div class="seg-item"><div class="seg-lbl">👥 Demográfico</div><div class="seg-val">Compradores: 25–45 años, NSE A-B-C. Artesanos: 18–60 años en comunidades rurales y urbanas</div></div>
+      <div class="seg-item"><div class="seg-lbl">🧠 Psicográfico</div><div class="seg-val">Consumidores conscientes, amantes de la cultura, que valoran lo hecho a mano y el comercio justo</div></div>
+      <div class="seg-item"><div class="seg-lbl">⚡ Conductual</div><div class="seg-val">Compradores habituales de e-commerce con alta disposición a pagar por productos únicos y personalizados</div></div>
+    </div>
+    <div class="stats-row anim-item">
+      <div class="stat-box"><span class="stat-num">2.3M</span><span class="stat-lbl">Artesanos en Perú</span></div>
+      <div class="stat-box"><span class="stat-num">$1.2B</span><span class="stat-lbl">Mercado artesanía LAT</span></div>
+      <div class="stat-box"><span class="stat-num">68%</span><span class="stat-lbl">Son mujeres artesanas</span></div>
+      <div class="stat-box"><span class="stat-num">+40%</span><span class="stat-lbl">Crece anual e-commerce</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     08 — 1.3.3 BUYER PERSON
+════════════════════════════════ -->
+<div class="slide bg2" data-title="1.3.3 · Buyer Person">
+  <div class="orb orb1"></div><div class="orb orb3"></div>
+  <div class="sep-slide-num">08</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 1.3.3</div>
+    <h2 class="title anim-item">Buyer <span class="hl">Person</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="persona-wrap anim-item">
+      <div class="avatar">👩</div>
+      <div style="flex:1">
+        <div class="p-name">María Elena Torres</div>
+        <div class="p-role">Compradora Ideal · 32 años · Lima, Perú</div>
+        <div class="tags"><span class="tag">Profesional independiente</span><span class="tag">NSE B</span><span class="tag">Amante del arte</span><span class="tag">Compra online</span><span class="tag">Viajera frecuente</span></div>
+        <ul class="list" style="gap:8px">
+          <li><span class="dot dot-gold"></span><span><b>Motivación:</b> Busca regalos únicos y auténticos que cuenten una historia cultural</span></li>
+          <li><span class="dot dot-gold"></span><span><b>Frustración:</b> No encuentra artesanía de calidad garantizada en e-commerce</span></li>
+          <li><span class="dot dot-gold"></span><span><b>Goal:</b> Conectar con el artesano y personalizar su pedido fácilmente</span></li>
+        </ul>
+        <div class="stats-row" style="margin-top:14px">
+          <div class="stat-box"><span class="stat-num">3×</span><span class="stat-lbl">Compras/mes</span></div>
+          <div class="stat-box"><span class="stat-num">S/280</span><span class="stat-lbl">Ticket promedio</span></div>
+          <div class="stat-box"><span class="stat-num">92%</span><span class="stat-lbl">Satisfacción</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     09 — SEPARADOR SECCIÓN 2
+════════════════════════════════ -->
+<div class="slide bg1" data-title="Sección 2">
+  <div class="final-glow"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num" style="font-size:clamp(80px,12vw,150px)">09</div>
+  <div class="sc" style="text-align:center;display:flex;flex-direction:column;align-items:center">
+    <div class="badge badge-gold anim-item" style="margin:0 auto 24px">Parte 2</div>
+    <h2 class="title anim-item" style="text-align:center;font-size:clamp(36px,6vw,68px)">Planificación<br/>Estratégica y<br/><span class="hl">de Mercado</span></h2>
+    <div class="sep sep-gold anim-item" style="margin:24px auto"></div>
+    <p class="anim-item" style="color:var(--muted);font-size:17px">Filosofía · Objetivos · Estructura · Manuales</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     10 — 2.1 FILOSOFÍA
+════════════════════════════════ -->
+<div class="slide bg3" data-title="2.1 · Filosofía Organizacional">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num">10</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 2.1</div>
+    <h2 class="title anim-item">Filosofía <span class="hl">Organizacional</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="grid g4 anim-item" style="margin-top:8px">
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">🌅</span><div class="card-title">Misión</div><div class="card-body">Conectar artesanos peruanos con el mundo mediante tecnología, generando ingresos dignos y preservando nuestra cultura.</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">🔭</span><div class="card-title">Visión</div><div class="card-body">Ser la plataforma líder de artesanía peruana en Latinoamérica al 2028 con más de 10,000 artesanos activos.</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">💎</span><div class="card-title">Valores</div><div class="card-body">Reciprocidad · Autenticidad · Comercio justo · Innovación tecnológica · Respeto cultural</div></div>
+      <div class="card"><div class="card-top card-top-gold"></div><span class="card-icon">🤝</span><div class="card-title">Cultura</div><div class="card-body">Inspirada en el "Ayni" quechua: la reciprocidad como pilar de nuestra comunidad y crecimiento colectivo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     11 — 2.1.1 OBJETIVOS
+════════════════════════════════ -->
+<div class="slide bg4" data-title="2.1.1 · Objetivos">
+  <div class="orb orb1"></div><div class="orb orb3"></div>
+  <div class="sep-slide-num">11</div>
+  <div class="sc">
+    <div class="badge badge-gold anim-item">Sección 2.1.1</div>
+    <h2 class="title anim-item">Objetivos General y <span class="hl">Específicos</span></h2>
+    <div class="sep sep-gold anim-item"></div>
+    <div class="obj-main anim-item">
+      <div class="obj-lbl">🎯 Objetivo General</div>
+      <p style="font-size:15px;line-height:1.6;color:var(--txt)">Desarrollar y posicionar Ayni Crea como la plataforma digital de referencia para la comercialización de artesanía peruana auténtica, conectando a más de 1,000 artesanos en el primer año.</p>
+    </div>
+    <ul class="list anim-item" style="gap:10px">
+      <li><span class="dot dot-gold"></span><span><b>OE1:</b> Incorporar 500 artesanos activos en los primeros 6 meses de lanzamiento</span></li>
+      <li><span class="dot dot-gold"></span><span><b>OE2:</b> Alcanzar S/ 200,000 en ventas mensuales al término del primer año</span></li>
+      <li><span class="dot dot-gold"></span><span><b>OE3:</b> Implementar sistema de personalización de pedidos en Q2 2025</span></li>
+      <li><span class="dot dot-gold"></span><span><b>OE4:</b> Expandir el servicio a EE.UU. y España en el segundo año de operaciones</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     12 — 2.2 DISEÑO ORGANIZACIONAL
+════════════════════════════════ -->
+<div class="slide bg2" data-title="2.2 · Diseño Organizacional">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <div class="sep-slide-num">12</div>
+  <div class="sc">
+    <div class="badge badge-te anim-item">Sección 2.2</div>
+    <h2 class="title anim-item">Diseño <span class="hl-te">Organizacional</span></h2>
+    <div class="sep sep-te anim-item"></div>
+    <p class="subtitle anim-item">Estructura diseñada para escalar rápidamente manteniendo agilidad y cultura de innovación continua.</p>
+    <div class="grid g3 anim-item" style="gap:16px">
+      <div class="card"><div class="card-top card-top-te"></div><span class="card-icon">🏗️</span><div class="card-title">Tipo de Organización</div><div class="card-body">Estructura horizontal y ágil orientada a resultados con equipos multidisciplinarios y metodologías SCRUM.</div></div>
+      <div class="card"><div class="card-top card-top-te"></div><span class="card-icon">📋</span><div class="card-title">Modelo de Gestión</div><div class="card-body">OKRs trimestrales por equipo, revisiones semanales y cultura de feedback continuo y mejora iterativa.</div></div>
+      <div class="card"><div class="card-top card-top-te"></div><span class="card-icon">⚙️</span><div class="card-title">Procesos Clave</div><div class="card-body">Onboarding de artesanos · Gestión de pedidos · Control de calidad · Atención al cliente · Logística</div></div>
+    </div>
+    <div class="stats-row anim-item">
+      <div class="stat-box"><span class="stat-num">4</span><span class="stat-lbl">Áreas principales</span></div>
+      <div class="stat-box"><span class="stat-num">12</span><span class="stat-lbl">Colaboradores</span></div>
+      <div class="stat-box"><span class="stat-num">SCRUM</span><span class="stat-lbl">Metodología</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     13 — 2.2.1 ESTRUCTURA
+════════════════════════════════ -->
+<div class="slide bg5" data-title="2.2.1 · Estructura Organizacional">
+  <div class="orb orb1" style="background:radial-gradient(circle,rgba(124,106,247,.13),transparent 70%)"></div>
+  <div class="orb orb2"></div>
+  <div class="sep-slide-num" style="background:linear-gradient(135deg,rgba(124,106,247,.3),rgba(124,106,247,.05));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">13</div>
+  <div class="sc">
+    <div class="badge badge-pu anim-item">Sección 2.2.1</div>
+    <h2 class="title anim-item">Estructura <span class="hl-pu">Organizacional</span></h2>
+    <div class="sep sep-pu anim-item"></div>
+    <div class="org anim-item">
+      <div class="org-n top">👑 Dirección General / CEO</div>
+      <div class="org-line"></div>
+      <div class="org-h"></div>
+      <div style="height:4px"></div>
+      <div class="org-row">
+        <div class="org-col"><div class="org-line"></div><div class="org-n mid">💻 Dir. Tecnología</div><div class="org-line"></div><div class="org-row" style="gap:8px"><div class="org-n low">Frontend</div><div class="org-n low">Backend</div></div></div>
+        <div class="org-col"><div class="org-line"></div><div class="org-n mid">📈 Dir. Comercial</div><div class="org-line"></div><div class="org-row" style="gap:8px"><div class="org-n low">Marketing</div><div class="org-n low">Ventas</div></div></div>
+        <div class="org-col"><div class="org-line"></div><div class="org-n mid">🎨 Dir. Comunidad</div><div class="org-line"></div><div class="org-row" style="gap:8px"><div class="org-n low">Artesanos</div><div class="org-n low">Soporte</div></div></div>
+        <div class="org-col"><div class="org-line"></div><div class="org-n mid">💰 Dir. Finanzas</div><div class="org-line"></div><div class="org-row" style="gap:8px"><div class="org-n low">Contab.</div><div class="org-n low">Legal</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     14 — 2.2.2 MANUALES
+════════════════════════════════ -->
+<div class="slide bg6" data-title="2.2.2 · Manuales Administrativos">
+  <div class="orb orb1" style="background:radial-gradient(circle,rgba(232,100,90,.12),transparent 70%)"></div>
+  <div class="orb orb2" style="background:radial-gradient(circle,rgba(212,168,67,.08),transparent 70%)"></div>
+  <div class="sep-slide-num" style="background:linear-gradient(135deg,rgba(232,100,90,.3),rgba(232,100,90,.05));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">14</div>
+  <div class="sc">
+    <div class="badge badge-re anim-item">Sección 2.2.2</div>
+    <h2 class="title anim-item">Manuales <span style="background:linear-gradient(135deg,var(--re2),var(--re));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Administrativos</span></h2>
+    <div class="sep sep-re anim-item"></div>
+    <div class="two-col anim-item">
+      <ul class="list">
+        <li><span class="dot dot-re"></span><span><b>Manual de Organización:</b> Define funciones, responsabilidades y relaciones jerárquicas de cada área</span></li>
+        <li><span class="dot dot-re"></span><span><b>Manual de Procedimientos:</b> Documenta paso a paso los procesos operativos clave de la plataforma</span></li>
+        <li><span class="dot dot-re"></span><span><b>Manual de Políticas:</b> Normas de conducta, ética y compliance organizacional para todos los colaboradores</span></li>
+      </ul>
+      <ul class="list">
+        <li><span class="dot dot-re"></span><span><b>Manual de Onboarding:</b> Guía para incorporar artesanos y verificar la autenticidad de sus productos</span></li>
+        <li><span class="dot dot-re"></span><span><b>Manual de Calidad:</b> Estándares para todos los productos publicados en la plataforma digital</span></li>
+        <li><span class="dot dot-re"></span><span><b>Manual de Crisis:</b> Protocolos de respuesta ante incidencias técnicas o de reputación empresarial</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     15 — CIERRE
+════════════════════════════════ -->
+<div class="slide bg1" data-title="¡Gracias!">
+  <div class="final-glow"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+  <div class="sep-slide-num">15</div>
+  <div class="sc" style="text-align:center;display:flex;flex-direction:column;align-items:center">
+    <div class="badge badge-gold anim-item" style="margin:0 auto 28px">Fin de la Presentación</div>
+    <h1 class="hero-title anim-item" style="font-size:clamp(50px,8vw,100px)">¡Gracias!</h1>
+    <div class="hero-line anim-item" style="margin:24px auto"></div>
+    <p class="anim-item" style="font-size:18px;color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:40px">"<b style="color:var(--gold)">Ayni</b>" en quechua significa reciprocidad.<br/>Juntos construimos un mejor futuro para los artesanos peruanos.</p>
+    <div class="hero-meta anim-item" style="justify-content:center;gap:48px">
+      <div class="hm-item" style="text-align:center"><span class="hm-lbl">Contacto</span><span class="hm-val">aynicrea@gmail.com</span></div>
+      <div class="hm-item" style="text-align:center"><span class="hm-lbl">Web</span><span class="hm-val">www.aynicrea.pe</span></div>
+      <div class="hm-item" style="text-align:center"><span class="hm-lbl">Redes</span><span class="hm-val">@aynicrea</span></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /pres -->
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn" id="pb2" onclick="go(-1)" disabled>‹</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="nb2" onclick="go(1)">›</button>
+</nav>
+<div class="hint">← → Navegar · Inicio/Fin</div>
+
+<script>
+/* ── PARTICLES ── */
+(function(){
+  const c=document.getElementById('particles');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight}
+  resize();window.addEventListener('resize',()=>{resize();init()});
+  function init(){
+    pts=[];
+    const n=Math.floor(W*H/18000);
+    for(let i=0;i<n;i++) pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,s:Math.random()*.4+.1,a:Math.random()*Math.PI*2,o:Math.random()*.5+.1,p:Math.random()>.85});
+  }
+  init();
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.y-=p.s;p.x+=Math.sin(p.a+Date.now()*.0005)*0.3;p.a+=.005;
+      if(p.y<-5){p.y=H+5;p.x=Math.random()*W}
+      ctx.save();
+      ctx.globalAlpha=p.o*(0.6+0.4*Math.sin(Date.now()*.001+p.a));
+      if(p.p){ctx.shadowBlur=6;ctx.shadowColor='rgba(212,168,67,.8)'}
+      ctx.fillStyle=p.p?'rgba(212,168,67,.9)':'rgba(200,190,240,.6)';
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── SLIDES ── */
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+const pbEl=document.getElementById('pb');
+const curEl=document.getElementById('cur');
+const totEl=document.getElementById('tot');
+const tbsEl=document.getElementById('tbs');
+let cur=0;
+const total=slides.length;
+totEl.textContent=String(total).padStart(2,'0');
+
+// Build dots
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='ndot'+(i===0?' active':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(n){
+  if(n===cur)return;
+  // Remove active class + re-trigger animations by clone trick
+  slides[cur].classList.remove('active');
+  cur=n;
+  const s=slides[cur];
+  // Force animation replay
+  s.querySelectorAll('.anim-item').forEach(el=>{el.style.animation='none';el.offsetHeight;el.style.animation=''});
+  s.classList.add('active');
+  // Dots
+  document.querySelectorAll('.ndot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+  // Progress
+  pbEl.style.width=((cur+1)/total*100)+'%';
+  // Page num
+  curEl.textContent=String(cur+1).padStart(2,'0');
+  // Topbar
+  tbsEl.textContent=slides[cur].dataset.title||'';
+  // Buttons
+  document.getElementById('pb2').disabled=cur===0;
+  document.getElementById('nb2').disabled=cur===total-1;
+  // Corner num color update
+  document.querySelectorAll('.slide-corner-num').forEach(e=>e.style.opacity='0.04');
+}
+
+function go(d){const n=cur+d;if(n>=0&&n<total)goTo(n);}
+
+// Init
+slides[0].classList.add('active');
+pbEl.style.width=(1/total*100)+'%';
+tbsEl.textContent=slides[0].dataset.title||'';
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
+  if(e.key==='Home')goTo(0);
+  if(e.key==='End')goTo(total-1);
+  e.preventDefault&&(e.key===' ')&&e.preventDefault();
+});
+
+// Touch
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)go(d>0?1:-1)},{passive:true});
+
+// Animate stagger for existing first slide
+setTimeout(()=>{
+  slides[0].querySelectorAll('.anim-item').forEach((el,i)=>{el.style.animationDelay=(i*0.12+0.1)+'s'});
+},10);
+</script>
+</body>
+</html>

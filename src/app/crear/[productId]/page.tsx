@@ -4,17 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { ProductPreview } from "@/components/ProductPreview";
 import { calcPrice } from "@/lib/pricing";
-import { useStore } from "@/lib/store";
-import { toast } from "@/components/Toast";
 
 export default function CustomizerPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
-  const { addToCart } = useStore();
   const product = products.find((p) => p.id === params.productId);
 
   if (!product) {
@@ -46,23 +43,13 @@ export default function CustomizerPage() {
   );
 
   const handleContinue = () => {
-    addToCart({
-      productId: product.id,
-      artisanId: product.artisanId,
-      productName: product.name,
-      productImage: product.image,
-      customization: {
-        productId: product.id,
-        color,
-        material,
-        size,
-        text,
-        price: total,
-      },
-      shipping: 0,
+    const params = new URLSearchParams({
+      color,
+      material,
+      size,
+      text,
     });
-    toast("Producto agregado al carrito");
-    router.push("/carrito");
+    router.push(`/crear/${product.id}/elegir-artesano?${params.toString()}`);
   };
 
   return (

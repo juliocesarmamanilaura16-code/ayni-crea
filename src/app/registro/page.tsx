@@ -114,7 +114,7 @@ function Field({
   value,
   onChange,
 }: {
-  icon: any;
+  icon: typeof Sparkles;
   type: string;
   placeholder: string;
   value: string;

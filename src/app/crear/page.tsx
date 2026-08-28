@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { categories, products } from "@/data/mock";
 import { ArrowRight, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
 };
 

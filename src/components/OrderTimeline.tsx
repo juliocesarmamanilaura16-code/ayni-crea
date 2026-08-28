@@ -3,9 +3,12 @@
 import { ORDER_STEPS, type OrderStatus } from "@/types";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { motion } from "framer-motion";
 
 export function OrderTimeline({ status }: { status: OrderStatus }) {
   const currentIndex = ORDER_STEPS.findIndex((s) => s.key === status);
+  const pct = ((currentIndex + 1) / ORDER_STEPS.length) * 100;
+
   return (
     <div className="w-full">
       <ol className="grid grid-cols-7 gap-1 md:gap-2">
@@ -14,21 +17,24 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
           const active = i === currentIndex;
           return (
             <li key={s.key} className="flex flex-col items-center text-center">
-              <div
+              <motion.div
+                initial={false}
+                animate={active ? { scale: [1, 1.12, 1] } : { scale: 1 }}
+                transition={{ duration: 0.5 }}
                 className={cn(
-                  "w-7 h-7 md:w-9 md:h-9 rounded-full grid place-items-center text-[10px] md:text-xs font-bold transition",
+                  "w-7 h-7 md:w-9 md:h-9 rounded-full grid place-items-center text-[10px] md:text-xs font-bold transition-colors duration-300",
                   done
-                    ? "bg-ayni-verde text-white"
+                    ? "bg-ayni-verde text-white shadow-sm"
                     : "bg-ayni-beige text-ayni-azul/40",
-                  active && "ring-4 ring-ayni-verde/30"
+                  active && "ring-4 ring-ayni-verde/25"
                 )}
               >
                 {done ? <Check className="w-4 h-4" /> : i + 1}
-              </div>
+              </motion.div>
               <span
                 className={cn(
-                  "mt-1 md:mt-2 text-[10px] md:text-[11px] leading-tight",
-                  done ? "text-ayni-azul font-medium" : "text-ayni-azul/40"
+                  "mt-1.5 md:mt-2 text-[10px] md:text-[11px] leading-tight transition-colors",
+                  done ? "text-ayni-azul font-semibold" : "text-ayni-azul/40"
                 )}
               >
                 {s.label}
@@ -37,12 +43,15 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
           );
         })}
       </ol>
-      <div className="h-1.5 bg-ayni-beige rounded-full mt-3 overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-ayni-verde to-ayni-dorado transition-all"
-          style={{ width: `${((currentIndex + 1) / ORDER_STEPS.length) * 100}%` }}
+      <div className="h-2 bg-ayni-beige rounded-full mt-3 overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-ayni-verde to-ayni-dorado rounded-full"
+          initial={false}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
+      <p className="text-right text-xs font-medium text-ayni-verde mt-1.5">{Math.round(pct)}% completado</p>
     </div>
   );
 }

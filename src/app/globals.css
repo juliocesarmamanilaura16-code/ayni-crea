@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap");
-
 :root {
   --ayni-azul: #0f2a47;
   --ayni-terracota: #b5532a;
@@ -13,30 +11,60 @@
   --ayni-verde: #3e7c5e;
 }
 
-html,
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--ayni-crema);
   color: var(--ayni-azul);
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: "Poppins", system-ui, sans-serif;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
+
+::selection {
+  background: rgba(201, 162, 74, 0.35);
+}
+
+/* ===== Patrones y texturas ===== */
 
 /* Patrón sutil andino en hero */
 .bg-andino {
   background-image: radial-gradient(
-      circle at 20% 20%,
-      rgba(201, 162, 74, 0.12) 0,
-      transparent 40%
+      circle at 15% 20%,
+      rgba(201, 162, 74, 0.14) 0,
+      transparent 42%
     ),
-    radial-gradient(circle at 80% 60%, rgba(181, 83, 42, 0.12) 0, transparent 40%);
+    radial-gradient(circle at 85% 65%, rgba(181, 83, 42, 0.12) 0, transparent 42%),
+    radial-gradient(circle at 60% 90%, rgba(62, 124, 94, 0.08) 0, transparent 40%);
+}
+
+/* Malla de puntos sutil */
+.bg-dots {
+  background-image: radial-gradient(rgba(15, 42, 71, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Grano de papel artesanal */
+.bg-grain {
+  position: relative;
+}
+.bg-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Skeleton loader */
@@ -67,15 +95,41 @@ h4 {
   border-radius: 4px;
 }
 
-/* Scrollbar fina */
+/* Borde degradado para tarjetas destacadas */
+.ring-gradient {
+  background: linear-gradient(135deg, var(--ayni-dorado), var(--ayni-terracota), var(--ayni-azul));
+  padding: 1.5px;
+}
+
+/* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--ayni-beige);
-  border-radius: 4px;
+  background: #ddd2ba;
+  border-radius: 8px;
+  border: 2px solid var(--ayni-crema);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ayni-dorado);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Ocultar scrollbar en carruseles horizontales */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Sonner con la paleta Ayni */
+[data-sonner-toaster] {
+  --normal-bg: #0f2a47;
+  --normal-text: #faf6ee;
+  --normal-border: rgba(201, 162, 74, 0.3);
 }

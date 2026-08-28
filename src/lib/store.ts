@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Customization, Order, OrderStatus, User } from "@/types";
+import type { Customization, Order, User } from "@/types";
 import { nextOrderStatus } from "@/types";
 
 type CartItem = {

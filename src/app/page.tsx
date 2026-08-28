@@ -15,80 +15,115 @@ import {
   Home,
   Gift,
   Sun,
-  Heart,
+  BadgeCheck,
+  TrendingUp,
+  Recycle,
 } from "lucide-react";
-import { categories, impactStats, products } from "@/data/mock";
+import { artisans, categories, impactStats, products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { useStore } from "@/lib/store";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
+import { useEffect, useState } from "react";
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
 };
 
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+} as const;
+
 export default function HomePage() {
   const { user } = useStore();
-  const level = user ? getAynLevel(user.points) : null;
-  const progress = user ? progressToNext(user.points) : null;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const level = mounted && user ? getAynLevel(user.points) : null;
+  const progress = mounted && user ? progressToNext(user.points) : null;
+  const featuredArtisans = artisans.slice(0, 3);
 
   return (
     <>
-      {/* HERO */}
-      <section className="bg-andino">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 md:py-20 grid md:grid-cols-2 gap-10 items-center">
+      {/* ============ HERO ============ */}
+      <section className="relative bg-andino bg-grain overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ayni-dorado/15 text-ayni-dorado text-xs font-semibold mb-4"
+              className="inline-flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur border border-ayni-dorado/40 shadow-card text-xs font-semibold text-ayni-azul mb-5"
             >
-              <Sparkles className="w-3.5 h-3.5" /> Marketplace artesanal · El Alto & La Paz
+              <span className="bg-ayni-dorado text-ayni-azul-800 rounded-full p-1">
+                <Sparkles className="w-3 h-3" />
+              </span>
+              Marketplace artesanal · El Alto & La Paz
             </motion.div>
+
             <motion.h1
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.05]"
+              transition={{ delay: 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="font-display text-4xl md:text-6xl font-extrabold leading-[1.04] tracking-tight"
             >
               No encuentres el producto que imaginas.{" "}
-              <span className="text-ayni-terracota">Créalo.</span>
+              <span className="relative inline-block text-ayni-terracota">
+                Créalo.
+                <svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  viewBox="0 0 120 12"
+                  fill="none"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M2 9C30 3 90 3 118 9"
+                    stroke="#C9A24A"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
             </motion.h1>
+
             <motion.p
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mt-4 text-ayni-azul/70 text-base md:text-lg max-w-xl"
+              transition={{ delay: 0.18 }}
+              className="mt-5 text-ayni-azul/65 text-base md:text-lg max-w-xl leading-relaxed"
             >
               Diseña productos únicos y conecta con artesanos de El Alto y La Paz
-              que pueden hacerlos realidad.
+              que pueden hacerlos realidad, pieza por pieza.
             </motion.p>
+
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-7 flex flex-wrap gap-3"
+              transition={{ delay: 0.28 }}
+              className="mt-8 flex flex-wrap items-center gap-3"
             >
               <Link
                 href="/crear"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-ayni-azul text-ayni-crema font-semibold hover:bg-ayni-azul/90 transition shadow-soft"
+                className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-ayni-azul text-ayni-crema font-semibold shadow-soft hover:bg-ayni-azul-600 hover:shadow-lift transition-all duration-200 active:scale-[0.98]"
               >
-                Crear mi producto <ArrowRight className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 text-ayni-dorado group-hover:rotate-12 transition-transform" />
+                Crear mi producto
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/artesanos"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-ayni-azul font-semibold hover:bg-ayni-beige/50 transition border border-ayni-beige"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/90 backdrop-blur text-ayni-azul font-semibold border border-ayni-beige shadow-card hover:shadow-soft hover:-translate-y-0.5 transition-all duration-200"
               >
                 Explorar artesanos
               </Link>
             </motion.div>
 
             {/* Puntos Ayni si está logueado */}
-            {user && level && progress && (
+            {mounted && user && level && progress && (
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="mt-8 bg-white border border-ayni-beige rounded-2xl p-4 max-w-md shadow-card"
+                className="mt-8 bg-white/90 backdrop-blur border border-ayni-beige rounded-2xl p-4 max-w-md shadow-card"
               >
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold">Hola, {user.name.split(" ")[0]} 👋</span>
@@ -96,63 +131,88 @@ export default function HomePage() {
                     Nivel <b style={{ color: level.color }}>{level.name}</b>
                   </span>
                 </div>
-                <div className="mt-2 h-2 rounded-full bg-ayni-beige overflow-hidden">
-                  <div
-                    className="h-full transition-all"
-                    style={{ width: `${progress.pct}%`, background: level.color }}
+                <div className="mt-2.5 h-2 rounded-full bg-ayni-beige overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress.pct}%` }}
+                    transition={{ delay: 0.6, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full rounded-full"
+                    style={{ background: level.color }}
                   />
                 </div>
-                <p className="text-[11px] text-ayni-azul/60 mt-1.5">
+                <p className="text-[11px] text-ayni-azul/55 mt-2">
                   {user.points} puntos Ayni
-                  {progress.next ? ` · te faltan para ${progress.next}` : " · ¡nivel máximo!"}
+                  {progress.next ? ` · camino a ${progress.next}` : " · ¡nivel máximo!"}
                 </p>
               </motion.div>
             )}
           </div>
 
+          {/* Visual del hero */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="relative"
           >
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="relative aspect-square rounded-[2.5rem] overflow-hidden shadow-soft"
-            >
+            <div className="animate-float relative aspect-square rounded-[2.5rem] overflow-hidden shadow-lift ring-1 ring-ayni-azul/10">
               <img
                 src="https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=900&q=80&auto=format&fit=crop"
                 alt="Aguayo artesanal"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ayni-azul/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ayni-azul/70 via-transparent to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 text-ayni-crema">
-                <p className="text-[11px] uppercase tracking-widest opacity-80">
+                <p className="text-[11px] uppercase tracking-[0.2em] opacity-80">
                   Personalizado por
                 </p>
-                <p className="font-display text-xl font-bold">María Quispe</p>
+                <p className="font-display text-xl font-bold mt-0.5">María Quispe</p>
                 <p className="text-xs opacity-80">Aguayo tejido a mano · El Alto</p>
               </div>
-            </motion.div>
-            <div className="absolute -top-4 -right-4 bg-ayni-dorado text-white rounded-2xl px-4 py-3 shadow-soft">
-              <p className="text-[10px] font-semibold uppercase">Pedido #312</p>
-              <p className="font-display font-bold">Bs 140</p>
             </div>
+
+            {/* Tarjetas flotantes */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.55 }}
+              className="absolute -top-4 -right-3 md:-right-6 bg-white rounded-2xl px-4 py-3 shadow-lift border border-ayni-beige"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-ayni-azul/50">
+                Pedido #312
+              </p>
+              <p className="font-display font-bold text-lg">Bs 140</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="absolute -bottom-4 -left-3 md:-left-8 bg-white rounded-2xl px-4 py-3 shadow-lift border border-ayni-beige flex items-center gap-2.5"
+            >
+              <span className="bg-ayni-verde-50 rounded-full p-1.5">
+                <BadgeCheck className="w-4 h-4 text-ayni-verde" />
+              </span>
+              <div>
+                <p className="text-[10px] text-ayni-azul/50 font-medium">Artesano verificado</p>
+                <p className="text-xs font-bold">Entrega garantizada</p>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
-        <div className="divider-andino max-w-7xl mx-auto" />
+        <div className="divider-andino max-w-7xl mx-auto opacity-70" />
       </section>
 
-      {/* CÓMO FUNCIONA */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 py-16">
-        <div className="text-center mb-10">
-          <p className="text-ayni-terracota text-sm font-semibold tracking-widest uppercase">
+      {/* ============ CÓMO FUNCIONA ============ */}
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
+        <motion.div {...fadeUp} className="text-center mb-12">
+          <p className="text-ayni-terracota text-xs font-bold tracking-[0.25em] uppercase">
             Proceso simple
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold mt-2">¿Cómo funciona?</h2>
-        </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+        </motion.div>
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5 relative">
+          {/* Línea conectora desktop */}
+          <div className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-ayni-terracota/30 via-ayni-dorado/40 to-ayni-verde/30" />
           {[
             { n: "01", t: "Diseña", d: "Elige un producto base para empezar.", icon: Pencil, color: "#B5532A" },
             { n: "02", t: "Personaliza", d: "Colores, materiales, tamaño y texto.", icon: Sparkles, color: "#C9A24A" },
@@ -161,59 +221,63 @@ export default function HomePage() {
           ].map((s, i) => (
             <motion.div
               key={s.n}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-2xl p-5 border border-ayni-beige/60 shadow-card"
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="group relative bg-white rounded-3xl p-6 border border-ayni-beige/60 shadow-card hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
             >
               <div
-                className="w-11 h-11 rounded-xl grid place-items-center mb-3"
-                style={{ background: s.color + "15", color: s.color }}
+                className="relative w-12 h-12 rounded-2xl grid place-items-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+                style={{ background: s.color + "14", color: s.color }}
               >
                 <s.icon className="w-5 h-5" />
               </div>
-              <p className="text-[10px] tracking-widest text-ayni-azul/40 font-bold">
+              <p className="text-[10px] tracking-[0.2em] text-ayni-azul/40 font-bold">
                 PASO {s.n}
               </p>
               <h3 className="font-display font-bold text-lg mt-1">{s.t}</h3>
-              <p className="text-sm text-ayni-azul/70 mt-1">{s.d}</p>
+              <p className="text-sm text-ayni-azul/65 mt-1.5 leading-relaxed">{s.d}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* CATEGORÍAS */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
-        <div className="flex items-end justify-between mb-6">
+      {/* ============ CATEGORÍAS ============ */}
+      <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16 md:pb-20">
+        <motion.div {...fadeUp} className="flex items-end justify-between mb-7">
           <div>
-            <p className="text-ayni-terracota text-sm font-semibold tracking-widest uppercase">
+            <p className="text-ayni-terracota text-xs font-bold tracking-[0.25em] uppercase">
               Explora
             </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-1">Categorías</h2>
           </div>
-          <Link href="/explorar" className="text-sm font-semibold text-ayni-azul hover:text-ayni-terracota flex items-center gap-1">
-            Ver todo <ArrowRight className="w-4 h-4" />
+          <Link
+            href="/explorar"
+            className="group text-sm font-semibold text-ayni-azul hover:text-ayni-terracota flex items-center gap-1 transition-colors"
+          >
+            Ver todo
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
           {categories.map((c, i) => {
             const Icon = iconMap[c.icon] ?? Shirt;
             return (
               <motion.div
                 key={c.id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
               >
                 <Link
                   href={`/explorar?cat=${c.id}`}
-                  className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl border border-ayni-beige/60 hover:shadow-soft transition"
+                  className="group flex flex-col items-center gap-2.5 p-4 bg-white rounded-2xl border border-ayni-beige/60 shadow-card hover:shadow-lift hover:-translate-y-1 transition-all duration-300"
                 >
                   <div
-                    className="w-12 h-12 rounded-xl grid place-items-center"
-                    style={{ background: c.color + "15", color: c.color }}
+                    className="w-12 h-12 rounded-2xl grid place-items-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                    style={{ background: c.color + "14", color: c.color }}
                   >
                     <Icon className="w-5 h-5" />
                   </div>
@@ -225,19 +289,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRODUCTOS DESTACADOS */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16">
-        <div className="flex items-end justify-between mb-6">
+      {/* ============ PRODUCTOS DESTACADOS ============ */}
+      <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16 md:pb-20">
+        <motion.div {...fadeUp} className="flex items-end justify-between mb-7">
           <div>
-            <p className="text-ayni-terracota text-sm font-semibold tracking-widest uppercase">
+            <p className="text-ayni-terracota text-xs font-bold tracking-[0.25em] uppercase">
               Para inspirarte
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1">Productos destacados</h2>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1">
+              Productos destacados
+            </h2>
           </div>
-          <Link href="/explorar" className="text-sm font-semibold text-ayni-azul hover:text-ayni-terracota flex items-center gap-1">
-            Ver todo <ArrowRight className="w-4 h-4" />
+          <Link
+            href="/explorar"
+            className="group text-sm font-semibold text-ayni-azul hover:text-ayni-terracota flex items-center gap-1 transition-colors"
+          >
+            Ver todo
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
           {products.slice(0, 6).map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} />
@@ -245,42 +315,138 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TU IMPACTO */}
-      <section className="bg-ayni-azul text-ayni-crema">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
-          <div className="text-center mb-10">
-            <p className="text-ayni-dorado text-sm font-semibold tracking-widest uppercase">
+      {/* ============ ARTESANOS DESTACADOS ============ */}
+      <section className="bg-ayni-beige/50 border-y border-ayni-beige">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
+          <motion.div {...fadeUp} className="flex items-end justify-between mb-7">
+            <div>
+              <p className="text-ayni-terracota text-xs font-bold tracking-[0.25em] uppercase">
+                Manos expertas
+              </p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mt-1">
+                Artesanos destacados
+              </h2>
+            </div>
+            <Link
+              href="/artesanos"
+              className="group text-sm font-semibold text-ayni-azul hover:text-ayni-terracota flex items-center gap-1 transition-colors"
+            >
+              Ver todos
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </motion.div>
+          <div className="grid sm:grid-cols-3 gap-5">
+            {featuredArtisans.map((a, i) => (
+              <motion.div
+                key={a.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Link
+                  href={`/artesanos/${a.id}`}
+                  className="group block bg-white rounded-3xl p-6 border border-ayni-beige/60 shadow-card hover:shadow-lift hover:-translate-y-1 transition-all duration-300 text-center"
+                >
+                  <img
+                    src={a.photo}
+                    alt={a.name}
+                    className="w-20 h-20 rounded-full object-cover mx-auto ring-4 ring-ayni-dorado/25 group-hover:ring-ayni-dorado/50 transition-all"
+                  />
+                  <div className="flex items-center justify-center gap-1.5 mt-4">
+                    <h3 className="font-display font-bold">{a.name}</h3>
+                    {a.verified && <BadgeCheck className="w-4 h-4 text-ayni-verde" />}
+                  </div>
+                  <p className="text-xs text-ayni-terracota font-medium mt-0.5">{a.specialty}</p>
+                  <p className="text-xs text-ayni-azul/50 mt-2">
+                    {a.city} · +{a.ordersCompleted} pedidos · ⭐ {a.rating}
+                  </p>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ TU IMPACTO ============ */}
+      <section className="bg-ayni-azul text-ayni-crema bg-grain relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30 bg-dots" />
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
+          <motion.div {...fadeUp} className="text-center mb-12">
+            <p className="text-ayni-dorado text-xs font-bold tracking-[0.25em] uppercase">
               Tu impacto
             </p>
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-2">
               Cada compra transforma una comunidad
             </h2>
-            <p className="mt-2 text-ayni-crema/70 max-w-2xl mx-auto text-sm">
+            <p className="mt-3 text-ayni-crema/60 max-w-2xl mx-auto text-sm leading-relaxed">
               Ayni Crea impulsa los Objetivos de Desarrollo Sostenible 11 y 12:
               producción bajo pedido, comercio local y reducción de desperdicios.
             </p>
-          </div>
+          </motion.div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { v: impactStats.artesanosApoyados, l: "Artesanos apoyados", icon: Users },
-              { v: impactStats.pedidosRealizados, l: "Pedidos personalizados", icon: Sparkles },
-              { v: impactStats.materialesReutilizados, l: "Materiales reutilizados", icon: Heart },
+              { v: impactStats.artesanosApoyados, l: "Artesanos apoyados", icon: Users, suffix: "" },
+              { v: impactStats.pedidosRealizados, l: "Pedidos personalizados", icon: TrendingUp, suffix: "" },
+              { v: impactStats.materialesReutilizados, l: "Materiales reutilizados", icon: Recycle, suffix: "" },
             ].map((s, i) => (
               <motion.div
                 key={s.l}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur"
+                className="group bg-white/[0.06] border border-white/10 rounded-3xl p-7 backdrop-blur hover:bg-white/[0.1] hover:border-ayni-dorado/30 transition-all duration-300"
               >
-                <s.icon className="w-6 h-6 text-ayni-dorado" />
-                <p className="font-display text-4xl font-extrabold mt-3">{s.v}</p>
-                <p className="text-ayni-crema/70 text-sm mt-1">{s.l}</p>
+                <div className="w-11 h-11 rounded-2xl bg-ayni-dorado/15 grid place-items-center">
+                  <s.icon className="w-5 h-5 text-ayni-dorado" />
+                </div>
+                <p className="font-display text-4xl md:text-5xl font-extrabold mt-4 tracking-tight">
+                  {s.v}
+                </p>
+                <p className="text-ayni-crema/60 text-sm mt-1.5">{s.l}</p>
               </motion.div>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* ============ CTA FINAL ============ */}
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-ayni-terracota to-ayni-terracota-700 text-white p-10 md:p-14 shadow-lift"
+        >
+          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-ayni-dorado/20 blur-2xl" />
+          <div className="absolute -bottom-20 -left-10 w-72 h-72 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative max-w-xl">
+            <h2 className="font-display text-3xl md:text-4xl font-bold leading-tight">
+              Tu idea merece ser hecha a mano
+            </h2>
+            <p className="mt-3 text-white/80 text-sm md:text-base leading-relaxed">
+              Únete a cientos de personas que ya crearon piezas únicas con artesanos
+              de El Alto y La Paz.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/crear"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white text-ayni-terracota font-bold shadow-lift hover:-translate-y-0.5 hover:shadow-glow transition-all duration-200"
+              >
+                <Sparkles className="w-4 h-4" />
+                Empezar a crear
+              </Link>
+              <Link
+                href="/registro"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white/10 backdrop-blur border border-white/30 font-semibold hover:bg-white/20 transition-all duration-200"
+              >
+                Crear cuenta gratis
+              </Link>
+            </div>
+          </div>
+        </motion.div>
       </section>
     </>
   );

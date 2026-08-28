@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Package, Sparkles, User as UserIcon, LogOut } from "lucide-react";
+import { Heart, LogOut } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";

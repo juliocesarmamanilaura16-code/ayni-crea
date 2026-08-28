@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Package, Star, Wallet, Sparkles, Plus } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans, products } from "@/data/mock";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { toast } from "@/components/Toast";
+
+export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
   const { user, orders, advanceOrder } = useStore();
@@ -142,7 +143,7 @@ function Stat({
   value,
   color,
 }: {
-  icon: any;
+  icon: typeof Package;
   label: string;
   value: string;
   color: string;
