@@ -2,7 +2,7 @@
 
 import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowUpDown, PackageSearch, Search } from "lucide-react";
+import { ArrowUpDown, PackageSearch, Search, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { products, categories } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
@@ -86,6 +86,23 @@ function ExplorarInner() {
             </button>
           ))}
         </div>
+      </motion.div>
+
+      {/* Banner IA 3D */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-6 bg-gradient-to-r from-secondary/10 via-primary/10 to-secondary/10 border border-secondary/20 rounded-2xl p-5 md:p-6 flex items-center gap-4"
+      >
+        <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center shrink-0">
+          <Sparkles className="w-6 h-6 text-secondary" />
+        </div>
+        <div className="flex-1">
+          <p className="font-display font-bold text-secondary text-lg">Asistente de IA 3D</p>
+          <p className="text-sm text-neutral-500">Personalización al 100% — Próximamente</p>
+        </div>
+        <span className="px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">NUEVO</span>
       </motion.div>
 
       {/* Resultados */}

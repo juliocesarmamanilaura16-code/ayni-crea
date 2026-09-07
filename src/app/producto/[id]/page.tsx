@@ -209,7 +209,7 @@ export default function ProductoDetailPage() {
 
           <Link
             href={`/crear/${product.id}`}
-            className="block bg-secondary text-white rounded-2xl p-5 shadow-soft hover:bg-secondary-800 transition text-center"
+            className="block bg-secondary text-white rounded-2xl p-5 shadow-soft hover:bg-secondary-800 transition text-center relative"
           >
             <div className="flex items-center justify-center gap-2 mb-2">
               <Sparkles className="w-5 h-5 text-primary" />
@@ -219,6 +219,18 @@ export default function ProductoDetailPage() {
               Ajusta cada detalle y elige quién lo hará a mano
             </p>
           </Link>
+
+          {/* Banner IA 3D */}
+          <div className="bg-gradient-to-r from-secondary/10 via-primary/10 to-secondary/10 border border-secondary/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-secondary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-secondary text-sm">Asistente de IA 3D</p>
+              <p className="text-xs text-neutral-500">Personalización al 100% — Próximamente</p>
+            </div>
+            <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold rounded-full">NUEVO</span>
+          </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-border">
             <button
