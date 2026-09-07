@@ -322,7 +322,7 @@ const defaultOptions = {
 };
 
 const imageMap: Record<string, string> = {
-  "Poncho personalizado": "/imagenes-web/poncho.jpg",
+  "Poncho personalizado": "/imagenes-web/ponchos.jpg",
   "Bufanda tejida": "/imagenes-web/bufanda.jpg",
   "Manta personalizada": "/imagenes-web/manta.jpg",
   "Gorro tejido": "/imagenes-web/gorro.jpg",
