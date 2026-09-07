@@ -221,15 +221,15 @@ export default function ProductoDetailPage() {
           </Link>
 
           {/* Banner IA 3D */}
-          <div className="bg-gradient-to-r from-secondary/10 via-primary/10 to-secondary/10 border border-secondary/20 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-secondary" />
+          <div className="bg-secondary border border-secondary rounded-2xl p-4 flex items-center gap-3 shadow-soft">
+            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-display font-bold text-secondary text-sm">Asistente de IA 3D</p>
-              <p className="text-xs text-neutral-500">Personalización al 100% — Próximamente</p>
+              <p className="font-display font-bold text-white text-sm">Asistente de IA 3D</p>
+              <p className="text-xs text-white/80">Personalización al 100% — Próximamente</p>
             </div>
-            <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold rounded-full">NUEVO</span>
+            <span className="px-2 py-0.5 bg-white/20 text-white text-[10px] font-bold rounded-full">NUEVO</span>
           </div>
 
           <div className="flex items-center justify-between pt-2 border-t border-border">
