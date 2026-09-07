@@ -111,8 +111,7 @@ export const products: Product[] = [
     description:
       "Tela tradicional andina con franjas tejidas a mano. Puedes elegir colores y agregar un texto central.",
     basePrice: 80,
-    image:
-      "https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=800&q=80&auto=format&fit=crop",
+    image: "/aguayos-personalizados.jpg",
     productionDays: 5,
     options: defaultOptions,
   },
@@ -124,8 +123,7 @@ export const products: Product[] = [
     description:
       "Mochila artesanal de cuero curtido. Costuras reforzadas, herrajes de alpaca y forro interior de tela.",
     basePrice: 150,
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80&auto=format&fit=crop",
+    image: "/mochilas.jpg",
     productionDays: 7,
     options: defaultOptions,
   },
@@ -137,8 +135,7 @@ export const products: Product[] = [
     description:
       "Gorro tejido de lana de oveja con orejeras y diseños geométricos propios de la región.",
     basePrice: 60,
-    image:
-      "https://images.unsplash.com/photo-1545194445-dddb8f4487c6?w=800&q=80&auto=format&fit=crop",
+    image: "/chullo-andino.jpg",
     productionDays: 4,
     options: defaultOptions,
   },
@@ -150,8 +147,7 @@ export const products: Product[] = [
     description:
       "Collar hecho a mano en plata 950 con dije de chakana. Incluye cadena reforzada y cierre artesanal.",
     basePrice: 120,
-    image:
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=800&q=80&auto=format&fit=crop",
+    image: "/collar-chakana.jpg",
     productionDays: 4,
     options: {
       ...defaultOptions,
@@ -169,8 +165,7 @@ export const products: Product[] = [
     description:
       "Máscara tallada a mano en madera de kalo, lijada y barnizada con tintes naturales.",
     basePrice: 90,
-    image:
-      "https://images.unsplash.com/photo-1605548109567-8e8b5ed8ad28?w=800&q=80&auto=format&fit=crop",
+    image: "/mascara-tallado-andino.jpg",
     productionDays: 10,
     options: defaultOptions,
   },
@@ -182,8 +177,7 @@ export const products: Product[] = [
     description:
       "Cartera compacta en cuero con múltiples compartimentos y cierre de alpaca.",
     basePrice: 110,
-    image:
-      "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=800&q=80&auto=format&fit=crop",
+    image: "/carteras-artesanales.jpg",
     productionDays: 6,
     options: defaultOptions,
   },

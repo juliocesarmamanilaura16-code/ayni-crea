@@ -2,9 +2,14 @@
 
 import { Toaster, toast as sonnerToast } from "sonner";
 
-/** Mantiene la API simple: toast("mensaje") */
-export function toast(text: string) {
-  sonnerToast.success(text);
+type ToastType = "success" | "error" | "info" | "warning";
+
+/** API simple: toast("mensaje") o toast("mensaje", "error") */
+export function toast(text: string, type: ToastType = "success") {
+  if (type === "error") sonnerToast.error(text);
+  else if (type === "info") sonnerToast(text);
+  else if (type === "warning") sonnerToast.warning(text);
+  else sonnerToast.success(text);
 }
 
 export function toastError(text: string) {
@@ -22,11 +27,13 @@ export function ToastHost() {
       richColors={false}
       toastOptions={{
         style: {
-          background: "#0F2A47",
-          color: "#FAF6EE",
-          border: "1px solid rgba(201, 162, 74, 0.35)",
+          background: "#0A0A0A",
+          color: "#FAFAFA",
+          border: "1px solid rgba(255, 107, 0, 0.35)",
           borderRadius: "14px",
           fontFamily: "var(--font-sans)",
+          fontSize: "14px",
+          padding: "12px 16px",
         },
         className: "shadow-lift",
       }}

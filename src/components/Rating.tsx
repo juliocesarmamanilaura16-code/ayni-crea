@@ -41,7 +41,7 @@ export function Rating({
             style={{ width: size, height: size }}
             className={cn(
               "transition-colors duration-150",
-              n <= display ? "fill-ayni-dorado text-ayni-dorado" : "text-ayni-azul/20"
+              n <= display ? "fill-accent text-accent" : "text-neutral-200"
             )}
           />
         </button>

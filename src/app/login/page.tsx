@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { Sparkles, Mail, Lock, ArrowRight } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/ui/Input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,7 +23,7 @@ export default function LoginPage() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !pwd) {
-      toast("Completa email y contraseña");
+      toast("Completa email y contraseña", "error");
       return;
     }
     login({
@@ -41,16 +43,16 @@ export default function LoginPage() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl border border-ayni-beige p-7 shadow-soft"
+        className="bg-white rounded-3xl border border-border p-7 shadow-soft"
       >
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-ayni-azul grid place-items-center">
-            <Sparkles className="w-4 h-4 text-ayni-dorado" />
+          <div className="w-9 h-9 rounded-xl bg-secondary grid place-items-center shadow-soft">
+            <Sparkles className="w-4 h-4 text-primary" />
           </div>
-          <span className="font-display font-bold">Ayni Crea</span>
+          <span className="font-display font-bold text-secondary">Ayni Crea</span>
         </div>
-        <h1 className="font-display text-2xl font-extrabold mt-3">Iniciar sesión</h1>
-        <p className="text-sm text-ayni-azul/70">
+        <h1 className="font-display text-2xl font-extrabold mt-3 text-secondary">Iniciar sesión</h1>
+        <p className="text-sm text-neutral-500">
           Ingresa para personalizar y seguir tus pedidos.
         </p>
 
@@ -62,10 +64,10 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setRole("client")}
-              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition ${
+              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
                 role === "client"
-                  ? "border-ayni-azul bg-ayni-crema"
-                  : "border-ayni-beige bg-white"
+                  ? "border-primary bg-primary-50 text-secondary shadow-soft dark:bg-neutral-800 dark:text-white"
+                  : "border-border bg-white text-neutral-600 hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
               }`}
             >
               Soy cliente
@@ -73,31 +75,34 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setRole("artisan")}
-              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition ${
+              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
                 role === "artisan"
-                  ? "border-ayni-azul bg-ayni-crema"
-                  : "border-ayni-beige bg-white"
+                  ? "border-primary bg-primary-50 text-secondary shadow-soft dark:bg-neutral-800 dark:text-white"
+                  : "border-border bg-white text-neutral-600 hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
               }`}
             >
               Soy artesano
             </button>
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="w-full bg-ayni-azul text-ayni-crema font-bold py-3 rounded-xl hover:bg-ayni-azul/90 transition flex items-center justify-center gap-2"
+            variant="primary"
+            size="lg"
+            fullWidth
+            rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Entrar <ArrowRight className="w-4 h-4" />
-          </button>
+            Entrar
+          </Button>
         </form>
 
-        <p className="text-xs text-ayni-azul/70 mt-5 text-center">
+        <p className="text-xs text-neutral-500 mt-5 text-center">
           ¿No tienes cuenta?{" "}
-          <Link href="/registro" className="text-ayni-terracota font-semibold hover:underline">
+          <Link href="/registro" className="text-primary font-semibold hover:underline">
             Crear cuenta
           </Link>
         </p>
-        <p className="text-[10px] text-ayni-azul/40 text-center mt-2">
+        <p className="text-[10px] text-neutral-400 text-center mt-2">
           Prototipo: la autenticación es simulada (no se envía información a ningún servidor).
         </p>
       </motion.div>
@@ -120,13 +125,13 @@ function Field({
 }) {
   return (
     <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ayni-azul/50" />
-      <input
+      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+      <Input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-ayni-crema border border-ayni-beige text-sm focus:outline-none focus:ring-2 focus:ring-ayni-dorado/50"
+        className="pl-10"
       />
     </div>
   );

@@ -16,7 +16,7 @@ test.describe('Flujo principal Ayni Crea', () => {
 
   test('navegación a artesanos funciona', async ({ page }) => {
     await page.goto('/');
-    await page.click('nav >> text=Artesanos');
+    await page.click('text=Artesanos');
     await page.waitForURL(/.*artesanos/);
     await expect(page.locator('h1')).toContainText('Maestros de El Alto y La Paz');
   });

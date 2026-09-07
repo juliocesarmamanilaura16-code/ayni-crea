@@ -8,6 +8,8 @@ import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { ProductPreview } from "@/components/ProductPreview";
 import { calcPrice } from "@/lib/pricing";
+import { Button } from "@/components/Button";
+import { cn } from "@/lib/cn";
 
 export default function CustomizerPage() {
   const params = useParams<{ productId: string }>();
@@ -16,11 +18,13 @@ export default function CustomizerPage() {
 
   if (!product) {
     return (
-      <div className="p-10">
-        <p>Producto no encontrado.</p>
-        <Link href="/crear" className="text-ayni-terracota underline">
-          Volver a crear
-        </Link>
+      <div className="p-10 text-center">
+        <p className="text-neutral-500">Producto no encontrado.</p>
+        <div className="mt-4">
+          <Link href="/crear">
+            <Button variant="primary" size="md">Volver a crear</Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -37,18 +41,12 @@ export default function CustomizerPage() {
 
   const selectedColor = product.options.colors.find((c) => c.name === color)!;
   const total = useMemo(
-    () =>
-      calcPrice(product, { color, material, size, text }),
+    () => calcPrice(product, { color, material, size, text }),
     [product, color, material, size, text]
   );
 
   const handleContinue = () => {
-    const params = new URLSearchParams({
-      color,
-      material,
-      size,
-      text,
-    });
+    const params = new URLSearchParams({ color, material, size, text });
     router.push(`/crear/${product.id}/elegir-artesano?${params.toString()}`);
   };
 
@@ -56,17 +54,16 @@ export default function CustomizerPage() {
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-1 text-sm text-ayni-azul/70 hover:text-ayni-azul mb-4"
+        className="flex items-center gap-1 text-sm text-neutral-500 hover:text-secondary mb-4 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Volver
       </button>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Vista previa */}
         <div>
-          <h1 className="font-display text-2xl md:text-3xl font-extrabold">{product.name}</h1>
-          <p className="text-sm text-ayni-azul/70 mt-1">{product.description}</p>
-          <p className="text-xs text-ayni-azul/60 mt-1">
+          <h1 className="font-display text-2xl md:text-3xl font-extrabold text-secondary">{product.name}</h1>
+          <p className="text-sm text-neutral-500 mt-1">{product.description}</p>
+          <p className="text-xs text-neutral-400 mt-1">
             por {artisan?.name} · {artisan?.city}
           </p>
 
@@ -81,7 +78,6 @@ export default function CustomizerPage() {
           </div>
         </div>
 
-        {/* Opciones */}
         <div className="space-y-6">
           <Section title="Color">
             <div className="flex gap-2 flex-wrap">
@@ -91,17 +87,17 @@ export default function CustomizerPage() {
                   onClick={() => setColor(c.name)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition ${
                     color === c.name
-                      ? "border-ayni-azul bg-white shadow-card"
-                      : "border-ayni-beige bg-white"
+                      ? "border-secondary bg-white shadow-soft"
+                      : "border-border bg-white hover:border-primary/40"
                   }`}
                 >
                   <span
-                    className="w-5 h-5 rounded-full border border-ayni-azul/10"
+                    className="w-5 h-5 rounded-full border border-black/10"
                     style={{ background: c.hex }}
                   />
                   <span className="text-sm font-medium">{c.name}</span>
                   {c.extra > 0 && (
-                    <span className="text-[10px] text-ayni-azul/60">+Bs {c.extra}</span>
+                    <span className="text-[10px] text-neutral-500">+Bs {c.extra}</span>
                   )}
                 </button>
               ))}
@@ -116,12 +112,12 @@ export default function CustomizerPage() {
                   onClick={() => setMaterial(m.name)}
                   className={`p-3 rounded-xl border text-sm font-medium text-center transition ${
                     material === m.name
-                      ? "border-ayni-azul bg-white shadow-card"
-                      : "border-ayni-beige bg-white"
+                      ? "border-secondary bg-white shadow-soft"
+                      : "border-border bg-white hover:border-primary/40"
                   }`}
                 >
                   {m.name}
-                  <span className="block text-[10px] text-ayni-azul/60 mt-0.5">
+                  <span className="block text-[10px] text-neutral-500 mt-0.5">
                     {m.extra > 0 ? `+Bs ${m.extra}` : "Incluido"}
                   </span>
                 </button>
@@ -137,12 +133,12 @@ export default function CustomizerPage() {
                   onClick={() => setSize(s.name)}
                   className={`p-3 rounded-xl border text-sm font-medium text-center transition ${
                     size === s.name
-                      ? "border-ayni-azul bg-white shadow-card"
-                      : "border-ayni-beige bg-white"
+                      ? "border-secondary bg-white shadow-soft"
+                      : "border-border bg-white hover:border-primary/40"
                   }`}
                 >
                   {s.name}
-                  <span className="block text-[10px] text-ayni-azul/60 mt-0.5">
+                  <span className="block text-[10px] text-neutral-500 mt-0.5">
                     {s.extra > 0 ? `+Bs ${s.extra}` : "Base"}
                   </span>
                 </button>
@@ -156,17 +152,16 @@ export default function CustomizerPage() {
               onChange={(e) => setText(e.target.value.slice(0, 14))}
               maxLength={14}
               placeholder="JULIO"
-              className="w-full px-4 py-2.5 rounded-xl bg-white border border-ayni-beige text-sm focus:outline-none focus:ring-2 focus:ring-ayni-dorado/50"
+              className="w-full px-4 py-2.5 rounded-xl bg-white border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
             />
-            <p className="text-[11px] text-ayni-azul/60 mt-1">
+            <p className="text-[11px] text-neutral-500 mt-1">
               {text.length}/14 caracteres {text && `· +Bs ${product.options.texts.extra}`}
             </p>
           </Section>
 
-          {/* Precio y CTA */}
           <motion.div
             layout
-            className="bg-ayni-azul text-ayni-crema rounded-2xl p-5 shadow-soft sticky bottom-20 md:bottom-0"
+            className="bg-secondary text-white rounded-2xl p-5 shadow-soft sticky bottom-20 md:bottom-0"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -187,12 +182,16 @@ export default function CustomizerPage() {
                 <p className="font-semibold">~{product.productionDays} días</p>
               </div>
             </div>
-            <button
+            <Button
               onClick={handleContinue}
-              className="mt-4 w-full bg-ayni-dorado text-ayni-azul font-bold py-3 rounded-xl hover:bg-ayni-dorado/90 transition flex items-center justify-center gap-2"
+              variant="primary"
+              size="lg"
+              fullWidth
+              leftIcon={<ShoppingCart className="w-4 h-4" />}
+              className="mt-4"
             >
-              <ShoppingCart className="w-4 h-4" /> Agregar al carrito
-            </button>
+              Agregar al carrito
+            </Button>
             <p className="text-[10px] opacity-70 text-center mt-2">
               Podrás continuar a "Buscar artesano" en el carrito.
             </p>
@@ -206,7 +205,7 @@ export default function CustomizerPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="font-display font-bold text-sm uppercase tracking-widest text-ayni-azul/70 mb-2">
+      <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-2">
         {title}
       </h3>
       {children}

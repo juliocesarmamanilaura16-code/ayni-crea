@@ -17,7 +17,7 @@ const items = [
 export function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-ayni-beige/70 shadow-[0_-4px_24px_rgba(15,42,71,0.08)]">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-xl border-t border-border shadow-[0_-4px_24px_rgba(10,10,10,0.06)] dark:bg-neutral-900/90 dark:border-neutral-700">
       <ul className="grid grid-cols-5">
         {items.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
@@ -27,13 +27,13 @@ export function BottomNav() {
                 href={href}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors",
-                  active ? "text-ayni-terracota" : "text-ayni-azul/50"
+                  active ? "text-primary" : "text-neutral-400"
                 )}
               >
                 {active && (
                   <motion.span
                     layoutId="bottomnav-pill"
-                    className="absolute top-0 h-1 w-8 rounded-full bg-ayni-terracota"
+                    className="absolute top-0 h-1 w-8 rounded-full bg-primary"
                     transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                   />
                 )}

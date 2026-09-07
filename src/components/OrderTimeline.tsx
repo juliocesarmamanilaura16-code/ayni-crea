@@ -24,9 +24,9 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
                 className={cn(
                   "w-7 h-7 md:w-9 md:h-9 rounded-full grid place-items-center text-[10px] md:text-xs font-bold transition-colors duration-300",
                   done
-                    ? "bg-ayni-verde text-white shadow-sm"
-                    : "bg-ayni-beige text-ayni-azul/40",
-                  active && "ring-4 ring-ayni-verde/25"
+                    ? "bg-success text-white shadow-sm"
+                    : "bg-neutral-100 text-neutral-400",
+                  active && "ring-4 ring-success/25"
                 )}
               >
                 {done ? <Check className="w-4 h-4" /> : i + 1}
@@ -34,7 +34,7 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
               <span
                 className={cn(
                   "mt-1.5 md:mt-2 text-[10px] md:text-[11px] leading-tight transition-colors",
-                  done ? "text-ayni-azul font-semibold" : "text-ayni-azul/40"
+                  done ? "text-secondary font-semibold" : "text-neutral-400"
                 )}
               >
                 {s.label}
@@ -43,15 +43,15 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
           );
         })}
       </ol>
-      <div className="h-2 bg-ayni-beige rounded-full mt-3 overflow-hidden">
+      <div className="h-2 bg-neutral-100 rounded-full mt-3 overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-ayni-verde to-ayni-dorado rounded-full"
+          className="h-full bg-gradient-to-r from-success to-accent rounded-full"
           initial={false}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <p className="text-right text-xs font-medium text-ayni-verde mt-1.5">{Math.round(pct)}% completado</p>
+      <p className="text-right text-xs font-medium text-success mt-1.5">{Math.round(pct)}% completado</p>
     </div>
   );
 }

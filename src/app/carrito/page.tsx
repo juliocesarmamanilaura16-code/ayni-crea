@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Trash2, ArrowRight, ShoppingBag } from "lucide-react";
+import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans } from "@/data/mock";
 import { toast } from "@/components/Toast";
+import { Button } from "@/components/Button";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function CarritoPage() {
   const router = useRouter();
@@ -16,12 +19,12 @@ export default function CarritoPage() {
 
   const handleConfirm = () => {
     if (!user) {
-      toast("Inicia sesión para confirmar");
+      toast("Inicia sesión para confirmar", "error");
       router.push("/login?next=/carrito");
       return;
     }
     if (user.role === "artisan") {
-      toast("Inicia sesión como cliente");
+      toast("Inicia sesión como cliente", "error");
       return;
     }
     const order = placeOrder();
@@ -33,28 +36,27 @@ export default function CarritoPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-3xl mx-auto px-4 md:px-8 py-16 text-center">
-        <div className="w-20 h-20 mx-auto rounded-full bg-ayni-beige grid place-items-center mb-4">
-          <ShoppingBag className="w-8 h-8 text-ayni-azul/50" />
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-10">
+        <EmptyState
+          preset="cart"
+          className="!py-12"
+        />
+        <div className="text-center">
+          <Link href="/explorar">
+            <Button variant="outline" size="md">
+              Explorar productos
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </Link>
         </div>
-        <h1 className="font-display text-2xl font-bold">Tu carrito está vacío</h1>
-        <p className="text-ayni-azul/60 mt-1 text-sm">
-          Empieza creando un producto personalizado.
-        </p>
-        <Link
-          href="/crear"
-          className="inline-flex items-center gap-2 mt-6 px-5 py-3 rounded-xl bg-ayni-azul text-ayni-crema font-semibold"
-        >
-          Crear producto <ArrowRight className="w-4 h-4" />
-        </Link>
       </div>
     );
   }
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <h1 className="font-display text-3xl font-extrabold">Carrito</h1>
-      <p className="text-ayni-azul/70 text-sm">
+      <h1 className="font-display text-3xl md:text-4xl font-extrabold text-secondary">Carrito</h1>
+      <p className="text-neutral-500 text-sm mt-1">
         Revisa tu diseño antes de confirmar el pedido.
       </p>
 
@@ -65,16 +67,20 @@ export default function CarritoPage() {
             return (
               <div
                 key={i}
-                className="bg-white rounded-2xl border border-ayni-beige p-4 shadow-card flex gap-4"
+                className="bg-white rounded-2xl border border-border p-4 shadow-card flex gap-4 hover:shadow-lift transition-shadow"
               >
-                <img
-                  src={item.productImage}
-                  alt={item.productName}
-                  className="w-24 h-24 rounded-xl object-cover"
-                />
+                <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
+                  <Image
+                    src={item.productImage}
+                    alt={item.productName}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                  />
+                </div>
                 <div className="flex-1">
-                  <h3 className="font-display font-bold">{item.productName}</h3>
-                  <p className="text-xs text-ayni-azul/70">
+                  <h3 className="font-display font-bold text-secondary">{item.productName}</h3>
+                  <p className="text-xs text-neutral-500">
                     Artesano: {artisan?.name}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
@@ -85,10 +91,10 @@ export default function CarritoPage() {
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
-                  <span className="font-display font-bold">Bs {item.customization.price}</span>
+                  <span className="font-display font-bold text-secondary">Bs {item.customization.price}</span>
                   <button
                     onClick={() => removeFromCart(i)}
-                    className="text-ayni-terracota hover:bg-ayni-terracota/10 p-2 rounded-lg transition"
+                    className="text-error-500 hover:bg-error-50 p-2 rounded-lg transition focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none"
                     aria-label="Eliminar"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -99,19 +105,40 @@ export default function CarritoPage() {
           })}
         </div>
 
-        <aside className="bg-white rounded-2xl border border-ayni-beige p-5 shadow-card h-fit">
-          <h3 className="font-display font-bold">Resumen</h3>
+        <aside className="bg-white rounded-2xl border border-border p-5 shadow-card h-fit">
+          <h3 className="font-display font-bold text-secondary">Resumen</h3>
           <Row label="Subtotal" value={`Bs ${subtotal}`} />
           <Row label="Envío" value={shipping === 0 ? "Gratis" : `Bs ${shipping}`} />
-          <div className="divider-andino my-3" />
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent my-3" />
           <Row label="Total" value={`Bs ${total}`} bold />
-          <button
+          <Button
             onClick={handleConfirm}
-            className="mt-4 w-full bg-ayni-azul text-ayni-crema font-bold py-3 rounded-xl hover:bg-ayni-azul/90 transition"
+            variant="primary"
+            size="lg"
+            fullWidth
+            className="mt-4"
           >
             Confirmar pedido
-          </button>
-          <p className="text-[10px] text-ayni-azul/60 text-center mt-2">
+          </Button>
+          <div className="mt-5 grid grid-cols-2 gap-2.5">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
+              <Lock className="w-4 h-4 text-success shrink-0" />
+              <span className="text-[11px] leading-tight text-secondary font-medium">Pago seguro cifrado</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
+              <Truck className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-[11px] leading-tight text-secondary font-medium">Envío garantizado</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
+              <RotateCcw className="w-4 h-4 text-accent shrink-0" />
+              <span className="text-[11px] leading-tight text-secondary font-medium">Devolución 30 días</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
+              <BadgeCheck className="w-4 h-4 text-success shrink-0" />
+              <span className="text-[11px] leading-tight text-secondary font-medium">Artesano verificado</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-neutral-500 text-center mt-3">
             Ganarás 30 puntos Ayni con esta compra.
           </p>
         </aside>
@@ -122,7 +149,7 @@ export default function CarritoPage() {
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="px-2 py-0.5 rounded-md bg-ayni-beige text-ayni-azul/80">
+    <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 text-[11px] font-medium">
       {children}
     </span>
   );
@@ -131,8 +158,8 @@ function Tag({ children }: { children: React.ReactNode }) {
 function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex items-center justify-between text-sm mt-2">
-      <span className={bold ? "font-bold" : "text-ayni-azul/70"}>{label}</span>
-      <span className={bold ? "font-display font-bold text-lg" : ""}>{value}</span>
+      <span className={bold ? "font-bold text-secondary" : "text-neutral-500"}>{label}</span>
+      <span className={bold ? "font-display font-bold text-lg text-secondary" : "text-secondary"}>{value}</span>
     </div>
   );
 }

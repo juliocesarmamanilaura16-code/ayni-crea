@@ -19,30 +19,30 @@ export default function ArtesanosPage() {
         className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8"
       >
         <div>
-          <p className="text-ayni-terracota text-xs font-bold tracking-[0.25em] uppercase">
+          <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
             Artesanos
           </p>
-          <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1">
+          <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">
             Maestros de El Alto y La Paz
           </h1>
-          <p className="text-ayni-azul/60 mt-1.5 text-sm flex items-center gap-2">
+          <p className="text-neutral-500 mt-1.5 text-sm flex items-center gap-2">
             <Users className="w-4 h-4" /> {artisans.length} artesanos disponibles
           </p>
         </div>
-        <div className="flex gap-2 bg-white rounded-full border border-ayni-beige shadow-card p-1 w-fit">
+        <div className="flex gap-2 bg-white rounded-full border border-border shadow-card p-1 w-fit">
           {(["all", "El Alto", "La Paz"] as const).map((c) => (
             <button
               key={c}
               onClick={() => setFilter(c)}
               className={cn(
                 "relative px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-200",
-                filter === c ? "text-ayni-crema" : "text-ayni-azul/65 hover:text-ayni-azul"
+                filter === c ? "text-white" : "text-neutral-600 hover:text-secondary"
               )}
             >
               {filter === c && (
                 <motion.span
                   layoutId="city-pill"
-                  className="absolute inset-0 bg-ayni-azul rounded-full"
+                  className="absolute inset-0 bg-secondary rounded-full"
                   transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
                 />
               )}
