@@ -34,9 +34,9 @@ const sections = {
 };
 
 const trustSignals = [
-  { icon: Shield, label: "Pago seguro" },
-  { icon: BadgeCheck, label: "Artesanos verificados" },
-  { icon: Truck, label: "Envío a todo Bolivia" },
+  { icon: Shield, label: "Pagos mediante proveedor aliado" },
+  { icon: BadgeCheck, label: "Artesanos en proceso de verificación" },
+  { icon: Truck, label: "Conectamos clientes y artesanos de El Alto y La Paz" },
 ];
 
 export function Footer() {
@@ -233,11 +233,11 @@ export function Footer() {
         <div className="border-t border-neutral-800">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-neutral-500 text-center md:text-left">
-                © {new Date().getFullYear()} Ayni Crea. Hecho con{" "}
-                <Heart className="w-3 h-3 inline text-primary-500 fill-primary-500" />{" "}
-                en Bolivia.
-              </p>
+<p className="text-xs text-neutral-500 text-center md:text-left">
+                 © {new Date().getFullYear()} Ayni Crea. Prototipo funcional — datos demostrativos. Hecho con{" "}
+                 <Heart className="w-3 h-3 inline text-primary-500 fill-primary-500" />{" "}
+                 en Bolivia.
+               </p>
               <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center">
                 {sections.legal.map((link) => (
                   <Link

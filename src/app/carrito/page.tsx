@@ -123,11 +123,11 @@ export default function CarritoPage() {
           <div className="mt-5 grid grid-cols-2 gap-2.5">
             <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
               <Lock className="w-4 h-4 text-success shrink-0" />
-              <span className="text-[11px] leading-tight text-secondary font-medium">Pago seguro cifrado</span>
+              <span className="text-[11px] leading-tight text-secondary font-medium">Pagos mediante proveedor aliado</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
               <Truck className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-[11px] leading-tight text-secondary font-medium">Envío garantizado</span>
+              <span className="text-[11px] leading-tight text-secondary font-medium">Seguimiento del pedido</span>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
               <RotateCcw className="w-4 h-4 text-accent shrink-0" />
@@ -135,7 +135,7 @@ export default function CarritoPage() {
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
               <BadgeCheck className="w-4 h-4 text-success shrink-0" />
-              <span className="text-[11px] leading-tight text-secondary font-medium">Artesano verificado</span>
+              <span className="text-[11px] leading-tight text-secondary font-medium">Artesano en verificación</span>
             </div>
           </div>
           <p className="text-[10px] text-neutral-500 text-center mt-3">

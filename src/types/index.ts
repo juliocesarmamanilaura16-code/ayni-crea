@@ -26,6 +26,9 @@ export type Artisan = {
   verified: boolean;
   categoryIds: string[];
   avgProductionDays: number;
+  priceRange?: string;
+  materials?: string[];
+  portfolio?: string[];
 };
 
 export type Category = {

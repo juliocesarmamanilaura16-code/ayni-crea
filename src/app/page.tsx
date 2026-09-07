@@ -21,6 +21,7 @@ import {
   Recycle,
   ShieldCheck,
   Star,
+  Package,
 } from "lucide-react";
 import { artisans, categories, impactStats, products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
@@ -30,7 +31,7 @@ import { progressToNext, getAynLevel } from "@/lib/pricing";
 import { useEffect, useState } from "react";
 
 const iconMap: Record<string, typeof Shirt> = {
-  Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
+  Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Package,
 };
 
 const fadeUp = {
@@ -133,15 +134,15 @@ export default function HomePage() {
               transition={{ delay: 0.45 }}
               className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-neutral-500"
             >
-              <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-success" /> Pago seguro
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <BadgeCheck className="w-4 h-4 text-primary" /> Artesanos verificados
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-accent" /> Envío a todo Bolivia
-              </span>
+<span className="inline-flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-success" /> Pagos mediante proveedor aliado
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <BadgeCheck className="w-4 h-4 text-primary" /> Artesanos en proceso de verificación
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Truck className="w-4 h-4 text-accent" /> Conectamos clientes y artesanos de El Alto y La Paz
+                </span>
             </motion.div>
 
             {/* Puntos Ayni si está logueado */}
@@ -224,7 +225,7 @@ export default function HomePage() {
               </span>
               <div>
                 <p className="text-[10px] text-neutral-500 font-medium">Artesano verificado</p>
-                <p className="text-xs font-bold">Entrega garantizada</p>
+                <p className="text-xs font-bold">Seguimiento del pedido</p>
               </div>
             </motion.div>
           </motion.div>

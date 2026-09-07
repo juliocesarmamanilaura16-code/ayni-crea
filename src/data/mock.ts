@@ -7,7 +7,8 @@ export const categories: Category[] = [
   { id: "madera", name: "Madera", icon: "TreePine", color: "#3E7C5E" },
   { id: "decoracion", name: "Decoración", icon: "Home", color: "#B5532A" },
   { id: "regalos", name: "Regalos", icon: "Gift", color: "#C9A24A" },
-  { id: "cultural", name: "Cultural", icon: "Sun", color: "#0F2A47" },
+  { id: "crochet", name: "Crochet y tejidos", icon: "Package", color: "#D4A843" },
+  { id: "cultural", name: "Cultura boliviana", icon: "Sun", color: "#0F2A47" },
 ];
 
 export const artisans: Artisan[] = [
@@ -25,8 +26,15 @@ export const artisans: Artisan[] = [
     photo:
       "https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=400&q=80&auto=format&fit=crop",
     verified: true,
-    categoryIds: ["textiles", "cultural", "regalos"],
+    categoryIds: ["textiles", "cultural", "regalos", "crochet"],
     avgProductionDays: 5,
+    priceRange: "Bs 45 – 300",
+    materials: ["Lana de oveja", "Algodón", "Lana acrílica", "Tintes naturales"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1573497019418-b400bb3ab074?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1545194445-dddb8f4487c6?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=600&q=80&auto=format&fit=crop",
+    ],
   },
   {
     id: "a2",
@@ -44,6 +52,13 @@ export const artisans: Artisan[] = [
     verified: true,
     categoryIds: ["cuero", "regalos"],
     avgProductionDays: 7,
+    priceRange: "Bs 30 – 250",
+    materials: ["Cuero curtido", "Herrajes de alpaca", "Forro de tela", "Cuerda de yute"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80&auto=format&fit=crop",
+    ],
   },
   {
     id: "a3",
@@ -61,6 +76,13 @@ export const artisans: Artisan[] = [
     verified: true,
     categoryIds: ["joyeria", "regalos"],
     avgProductionDays: 4,
+    priceRange: "Bs 40 – 250",
+    materials: ["Plata 950", "Plata con dorado", "Gemas andinas", "Cadena reforzada"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1605117945923-9e3d6e8d8b9e?w=600&q=80&auto=format&fit=crop",
+    ],
   },
   {
     id: "a4",
@@ -78,6 +100,13 @@ export const artisans: Artisan[] = [
     verified: false,
     categoryIds: ["madera", "decoracion", "cultural"],
     avgProductionDays: 10,
+    priceRange: "Bs 35 – 300",
+    materials: ["Madera de kalo", "Madera de cedro", "Tintes naturales", "Barniz artesanal"],
+    portfolio: [
+      "https://images.unsplash.com/photo-1605548109567-8e8b5ed8ad28?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?w=600&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&q=80&auto=format&fit=crop",
+    ],
   },
 ];
 
@@ -102,85 +131,133 @@ const defaultOptions = {
   texts: { label: "Texto personalizado (ej. JULIO)", extra: 10 },
 };
 
+function mk(
+  id: string,
+  artisanId: string,
+  categoryId: string,
+  name: string,
+  desc: string,
+  price: number,
+  days: number,
+  extra?: Partial<Product["options"]>
+): Product {
+  return {
+    id,
+    artisanId,
+    categoryId,
+    name,
+    description: desc,
+    basePrice: price,
+    image:
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80&auto=format&fit=crop",
+    productionDays: days,
+    options: extra ? { ...defaultOptions, ...extra } : defaultOptions,
+  };
+}
+
+const textileDefs: [string, string, string, number, number][] = [
+  ["pt1", "Poncho personalizado", "Poncho tejido a mano con diseños andinos. Elige tus colores.", 180, 6],
+  ["pt2", "Bufanda tejida", "Bufanda suave de lana con técnicas tradicionales. Ideal para el frío altiplánico.", 95, 5],
+  ["pt3", "Manta personalizada", "Manta grande tejida con tu nombre o diseño. Calidez y arte en una pieza.", 250, 10],
+  ["pt4", "Gorro tejido", "Gorro de lana con patrones andinos. Cálido y estiloso.", 45, 3],
+  ["pt5", "Chalina", "Accesorio tejido para el cuello con acabado artesanal.", 55, 3],
+  ["pt6", "Cojín artesanal", "Cojín decorativo con textiles tradicionales y relleno incluido.", 120, 5],
+  ["pt7", "Tapiz decorativo", "Tapiz grande con diseños andinos. Pieza central de tu hogar.", 300, 15],
+  ["pt8", "Estuche de tela", "Estuche para notebook o tablet hecho a mano con textiles andinos.", 65, 4],
+];
+
+const cueroDefs: [string, string, string, number, number][] = [
+  ["pc1", "Billetera personalizada", "Billetera de cuero curtido con tu nombre grabado.", 80, 4],
+  ["pc2", "Cinturón de cuero", "Cinturón artesanal con hebilla de alpaca y acabado clásico.", 130, 6],
+  ["pc3", "Monedero", "Monedero compacto en cuero con cierre de alpaca.", 45, 3],
+  ["pc4", "Porta tarjetas", "Porta tarjetas de cuero con múltiples compartimentos.", 55, 3],
+  ["pc5", "Llavero de cuero", "Llavero artesanal con detalle en alpaca.", 30, 2],
+  ["pc6", "Agenda de cuero", "Agenda de cuero con tapa decorada y papel de calidad.", 95, 7],
+  ["pc7", "Brazalete de cuero", "Brazalete trenzado de cuero con acabado artesanal.", 70, 4],
+  ["pc8", "Funda para celular", "Funda protectora de cuero para tu celular con diseño único.", 60, 3],
+];
+
+const joyeriaDefs: [string, string, string, number, number, any?][] = [
+  ["pj1", "Pulsera personalizada", "Pulsera de plata con tu nombre o símbolo preferido.", 85, 5],
+  ["pj2", "Anillo", "Anillo de plata 950 con diseño andino o tu nombre.", 70, 4],
+  ["pj3", "Aretes", "Aretes de plata con motivos andinos. Livianos y elegantes.", 55, 3],
+  ["pj4", "Dije con nombre", "Dije de plata grabado con tu nombre o palabra especial.", 90, 4],
+  ["pj5", "Prendedor", "Prendedor de plata con diseño de chakana o cóndor.", 65, 3],
+  ["pj6", "Broche artesanal", "Broche de plata con motivos andinos para tu ropa.", 75, 4],
+  ["pj7", "Tobillera", "Tobillera de plata con detalles de sullu y campanitas.", 80, 5],
+  ["pj8", "Set de joyería", "Set con pulsera, aretes y dije combinados en plata.", 200, 8, { materials: [{ name: "Plata 950", extra: 0 }, { name: "Plata con dorado", extra: 60 }] }],
+];
+
+const maderaDefs: [string, string, string, number, number][] = [
+  ["pm1", "Portallaves", "Portallaves de madera tallada con diseño andino.", 35, 3],
+  ["pm2", "Portarretrato", "Portarretrato de madera con grabado personalizado.", 60, 5],
+  ["pm3", "Caja personalizada", "Caja de madera con nombre grabado. Para regalos o almacenar.", 75, 6],
+  ["pm4", "Letrero con nombre", "Letrero de madera con tu nombre o frase especial.", 50, 5],
+  ["pm5", "Organizador de escritorio", "Organizador de madera para tu escritorio con compartimentos.", 85, 7],
+  ["pm6", "Porta celular", "Base de madera para celular con diseño tradicional.", 45, 4],
+  ["pm7", "Tabla decorativa", "Tabla decorativa de madera con acabado natural.", 90, 7],
+  ["pm8", "Caja para joyas", "Caja de madera para guardar joyas con interior forrado.", 70, 6],
+];
+
+const decorDefs: [string, string, string, number, number][] = [
+  ["pd1", "Lámpara artesanal", "Lámpara de mano con tela andina y base de madera.", 95, 7],
+  ["pd2", "Espejo decorativo", "Espejo con marco de madera tallada y diseño andino.", 110, 8],
+  ["pd3", "Macetero", "Macetero de cerámica con diseño tradicional y acabado único.", 55, 5],
+  ["pd4", "Portavelas", "Portavelas de cerámica artesanal con forma andina.", 40, 4],
+  ["pd5", "Atrapasueños", "Atrapasueños tejido con plumas y cuentas andinas.", 35, 3],
+  ["pd6", "Cuadro personalizado", "Cuadro con diseño andino y tu nombre o frase.", 80, 6],
+  ["pd7", "Florero", "Florero de cerámica artesanal con motivos andinos.", 65, 5],
+  ["pd8", "Adorno para pared", "Adorno de madera o tela para decorar tu pared.", 50, 4],
+];
+
+const regalosDefs: [string, string, string, number, number][] = [
+  ["pr1", "Caja de regalo personalizada", "Caja de madera o tela con diseño y nombre del destinatario.", 55, 4],
+  ["pr2", "Álbum de fotos", "Álbum artesanal de cuero con grabado personalizado.", 90, 6],
+  ["pr3", "Taza personalizada", "Taza de cerámica con tu nombre o mensaje.", 40, 3],
+  ["pr4", "Llavero con nombre", "Llavero de cuero o madera grabado con un nombre.", 30, 2],
+  ["pr5", "Set para pareja", "Set de dos piezas con nombres grabados. Detalle romántico.", 150, 7],
+  ["pr6", "Set para cumpleaños", "Set con taza, llavero y caja personalizados.", 120, 6],
+  ["pr7", "Regalo para mamá", "Set especial con joyería o tejido dedicado a mamá.", 130, 6],
+  ["pr8", "Regalo para papá", "Set con cuero o madera para papá. Clásico y elegante.", 140, 7],
+];
+
+const crochetDefs: [string, string, string, number, number][] = [
+  ["pz1", "Amigurumi", "Muñeco tejido a mano de lana. Tamaño y diseño a elección.", 60, 4],
+  ["pz2", "Muñeco personalizado", "Muñeco tejido con tu forma o personaje favorito.", 85, 6],
+  ["pz3", "Peluche tejido", "Peluche suave tejido a mano con detalles personalizados.", 75, 5],
+  ["pz4", "Bolso tejido", "Bolso de crochet con diseños y colores variados.", 70, 5],
+  ["pz5", "Animalito tejido", "Figura tejida de tu animal favorito. Hecho a mano.", 45, 3],
+  ["pz6", "Muñeca artesanal", "Muñeca de crochet con vestimenta tradicional andina.", 80, 6],
+  ["pz7", "Posavasos tejidos", "Set de posavasos de crochet con diseños variados.", 30, 2],
+  ["pz8", "Canasta tejida", "Canasta de crochet resistente y decorativa.", 55, 4],
+];
+
+const culturalDefs: [string, string, string, number, number][] = [
+  ["pcu1", "Miniaturas de Alasita", "Miniaturas de la tradición Alasita boliviana en cerámica o madera.", 35, 3],
+  ["pcu2", "Figura de llamita", "Figura de llamita (oveja andina) en cerámica artesanal.", 40, 3],
+  ["pcu3", "Muñeca con vestimenta tradicional", "Muñeca con traje típico de la cultura boliviana.", 70, 5],
+  ["pcu4", "Adorno inspirado en la cultura aymara", "Adorno con simbolismo aymara en madera o cerámica.", 55, 4],
+  ["pcu5", "Réplica de instrumentos andinos", "Réplica miniatura de instrumentos como zampoña o charango.", 65, 6],
+  ["pcu6", "Souvenir personalizado", "Souvenir con tu nombre y diseño andino para turistas.", 40, 3],
+  ["pcu7", "Figura decorativa andina", "Figura decorativa con motivos de la cosmovisión andina.", 50, 4],
+  ["pcu8", "Llajta o símbolo cultural en miniatura", "Representación miniatura de la llajta, símbolo de reciprocidad andina.", 45, 4],
+];
+
 export const products: Product[] = [
-  {
-    id: "p1",
-    artisanId: "a1",
-    categoryId: "textiles",
-    name: "Aguayo personalizado",
-    description:
-      "Tela tradicional andina con franjas tejidas a mano. Puedes elegir colores y agregar un texto central.",
-    basePrice: 80,
-    image: "/aguayos-personalizados.jpg",
-    productionDays: 5,
-    options: defaultOptions,
-  },
-  {
-    id: "p2",
-    artisanId: "a2",
-    categoryId: "cuero",
-    name: "Mochila de cuero",
-    description:
-      "Mochila artesanal de cuero curtido. Costuras reforzadas, herrajes de alpaca y forro interior de tela.",
-    basePrice: 150,
-    image: "/mochilas.jpg",
-    productionDays: 7,
-    options: defaultOptions,
-  },
-  {
-    id: "p3",
-    artisanId: "a1",
-    categoryId: "textiles",
-    name: "Chullo andino",
-    description:
-      "Gorro tejido de lana de oveja con orejeras y diseños geométricos propios de la región.",
-    basePrice: 60,
-    image: "/chullo-andino.jpg",
-    productionDays: 4,
-    options: defaultOptions,
-  },
-  {
-    id: "p4",
-    artisanId: "a3",
-    categoryId: "joyeria",
-    name: "Collar de plata con chakana",
-    description:
-      "Collar hecho a mano en plata 950 con dije de chakana. Incluye cadena reforzada y cierre artesanal.",
-    basePrice: 120,
-    image: "/collar-chakana.jpg",
-    productionDays: 4,
-    options: {
-      ...defaultOptions,
-      materials: [
-        { name: "Plata 950", extra: 0 },
-        { name: "Plata con dorado", extra: 60 },
-      ],
-    },
-  },
-  {
-    id: "p5",
-    artisanId: "a4",
-    categoryId: "madera",
-    name: "Máscara tallada andina",
-    description:
-      "Máscara tallada a mano en madera de kalo, lijada y barnizada con tintes naturales.",
-    basePrice: 90,
-    image: "/mascara-tallado-andino.jpg",
-    productionDays: 10,
-    options: defaultOptions,
-  },
-  {
-    id: "p6",
-    artisanId: "a2",
-    categoryId: "cuero",
-    name: "Cartera artesanal",
-    description:
-      "Cartera compacta en cuero con múltiples compartimentos y cierre de alpaca.",
-    basePrice: 110,
-    image: "/carteras-artesanales.jpg",
-    productionDays: 6,
-    options: defaultOptions,
-  },
+  { id: "p1", artisanId: "a1", categoryId: "textiles", name: "Aguayo personalizado", description: "Tela tradicional andina con franjas tejidas a mano. Puedes elegir colores y agregar un texto central.", basePrice: 80, image: "/aguayos-personalizados.jpg", productionDays: 5, options: defaultOptions },
+  { id: "p2", artisanId: "a2", categoryId: "cuero", name: "Mochila de cuero", description: "Mochila artesanal de cuero curtido. Costuras reforzadas, herrajes de alpaca y forro interior de tela.", basePrice: 150, image: "/mochilas.jpg", productionDays: 7, options: defaultOptions },
+  { id: "p3", artisanId: "a1", categoryId: "textiles", name: "Chullo andino", description: "Gorro tejido de lana de oveja con orejeras y diseños geométricos propios de la región.", basePrice: 60, image: "/chullo-andino.jpg", productionDays: 4, options: defaultOptions },
+  { id: "p4", artisanId: "a3", categoryId: "joyeria", name: "Collar de plata con chakana", description: "Collar hecho a mano en plata 950 con dije de chakana. Incluye cadena reforzada y cierre artesanal.", basePrice: 120, image: "/collar-chakana.jpg", productionDays: 4, options: { ...defaultOptions, materials: [{ name: "Plata 950", extra: 0 }, { name: "Plata con dorado", extra: 60 }] } },
+  { id: "p5", artisanId: "a4", categoryId: "madera", name: "Máscara tallada andina", description: "Máscara tallada a mano en madera de kalo, lijada y barnizada con tintes naturales.", basePrice: 90, image: "/mascara-tallado-andino.jpg", productionDays: 10, options: defaultOptions },
+  { id: "p6", artisanId: "a2", categoryId: "cuero", name: "Cartera artesanal", description: "Cartera compacta en cuero con múltiples compartimentos y cierre de alpaca.", basePrice: 110, image: "/carteras-artesanales.jpg", productionDays: 6, options: defaultOptions },
+  ...textileDefs.map((d) => mk(d[0], "a1", "textiles", d[1], d[2], d[3], d[4])),
+  ...cueroDefs.map((d) => mk(d[0], "a2", "cuero", d[1], d[2], d[3], d[4])),
+  ...joyeriaDefs.map((d) => mk(d[0], "a3", "joyeria", d[1], d[2], d[3], d[4], d[5])),
+  ...maderaDefs.map((d) => mk(d[0], "a4", "madera", d[1], d[2], d[3], d[4])),
+  ...decorDefs.map((d) => mk(d[0], "a4", "decoracion", d[1], d[2], d[3], d[4])),
+  ...regalosDefs.map((d) => mk(d[0], "a2", "regalos", d[1], d[2], d[3], d[4])),
+  ...crochetDefs.map((d) => mk(d[0], "a1", "crochet", d[1], d[2], d[3], d[4])),
+  ...culturalDefs.map((d) => mk(d[0], "a1", "cultural", d[1], d[2], d[3], d[4])),
 ];
 
 export const impactStats = {

@@ -1,10 +1,10 @@
 {
   "CC-004": {
-    "occurrences": 1,
+    "occurrences": 2,
     "confidence": 1,
     "mastered_explicitly": false,
     "first_seen": "2026-08-19T15:47:17.643Z",
-    "last_seen": "2026-08-19T15:47:17.643Z"
+    "last_seen": "2026-09-07T03:00:28.337Z"
   },
   "REACT-003": {
     "occurrences": 3,

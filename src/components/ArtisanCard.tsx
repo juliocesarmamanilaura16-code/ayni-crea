@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, BadgeCheck, MapPin, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, MapPin, Star, Tag } from "lucide-react";
 import type { Artisan } from "@/types";
 
 export function ArtisanCard({ artisan, index = 0 }: { artisan: Artisan; index?: number }) {
@@ -45,6 +45,9 @@ export function ArtisanCard({ artisan, index = 0 }: { artisan: Artisan; index?: 
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
                 {artisan.city}
+              </span>
+              <span className="flex items-center gap-1">
+                <Tag className="w-3 h-3" /> {artisan.priceRange}
               </span>
               <span>~{artisan.avgProductionDays} días</span>
             </div>

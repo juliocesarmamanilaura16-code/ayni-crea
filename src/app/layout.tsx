@@ -23,7 +23,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Ayni Crea — Marketplace artesanal",
   description:
-    "Diseña productos únicos y conecta con artesanos de El Alto y La Paz que pueden hacerlos realidad, pieza por pieza.",
+    "Prototipo funcional de marketplace artesanal. Conecta clientes con artesanos de El Alto y La Paz. Datos demostrativos.",
   keywords: [
     "marketplace artesanal",
     "artesanos Bolivia",
@@ -36,14 +36,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Ayni Crea — Marketplace artesanal",
     description:
-      "Diseña productos únicos y conecta con artesanos de El Alto y La Paz.",
+      "Prototipo funcional de marketplace artesanal. Conecta clientes con artesanos de El Alto y La Paz.",
     type: "website",
     locale: "es_BO",
   },
   twitter: {
     card: "summary_large_image",
     title: "Ayni Crea",
-    description: "Marketplace artesanal hecho con ❤️ en Bolivia",
+    description: "Prototipo de marketplace artesanal hecho en Bolivia",
   },
 };
 
