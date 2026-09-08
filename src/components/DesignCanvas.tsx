@@ -411,30 +411,116 @@ export function DesignCanvas() {
     setCurrentDraw([pos]);
   };
 
-  const drawCurrentStrokeOnCanvas = () => {
+  const drawPreview = (endPos: { x: number; y: number }) => {
     const c = canvasRef.current;
-    if (!c || !ctx.current || currentDraw.length < 2) return;
-    const pts = currentDraw;
-    ctx.current.strokeStyle = brushColor;
-    ctx.current.lineWidth = brushSize;
-    ctx.current.lineCap = "round";
-    ctx.current.lineJoin = "round";
-    ctx.current.setLineDash(strokeStyle === "dashed" ? [8, 4] : strokeStyle === "dotted" ? [2, 4] : []);
-    ctx.current.beginPath();
-    ctx.current.moveTo(pts[0].x, pts[0].y);
-    pts.forEach((p: { x: number; y: number }) => ctx.current!.lineTo(p.x, p.y));
-    ctx.current.stroke();
+    if (!c || !ctx.current || !startPos) return;
+    const s = startPos;
+    const e = endPos;
+    const color = brushColor;
+    const size = brushSize;
+    const style = strokeStyle;
+    const dashed = style === "dashed" ? [8, 4] : style === "dotted" ? [2, 4] : [];
+
+    ctx.current.setLineDash(dashed);
+    ctx.current.strokeStyle = color;
+    ctx.current.lineWidth = size;
+
+    switch (tool) {
+      case "brush":
+        if (currentDraw.length > 1) {
+          ctx.current.beginPath();
+          ctx.current.moveTo(currentDraw[0].x, currentDraw[0].y);
+          currentDraw.forEach((p: { x: number; y: number }) => ctx.current!.lineTo(p.x, p.y));
+          ctx.current.lineTo(e.x, e.y);
+          ctx.current.stroke();
+        }
+        break;
+      case "line":
+        ctx.current.beginPath(); ctx.current.moveTo(s.x, s.y); ctx.current.lineTo(e.x, e.y); ctx.current.stroke(); break;
+      case "arrow":
+        ctx.current.beginPath(); ctx.current.moveTo(s.x, s.y); ctx.current.lineTo(e.x, e.y); ctx.current.stroke();
+        { const angle = Math.atan2(e.y - s.y, e.x - s.x); const hl = 15; ctx.current.beginPath();
+          ctx.current.moveTo(e.x, e.y);
+          ctx.current.lineTo(e.x - hl * Math.cos(angle - 0.4), e.y - hl * Math.sin(angle - 0.4));
+          ctx.current.lineTo(e.x - hl * Math.cos(angle + 0.4), e.y - hl * Math.sin(angle + 0.4));
+          ctx.current.closePath(); ctx.current.fillStyle = color; ctx.current.fill(); } break;
+      case "rect":
+        ctx.current.strokeRect(s.x, s.y, e.x - s.x, e.y - s.y); break;
+      case "circle": {
+        const rx = (e.x - s.x) / 2; const ry = (e.y - s.y) / 2;
+        ctx.current.beginPath(); ctx.current.ellipse(s.x + rx, s.y + ry, Math.max(Math.abs(rx), 1), Math.max(Math.abs(ry), 1), 0, 0, Math.PI * 2); ctx.current.stroke(); break;
+      }
+      case "star": {
+        const cx = (s.x + e.x) / 2; const cy = (s.y + e.y) / 2;
+        const sr = Math.max(Math.abs(e.x - s.x), Math.abs(e.y - s.y)) || 30;
+        ctx.current.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = (i * 72 - 90) * Math.PI / 180;
+          if (i === 0) ctx.current.moveTo(cx + sr * Math.cos(a), cy + sr * Math.sin(a));
+          else ctx.current.lineTo(cx + sr * Math.cos(a), cy + sr * Math.sin(a));
+          const ia = ((i * 72) + 36 - 90) * Math.PI / 180;
+          ctx.current.lineTo(cx + sr * 0.4 * Math.cos(ia), cy + sr * 0.4 * Math.sin(ia));
+        }
+        ctx.current.closePath(); ctx.current.stroke(); break;
+      }
+      case "heart": {
+        const hx = (s.x + e.x) / 2; const hy = (s.y + e.y) / 2;
+        const hr = Math.max(Math.abs(e.x - s.x), Math.abs(e.y - s.y)) || 30;
+        ctx.current.beginPath();
+        ctx.current.moveTo(hx, hy + hr * 0.3);
+        ctx.current.bezierCurveTo(hx - hr, hy - hr * 0.5, hx - hr * 0.5, hy - hr, hx, hy - hr * 0.5);
+        ctx.current.bezierCurveTo(hx + hr * 0.5, hy - hr, hx + hr, hy - hr * 0.5, hx, hy + hr * 0.3);
+        ctx.current.closePath(); ctx.current.stroke(); break;
+      }
+      case "diamond": {
+        const dx = (s.x + e.x) / 2; const dy = (s.y + e.y) / 2;
+        const dr = Math.max(Math.abs(e.x - s.x), Math.abs(e.y - s.y)) || 30;
+        ctx.current.beginPath();
+        ctx.current.moveTo(dx, dy - dr); ctx.current.lineTo(dx + dr, dy); ctx.current.lineTo(dx, dy + dr); ctx.current.lineTo(dx - dr, dy);
+        ctx.current.closePath(); ctx.current.stroke(); break;
+      }
+      case "triangle": {
+        const tx = (s.x + e.x) / 2; const ty = (s.y + e.y) / 2;
+        const tr = Math.max(Math.abs(e.x - s.x), Math.abs(e.y - s.y)) || 30;
+        ctx.current.beginPath();
+        ctx.current.moveTo(tx, ty - tr); ctx.current.lineTo(tx - tr * 0.866, ty + tr * 0.5); ctx.current.lineTo(tx + tr * 0.866, ty + tr * 0.5);
+        ctx.current.closePath(); ctx.current.stroke(); break;
+      }
+      case "hexagon": {
+        const hx2 = (s.x + e.x) / 2; const hy2 = (s.y + e.y) / 2;
+        const hr2 = Math.max(Math.abs(e.x - s.x), Math.abs(e.y - s.y)) || 30;
+        ctx.current.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (i * 60 - 30) * Math.PI / 180;
+          if (i === 0) ctx.current.moveTo(hx2 + hr2 * Math.cos(a), hy2 + hr2 * Math.sin(a));
+          else ctx.current.lineTo(hx2 + hr2 * Math.cos(a), hy2 + hr2 * Math.sin(a));
+        }
+        ctx.current.closePath(); ctx.current.stroke(); break;
+      }
+      case "pattern":
+      case "symbol":
+      case "template": {
+        const x = s.x; const y = s.y;
+        const w = e.x - s.x; const h = e.y - s.y;
+        ctx.current.strokeRect(x, y, w, h); break;
+      }
+      case "fill":
+        ctx.current.strokeRect(s.x, s.y, e.x - s.x, e.y - s.y); break;
+      case "gradient":
+        { const g = ctx.current.createLinearGradient(s.x, s.y, e.x, e.y);
+          g.addColorStop(0, gradientColors[0]); g.addColorStop(1, gradientColors[1]);
+          ctx.current.fillStyle = g;
+          ctx.current.fillRect(Math.min(s.x, e.x), Math.min(s.y, e.y), Math.abs(e.x - s.x), Math.abs(e.y - s.y)); } break;
+    }
     ctx.current.setLineDash([]);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDrawing || !startPos || tool === "hand" || tool === "measure") return;
     const pos = getPos(e);
-    if (tool === "brush") {
-      setCurrentDraw([...currentDraw, pos]);
-      redraw();
-      drawCurrentStrokeOnCanvas();
-    }
+    redraw();
+    drawPreview(pos);
+    if (tool === "brush") setCurrentDraw([...currentDraw, pos]);
     if (tool === "gradient") setMeasureEnd(pos);
   };
 
