@@ -108,7 +108,7 @@ export default function CrearPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
-              <DesignCanvas defaultBg={color === "#000000" ? "#1a1a1a" : color === "#ffffff" ? "#f5f5f5" : "#f5f5f5"} />
+              <DesignCanvas />
             </div>
 
             <div className="space-y-5">
