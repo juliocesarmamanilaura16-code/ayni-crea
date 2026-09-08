@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Tool = "brush" | "text" | "rect" | "circle" | "line" | "arrow" | "eraser" | "move" | "pattern" | "symbol" | "fill" | "gradient" | "star" | "heart" | "diamond" | "triangle" | "hexagon" | "measure" | "hand" | "template";
+type Tool = "brush" | "text" | "rect" | "circle" | "line" | "arrow" | "eraser" | "move" | "pattern" | "symbol" | "fill" | "gradient" | "star" | "heart" | "diamond" | "triangle" | "hexagon" | "measure" | "hand" | "templateShape";
 type StrokeStyle = "solid" | "dashed" | "dotted";
 
 interface Layer {
@@ -54,18 +54,75 @@ const SYMBOLS = [
   { name: "Escudo", path: "M12 2L3 7v6c0 3.5 2.5 7 9 8 6.5-1 9-4.5 9-8V7l-9-5z" },
 ];
 
-const TEMPLATES = [
-  { name: "Camiseta", icon: "👕", shape: "rect" },
-  { name: "Polera", icon: "🧥", shape: "rect" },
-  { name: "Vestido", icon: "👗", shape: "circle" },
-  { name: "Bufanda", icon: "🧣", shape: "rect" },
-  { name: "Sombrero", icon: "🎩", shape: "circle" },
-  { name: "Anillo", icon: "💍", shape: "circle" },
-  { name: "Collar", icon: "📿", shape: "line" },
-  { name: "Bolso", icon: "👜", shape: "rect" },
-  { name: "Cinturón", icon: "🤎", shape: "rect" },
-  { name: "Gorra", icon: "🧢", shape: "rect" },
-];
+interface TemplateItem {
+  name: string;
+  icon: string;
+  category: string;
+}
+
+const TEMPLATE_CATEGORIES = ["Todos", "Textiles", "Cuero", "Joyería", "Accesorios"];
+
+const TEMPLATES: Record<string, TemplateItem[]> = {
+  Textiles: [
+    { name: "Camiseta", icon: "👕", category: "Textiles" },
+    { name: "Polera", icon: "🧥", category: "Textiles" },
+    { name: "Vestido", icon: "👗", category: "Textiles" },
+    { name: "Pantalón", icon: "👖", category: "Textiles" },
+    { name: "Falda", icon: "👗", category: "Textiles" },
+    { name: "Bufanda", icon: "🧣", category: "Textiles" },
+    { name: "Sudadera", icon: "🧶", category: "Textiles" },
+    { name: "Camisa", icon: "👔", category: "Textiles" },
+    { name: "Abrigo", icon: "🧥", category: "Textiles" },
+    { name: "Shorts", icon: "🩳", category: "Textiles" },
+    { name: "Traje de baño", icon: "🏊", category: "Textiles" },
+    { name: "Poncho", icon: "🧥", category: "Textiles" },
+    { name: "Chal", icon: "🧣", category: "Textiles" },
+  ],
+  Cuero: [
+    { name: "Bolso", icon: "👜", category: "Cuero" },
+    { name: "Cartera", icon: "👛", category: "Cuero" },
+    { name: "Chaqueta", icon: "🧥", category: "Cuero" },
+    { name: "Cinturón", icon: "🤎", category: "Cuero" },
+    { name: "Botas", icon: "👢", category: "Cuero" },
+    { name: "Guantes", icon: "🧤", category: "Cuero" },
+    { name: "Monedero", icon: "💰", category: "Cuero" },
+    { name: "Porta-tarjetas", icon: "💳", category: "Cuero" },
+    { name: "Mochila", icon: "🎒", category: "Cuero" },
+    { name: "Billetera", icon: "👛", category: "Cuero" },
+    { name: "Maletín", icon: "💼", category: "Cuero" },
+    { name: "Llavero", icon: "🔑", category: "Cuero" },
+  ],
+  Joyería: [
+    { name: "Anillo", icon: "💍", category: "Joyería" },
+    { name: "Collar", icon: "📿", category: "Joyería" },
+    { name: "Pulsera", icon: "⛄", category: "Joyería" },
+    { name: "Pendientes", icon: "💎", category: "Joyería" },
+    { name: "Brazalete", icon: "🔶", category: "Joyería" },
+    { name: "Gargantilla", icon: "📿", category: "Joyería" },
+    { name: "Broche", icon: "🏅", category: "Joyería" },
+    { name: "Diadema", icon: "👑", category: "Joyería" },
+    { name: "Aretes", icon: "💎", category: "Joyería" },
+    { name: "Set de joyería", icon: "💍", category: "Joyería" },
+    { name: "Medalla", icon: "✝️", category: "Joyería" },
+    { name: "Choker", icon: "📿", category: "Joyería" },
+  ],
+  Accesorios: [
+    { name: "Gorra", icon: "🧢", category: "Accesorios" },
+    { name: "Sombrero", icon: "🎩", category: "Accesorios" },
+    { name: "Gorro", icon: "🧤", category: "Accesorios" },
+    { name: "Pañuelo", icon: "🧣", category: "Accesorios" },
+    { name: "Lentes", icon: "🕶️", category: "Accesorios" },
+    { name: "Bolsita", icon: "👜", category: "Accesorios" },
+    { name: "Cinturón", icon: "🤎", category: "Accesorios" },
+    { name: "Fular", icon: "🧣", category: "Accesorios" },
+    { name: "Gafas", icon: "👓", category: "Accesorios" },
+    { name: "Venda", icon: "🩹", category: "Accesorios" },
+    { name: "Chaleco", icon: "🧥", category: "Accesorios" },
+    { name: "Capa", icon: "🧥", category: "Accesorios" },
+  ],
+};
+
+const DEFAULT_TEMPLATES = [...TEMPLATES.Textiles, ...TEMPLATES.Cuero, ...TEMPLATES.Joyería, ...TEMPLATES.Accesorios];
 
 export function DesignCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -98,7 +155,8 @@ export function DesignCanvas() {
   const [redoStack, setRedoStack] = useState<Layer[][]>([]);
   const [selectedPattern, setSelectedPattern] = useState(0);
   const [selectedSymbol, setSelectedSymbol] = useState(0);
-  const [selectedTemplate, setSelectedTemplate] = useState(0);
+  const [selectedTemplateCategory, setSelectedTemplateCategory] = useState("Todos");
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [measureStart, setMeasureStart] = useState<{ x: number; y: number } | null>(null);
@@ -340,11 +398,11 @@ export function DesignCanvas() {
         break;
       }
       case "template": {
-        const tpl = TEMPLATES[layer.data.templateIndex];
+        const tplName = layer.data.templateName || "";
         const { x, y, w, h } = layer.data;
         c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2; c.setLineDash([]);
         c.beginPath();
-        if (tpl.name === "Camiseta") {
+        if (tplName === "Camiseta") {
           c.moveTo(x + w * 0.3, y); c.lineTo(x + w * 0.5, y);
           c.lineTo(x + w * 0.5, y + h * 0.3);
           c.quadraticCurveTo(x + w * 0.2, y + h * 0.3, x + w * 0.2, y + h * 0.6);
@@ -352,41 +410,95 @@ export function DesignCanvas() {
           c.lineTo(x + w * 0.8, y + h * 0.6); c.lineTo(x + w * 0.8, y + h * 0.3);
           c.quadraticCurveTo(x + w * 0.8, y + h * 0.3, x + w * 0.5, y + h * 0.3);
           c.closePath();
-        } else if (tpl.name === "Polera") {
+        } else if (tplName === "Polera") {
           c.moveTo(x + w * 0.25, y); c.lineTo(x + w * 0.75, y);
           c.lineTo(x + w * 0.75, y + h * 0.25);
           c.quadraticCurveTo(x + w * 0.75, y + h * 0.15, x + w * 0.5, y + h * 0.15);
           c.quadraticCurveTo(x + w * 0.25, y + h * 0.15, x + w * 0.25, y + h * 0.25);
           c.lineTo(x + w * 0.25, y + h);
           c.lineTo(x + w * 0.75, y + h); c.closePath();
-        } else if (tpl.name === "Vestido") {
+        } else if (tplName === "Vestido") {
           c.moveTo(x + w * 0.5, y);
           c.quadraticCurveTo(x + w * 0.3, y + h * 0.2, x + w * 0.2, y + h * 0.4);
           c.lineTo(x + w * 0.1, y + h); c.lineTo(x + w * 0.9, y + h);
           c.lineTo(x + w * 0.8, y + h * 0.4); c.quadraticCurveTo(x + w * 0.7, y + h * 0.2, x + w * 0.5, y);
-        } else if (tpl.name === "Bolso") {
+        } else if (tplName === "Bolso") {
           c.rect(x + w * 0.1, y + h * 0.3, w * 0.8, h * 0.7);
           c.moveTo(x + w * 0.4, y + h * 0.3);
           c.quadraticCurveTo(x + w * 0.5, y - h * 0.1, x + w * 0.6, y + h * 0.3);
-        } else if (tpl.name === "Cinturón") {
+        } else if (tplName === "Cinturón") {
           c.rect(x, y + h * 0.4, w, h * 0.2);
           c.rect(x + w * 0.35, y + h * 0.35, w * 0.3, h * 0.3);
-        } else if (tpl.name === "Gorra") {
-          c.ellipse(x + w * 0.5, y + h * 0.3, w * 0.5, h * 0.15, 0, 0, Math.PI * 2);
+        } else if (tplName === "Gorra") {
+          c.ellipse(x + w * 0.5, y + h * 0.3, w * 0.5, h * 0.1, 0, Math.PI, 0);
           c.rect(x + w * 0.2, y + h * 0.3, w * 0.6, h * 0.2);
-        } else if (tpl.name === "Anillo") {
+        } else if (tplName === "Anillo") {
           c.ellipse(x + w * 0.5, y + h * 0.5, w * 0.4, h * 0.15, 0, 0, Math.PI * 2);
-        } else if (tpl.name === "Collar") {
+        } else if (tplName === "Collar") {
           c.moveTo(x + w * 0.1, y + h * 0.5);
           c.quadraticCurveTo(x + w * 0.5, y + h * 0.8, x + w * 0.9, y + h * 0.5);
-        } else if (tpl.name === "Bufanda") {
+        } else if (tplName === "Bufanda") {
           c.moveTo(x + w * 0.5, y);
           c.quadraticCurveTo(x + w * 0.3, y + h * 0.5, x + w * 0.2, y + h);
           c.quadraticCurveTo(x + w * 0.5, y + h * 0.5, x + w * 0.8, y + h);
           c.quadraticCurveTo(x + w * 0.7, y + h * 0.5, x + w * 0.5, y);
-        } else if (tpl.name === "Sombrero") {
+        } else if (tplName === "Sombrero") {
           c.ellipse(x + w * 0.5, y + h * 0.7, w * 0.5, h * 0.1, 0, Math.PI, 0);
           c.rect(x + w * 0.3, y, w * 0.4, h * 0.4);
+        } else if (tplName === "Pantalón") {
+          c.moveTo(x + w * 0.5, y);
+          c.lineTo(x + w * 0.3, y + h * 0.5); c.lineTo(x + w * 0.2, y + h);
+          c.lineTo(x + w * 0.5, y + h);
+          c.lineTo(x + w * 0.8, y + h); c.lineTo(x + w * 0.7, y + h * 0.5);
+          c.lineTo(x + w * 0.5, y);
+        } else if (tplName === "Botas") {
+          c.rect(x + w * 0.2, y + h * 0.6, w * 0.6, h * 0.4);
+          c.rect(x + w * 0.15, y + h * 0.5, w * 0.3, h * 0.3);
+          c.rect(x + w * 0.7, y + h * 0.5, w * 0.3, h * 0.3);
+        } else if (tplName === "Chaqueta") {
+          c.moveTo(x + w * 0.2, y);
+          c.lineTo(x + w * 0.1, y + h * 0.3); c.lineTo(x + w * 0.1, y + h);
+          c.lineTo(x + w * 0.9, y + h); c.lineTo(x + w * 0.9, y + h * 0.3);
+          c.lineTo(x + w * 0.8, y);
+          c.closePath();
+          c.moveTo(x + w * 0.5, y + h * 0.3);
+          c.lineTo(x + w * 0.5, y + h);
+        } else if (tplName === "Monedero" || tplName === "Billetera") {
+          c.rect(x + w * 0.3, y + h * 0.4, w * 0.4, h * 0.5);
+          c.rect(x + w * 0.25, y + h * 0.35, w * 0.5, h * 0.15);
+        } else if (tplName === "Mochila") {
+          c.rect(x + w * 0.2, y + h * 0.3, w * 0.6, h * 0.6);
+          c.lineTo(x + w * 0.5, y); c.lineTo(x + w * 0.3, y + h * 0.3);
+          c.lineTo(x + w * 0.7, y + h * 0.3); c.lineTo(x + w * 0.5, y);
+        } else if (tplName === "Pendientes") {
+          c.ellipse(x + w * 0.3, y + h * 0.5, w * 0.15, h * 0.3, 0, 0, Math.PI * 2);
+          c.ellipse(x + w * 0.7, y + h * 0.5, w * 0.15, h * 0.3, 0, 0, Math.PI * 2);
+        } else if (tplName === "Pulsera") {
+          c.arc(x + w * 0.5, y + h * 0.5, Math.min(w, h) * 0.4, 0, Math.PI * 2);
+        } else if (tplName === "Falda") {
+          c.moveTo(x + w * 0.5, y);
+          c.lineTo(x + w * 0.2, y + h * 0.4); c.lineTo(x + w * 0.1, y + h);
+          c.lineTo(x + w * 0.9, y + h); c.lineTo(x + w * 0.8, y + h * 0.4);
+          c.closePath();
+        } else if (tplName === "Gorro") {
+          c.ellipse(x + w * 0.5, y + h * 0.5, w * 0.35, h * 0.25, 0, Math.PI, 0);
+          c.rect(x + w * 0.4, y + h * 0.5, w * 0.2, h * 0.3);
+        } else if (tplName === "Diadema") {
+          c.moveTo(x + w * 0.2, y + h * 0.6);
+          c.quadraticCurveTo(x + w * 0.5, y + h * 0.2, x + w * 0.8, y + h * 0.6);
+        } else if (tplName === "Cuello" || tplName === "Chal") {
+          c.moveTo(x + w * 0.3, y + h * 0.3);
+          c.quadraticCurveTo(x + w * 0.5, y + h * 0.7, x + w * 0.7, y + h * 0.3);
+          c.lineTo(x + w * 0.7, y + h); c.lineTo(x + w * 0.3, y + h);
+          c.closePath();
+        } else if (tplName === "Traje de baño") {
+          c.moveTo(x + w * 0.5, y);
+          c.lineTo(x + w * 0.2, y + h * 0.3); c.lineTo(x + w * 0.15, y + h);
+          c.lineTo(x + w * 0.5, y + h * 0.7);
+          c.lineTo(x + w * 0.85, y + h); c.lineTo(x + w * 0.8, y + h * 0.3);
+          c.closePath();
+        } else {
+          c.rect(x, y, w, h);
         }
         c.stroke(); break;
       }
@@ -539,7 +651,7 @@ export function DesignCanvas() {
       }
       case "pattern":
       case "symbol":
-      case "template": {
+      case "templateShape": {
         const x = s.x; const y = s.y;
         const w = e.x - s.x; const h = e.y - s.y;
         ctx.current.strokeRect(x, y, w, h); break;
@@ -607,9 +719,10 @@ export function DesignCanvas() {
         const sym = SYMBOLS[selectedSymbol];
         addLayer({ type: "symbol", id: Date.now().toString(), data: { symbolIndex: selectedSymbol, x: startPos.x - 30, y: startPos.y - 30, size: 60, color: brushColor }, opacity, name: `Símbolo: ${sym.name}`, visible: true, locked: false }); break;
       }
-      case "template": {
-        const tpl = TEMPLATES[selectedTemplate];
-        addLayer({ type: "template", id: Date.now().toString(), data: { templateIndex: selectedTemplate, x: startPos.x - 80, y: startPos.y - 80, w: 160, h: 200, color: brushColor, strokeWidth: 2 }, opacity, name: `Plantilla: ${tpl.name}`, visible: true, locked: false }); break;
+      case "templateShape": {
+        const templatesInCat = TEMPLATES[selectedTemplateCategory] || DEFAULT_TEMPLATES;
+        const tpl = templatesInCat[selectedTemplateIndex];
+        addLayer({ type: "template", id: Date.now().toString(), data: { templateName: tpl.name, templateCategory: selectedTemplateCategory, x: startPos.x - 80, y: startPos.y - 80, w: 160, h: 200, color: brushColor, strokeWidth: 2 }, opacity, name: `Molde: ${tpl.name}`, visible: true, locked: false }); break;
       }
       case "measure":
         setMeasureEnd(endPos);
@@ -714,7 +827,7 @@ export function DesignCanvas() {
           { key: "arrow" as Tool, icon: "➡️", label: "Flecha" },
           { key: "pattern" as Tool, icon: "🎨", label: "Patrón" },
           { key: "symbol" as Tool, icon: "✦", label: "Símbolo" },
-          { key: "template" as Tool, icon: "📐", label: "Plantilla" },
+          { key: "templateShape" as Tool, icon: "📐", label: "Moldes" },
           { key: "fill" as Tool, icon: "🪣", label: "Relleno" },
           { key: "gradient" as Tool, icon: "🌈", label: "Gradiente" },
           { key: "eraser" as Tool, icon: "🧹", label: "Borrador" },
@@ -815,16 +928,22 @@ export function DesignCanvas() {
         )}
       </AnimatePresence>
 
-      {/* Panel de plantillas */}
+      {/* Panel de moldes desplegable */}
       <AnimatePresence>
         {showTemplates && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex flex-wrap gap-2 p-3 bg-white rounded-2xl border border-border">
-            <p className="text-[10px] font-bold text-neutral-500 w-full">Plantillas de producto:</p>
-            <div className="flex flex-wrap gap-2">
-              {TEMPLATES.map((t, i) => (
-                <button key={t.name} onClick={() => { setTool("template"); setSelectedTemplate(i); setShowTemplates(false); }} className={`px-3 py-2 rounded-xl border text-xs font-medium transition ${selectedTemplate === i && tool === "template" ? "border-secondary bg-secondary text-white" : "border-border bg-white hover:border-primary/40"}`}>
-                  <span className="text-lg">{t.icon}</span>
-                  <span className="block text-[10px]">{t.name}</span>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="bg-white rounded-2xl border border-border p-3 shadow-card">
+            <div className="flex gap-1 mb-3 overflow-x-auto no-scrollbar pb-1">
+              {TEMPLATE_CATEGORIES.map((cat) => (
+                <button key={cat} onClick={() => { setSelectedTemplateCategory(cat); setShowTemplates(false); }} className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition border ${selectedTemplateCategory === cat ? "bg-secondary text-white border-secondary" : "border-border bg-white hover:border-primary/40"}`}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5 max-h-48 overflow-y-auto">
+              {(selectedTemplateCategory === "Todos" ? DEFAULT_TEMPLATES : TEMPLATES[selectedTemplateCategory] || []).map((t, i) => (
+                <button key={t.name} onClick={() => { setTool("templateShape"); setSelectedTemplateCategory(selectedTemplateCategory); setSelectedTemplateIndex(i); setShowTemplates(false); }} className={`px-2 py-2 rounded-xl border text-center transition hover:shadow-card ${tool === "templateShape" && selectedTemplateCategory === t.category && selectedTemplateIndex === i ? "border-secondary bg-secondary/10 text-secondary" : "border-border bg-white hover:border-primary/40"}`}>
+                  <span className="text-xl block">{t.icon}</span>
+                  <span className="text-[9px] font-medium block mt-0.5 truncate">{t.name}</span>
                 </button>
               ))}
             </div>
