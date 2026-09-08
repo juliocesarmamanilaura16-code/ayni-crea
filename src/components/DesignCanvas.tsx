@@ -411,10 +411,30 @@ export function DesignCanvas() {
     setCurrentDraw([pos]);
   };
 
+  const drawCurrentStrokeOnCanvas = () => {
+    const c = canvasRef.current;
+    if (!c || !ctx.current || currentDraw.length < 2) return;
+    const pts = currentDraw;
+    ctx.current.strokeStyle = brushColor;
+    ctx.current.lineWidth = brushSize;
+    ctx.current.lineCap = "round";
+    ctx.current.lineJoin = "round";
+    ctx.current.setLineDash(strokeStyle === "dashed" ? [8, 4] : strokeStyle === "dotted" ? [2, 4] : []);
+    ctx.current.beginPath();
+    ctx.current.moveTo(pts[0].x, pts[0].y);
+    pts.forEach((p: { x: number; y: number }) => ctx.current!.lineTo(p.x, p.y));
+    ctx.current.stroke();
+    ctx.current.setLineDash([]);
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDrawing || !startPos || tool === "hand" || tool === "measure") return;
     const pos = getPos(e);
-    if (tool === "brush") setCurrentDraw([...currentDraw, pos]);
+    if (tool === "brush") {
+      setCurrentDraw([...currentDraw, pos]);
+      redraw();
+      drawCurrentStrokeOnCanvas();
+    }
     if (tool === "gradient") setMeasureEnd(pos);
   };
 
