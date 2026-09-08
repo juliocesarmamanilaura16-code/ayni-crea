@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { categories, products } from "@/data/mock";
 import { calcPrice } from "@/lib/pricing";
-import { ArrowRight, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
+import { ArrowRight, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Upload } from "lucide-react";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
@@ -18,6 +18,7 @@ export default function CrearPage() {
   const router = useRouter();
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [savedImage, setSavedImage] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [color, setColor] = useState("");
   const [material, setMaterial] = useState("");
   const [size, setSize] = useState("");
@@ -46,10 +47,21 @@ export default function CrearPage() {
   const handleCatClick = (catId: string) => {
     setSelectedCat(catId);
     setSavedImage(null);
+    setUploadedImage(null);
     setColor("");
     setMaterial("");
     setSize("");
     setText("");
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setUploadedImage(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -108,7 +120,7 @@ export default function CrearPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
-              <DesignCanvas />
+              <DesignCanvas uploadedImage={uploadedImage} />
             </div>
 
             <div className="space-y-5">
@@ -187,6 +199,23 @@ export default function CrearPage() {
                   <p className="text-[11px] text-neutral-500 mt-1">
                     {text.length}/14 caracteres {text && `· +Bs ${template.options.texts.extra}`}
                   </p>
+                </div>
+
+                <div>
+                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Imagen</h3>
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border bg-white hover:border-primary/40 cursor-pointer transition group">
+                    <Upload className="w-5 h-5 text-neutral-400 group-hover:text-secondary" />
+                    <span className="text-sm text-neutral-600 group-hover:text-secondary font-medium">
+                      {uploadedImage ? "Cambiar imagen" : "Subir imagen"}
+                    </span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                  {uploadedImage && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <img src={uploadedImage} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-border" />
+                      <button onClick={() => setUploadedImage(null)} className="text-[11px] text-red-500 hover:text-red-700">Eliminar</button>
+                    </div>
+                  )}
                 </div>
 
                 <motion.div layout className="bg-secondary text-white rounded-2xl p-5 shadow-soft">

@@ -124,7 +124,7 @@ const TEMPLATES: Record<string, TemplateItem[]> = {
 
 const DEFAULT_TEMPLATES = [...TEMPLATES.Textiles, ...TEMPLATES.Cuero, ...TEMPLATES.Joyería, ...TEMPLATES.Accesorios];
 
-export function DesignCanvas() {
+export function DesignCanvas({ uploadedImage }: { uploadedImage?: string | null }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>("brush");
