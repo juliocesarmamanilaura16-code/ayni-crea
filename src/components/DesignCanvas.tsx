@@ -137,7 +137,7 @@ export function DesignCanvas() {
     redraw();
   }, []);
 
-  useEffect(() => { redraw(); }, [bgColor, showGrid, opacity]);
+  useEffect(() => { redraw(); }, [bgColor, showGrid, opacity, layers]);
 
   const drawGrid = (c: CanvasRenderingContext2D, w: number, h: number) => {
     c.strokeStyle = "rgba(0,0,0,0.06)";
