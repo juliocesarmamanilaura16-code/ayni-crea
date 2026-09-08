@@ -130,9 +130,11 @@ export function DesignCanvas() {
 
   useEffect(() => {
     const c = canvasRef.current;
-    if (!c) return;
-    c.width = canvasSize.w;
-    c.height = canvasSize.h;
+    const container = containerRef.current;
+    if (!c || !container) return;
+    const rect = container.getBoundingClientRect();
+    c.width = Math.max(rect.width, 600);
+    c.height = Math.max(rect.width, 600);
     ctx.current = c.getContext("2d");
     redraw();
   }, []);
@@ -649,9 +651,10 @@ export function DesignCanvas() {
 
   const canvasStyle = useMemo(() => ({
     width: "100%",
-    maxWidth: "600px",
+    height: "auto",
     transform: `scale(${zoom})`,
     transformOrigin: "center center",
+    display: "block" as const,
   }), [zoom]);
 
   return (
