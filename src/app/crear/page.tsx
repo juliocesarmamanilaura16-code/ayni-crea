@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { categories, products } from "@/data/mock";
-import { ProductPreview } from "@/components/ProductPreview";
 import { calcPrice } from "@/lib/pricing";
 import { ArrowRight, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -98,14 +97,19 @@ export default function CrearPage() {
 
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <div className="relative w-full aspect-square rounded-3xl overflow-hidden bg-neutral-100 shadow-soft">
-                <ProductPreview
-                  image={template.image}
-                  color={selectedColor?.hex ?? "#ffffff"}
-                  material={material}
-                  size={size}
-                  text={text}
-                />
+              <div className="relative w-full aspect-square rounded-3xl overflow-hidden bg-neutral-100 border-2 border-dashed border-neutral-300 flex flex-col items-center justify-center shadow-soft">
+                <div className="w-20 h-20 rounded-full bg-secondary/10 flex items-center justify-center mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                  </svg>
+                </div>
+                <p className="font-display font-bold text-secondary text-lg">Tu lienzo está vacío</p>
+                <p className="text-sm text-neutral-400 mt-1">Personalizá tu pieza con las opciones de la derecha</p>
+                {text && (
+                  <span className="mt-3 px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">
+                    "{text}"
+                  </span>
+                )}
               </div>
             </div>
 
