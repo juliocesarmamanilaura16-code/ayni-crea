@@ -404,6 +404,44 @@ export function DesignCanvas() {
     return { x: (clientX - rect.left) * scaleX + panOffset.x, y: (clientY - rect.top) * scaleY + panOffset.y };
   };
 
+  const getTouchPos = (e: React.TouchEvent) => {
+    const c = canvasRef.current!;
+    const rect = c.getBoundingClientRect();
+    const scaleX = c.width / rect.width;
+    const scaleY = c.height / rect.height;
+    const touch = e.touches[0];
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+    return { x: (clientX - rect.left) * scaleX + panOffset.x, y: (clientY - rect.top) * scaleY + panOffset.y };
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    const pos = getTouchPos(e);
+    if (tool === "hand") { setIsPanning(true); setStartPos(pos); return; }
+    if (tool === "measure") { setMeasureStart(pos); setMeasureEnd(pos); setIsDrawing(true); return; }
+    setIsDrawing(true);
+    setStartPos(pos);
+    setCurrentDraw([pos]);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    if (!isDrawing || !startPos || tool === "hand" || tool === "measure") return;
+    const pos = getTouchPos(e);
+    if (tool === "brush") {
+      setCurrentDraw([...currentDraw, pos]);
+      redraw();
+      drawPreview(pos);
+    }
+    if (tool === "gradient") setMeasureEnd(pos);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleMouseUp();
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     const pos = getPos(e);
     if (tool === "hand") { setIsPanning(true); setStartPos(pos); return; }
@@ -655,6 +693,7 @@ export function DesignCanvas() {
     transform: `scale(${zoom})`,
     transformOrigin: "center center",
     display: "block" as const,
+    touchAction: "none" as const,
   }), [zoom]);
 
   return (
@@ -807,13 +846,17 @@ export function DesignCanvas() {
       </AnimatePresence>
 
       {/* Canvas */}
-      <div ref={containerRef} className="relative rounded-2xl overflow-hidden border-2 border-border shadow-card bg-neutral-100" style={{ cursor: tool === "hand" ? "grab" : "crosshair" }} onMouseDown={(e) => { if (tool === "hand") { e.preventDefault(); handleMouseDown(e); } }} onMouseMove={(e) => { if (tool === "hand" && isPanning) { const pos = getPos(e); const dx = pos.x - startPos!.x; const dy = pos.y - startPos!.y; setPanOffset({ x: panOffset.x + dx, y: panOffset.y + dy }); setStartPos(pos); } }} onMouseUp={() => { setIsPanning(false); }} onMouseLeave={() => { setIsPanning(false); }}>
+      <div ref={containerRef} className="relative rounded-2xl overflow-hidden border-2 border-border shadow-card bg-neutral-100" style={{ cursor: tool === "hand" ? "grab" : "crosshair", touchAction: "none" }} onMouseDown={(e) => { if (tool === "hand") { e.preventDefault(); handleMouseDown(e); } }} onMouseMove={(e) => { if (tool === "hand" && isPanning) { const pos = getPos(e); const dx = pos.x - startPos!.x; const dy = pos.y - startPos!.y; setPanOffset({ x: panOffset.x + dx, y: panOffset.y + dy }); setStartPos(pos); } }} onMouseUp={() => { setIsPanning(false); }} onMouseLeave={() => { setIsPanning(false); }} onTouchStart={(e) => { if (tool === "hand") { e.preventDefault(); handleTouchStart(e); } }} onTouchMove={(e) => { if (tool === "hand" && isPanning) { e.preventDefault(); const pos = getTouchPos(e); const dx = pos.x - startPos!.x; const dy = pos.y - startPos!.y; setPanOffset({ x: panOffset.x + dx, y: panOffset.y + dy }); setStartPos(pos); } }} onTouchEnd={() => { setIsPanning(false); }} onTouchCancel={() => { setIsPanning(false); }}>
         <canvas
           ref={canvasRef}
           onMouseDown={(e) => { if (tool !== "hand") handleMouseDown(e); }}
           onMouseMove={(e) => { if (tool !== "hand" && tool !== "measure") handleMouseMove(e); }}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
           style={canvasStyle}
           className="block"
         />
