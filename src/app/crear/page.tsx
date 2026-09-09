@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { categories, products } from "@/data/mock";
-import { ArrowRight, MessageCircle, Compass, Upload, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
+import { ArrowRight, MessageCircle, Compass, Upload, Palette, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
+import { toast } from "@/components/Toast";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -20,6 +21,7 @@ export default function CrearPage() {
   const [showDropZone, setShowDropZone] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [hasCanvasDesign, setHasCanvasDesign] = useState(false);
+  const exportRef = useRef<{ toImage: () => string | null } | null>(null);
 
   const template = selectedCat ? products.filter((p) => p.categoryId === selectedCat)[0] : null;
   const hasDesign = hasCanvasDesign || !!uploadedImage;
@@ -32,6 +34,17 @@ export default function CrearPage() {
   const handleGoToChat = () => {
     if (!template || !hasDesign) return;
     router.push(`/crear/${template.id}/elegir-artesano?chat=1`);
+  };
+
+  const handleUploadDesign = () => {
+    const image = exportRef.current?.toImage() ?? null;
+    if (!image) {
+      toast("Dibujá algo en el lienzo antes de subir tu diseño");
+      return;
+    }
+    setUploadedImage(image);
+    setShowDropZone(false);
+    toast("Diseño subido, ya podés seleccionar un artesano disponible");
   };
 
   const handleCatClick = (catId: string) => {
@@ -122,17 +135,20 @@ export default function CrearPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
-              <DesignCanvas uploadedImage={uploadedImage} onDesignChange={setHasCanvasDesign} />
+              <DesignCanvas uploadedImage={uploadedImage} onDesignChange={setHasCanvasDesign} exportRef={exportRef} />
             </div>
 
             <div className="space-y-5">
               <div className="bg-white rounded-2xl border border-border p-5 shadow-card space-y-5">
                 <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Imagen</h3>
-                  <label onClick={() => setShowDropZone(!showDropZone)} className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Diseño</h3>
+                  <Button onClick={handleUploadDesign} disabled={!hasCanvasDesign} variant="secondary" size="md" fullWidth leftIcon={<Palette className="w-4 h-4" />} className="disabled:opacity-40">
+                    Subir diseño del lienzo
+                  </Button>
+                  <label onClick={() => setShowDropZone(!showDropZone)} className="mt-2 flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
                     <Upload className="w-5 h-5 text-white group-hover:text-neutral-900" />
                     <span className="text-sm text-white group-hover:text-neutral-900 font-bold">
-                      {uploadedImage ? "Cambiar imagen" : "Subir imagen"}
+                      {uploadedImage ? "Cambiar diseño" : "Subir diseño"}
                     </span>
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
@@ -160,7 +176,7 @@ export default function CrearPage() {
                       >
                         <Upload className={`w-8 h-8 mx-auto mb-2 transition ${dragOver ? "text-orange-500 scale-110" : "text-neutral-900"}`} />
                         <p className={`font-bold text-sm ${dragOver ? "text-orange-600" : "text-neutral-900"}`}>
-                          {dragOver ? "¡Suelta la imagen aquí!" : "Arrastrá una imagen aquí"}
+                          {dragOver ? "¡Suelta el diseño aquí!" : "Arrastrá tu diseño aquí"}
                         </p>
                         <p className="text-[10px] text-neutral-500 mt-1">JPG, PNG, WEBP hasta 10MB</p>
                       </div>

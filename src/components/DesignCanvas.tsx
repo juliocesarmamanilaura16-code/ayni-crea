@@ -124,7 +124,7 @@ const TEMPLATES: Record<string, TemplateItem[]> = {
 
 const DEFAULT_TEMPLATES = [...TEMPLATES.Textiles, ...TEMPLATES.Cuero, ...TEMPLATES.Joyería, ...TEMPLATES.Accesorios];
 
-export function DesignCanvas({ uploadedImage, onDesignChange }: { uploadedImage?: string | null; onDesignChange?: (hasDesign: boolean) => void }) {
+export function DesignCanvas({ uploadedImage, onDesignChange, exportRef }: { uploadedImage?: string | null; onDesignChange?: (hasDesign: boolean) => void; exportRef?: React.MutableRefObject<{ toImage: () => string | null } | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>("brush");
@@ -202,6 +202,22 @@ export function DesignCanvas({ uploadedImage, onDesignChange }: { uploadedImage?
   useEffect(() => {
     onDesignChange?.(layers.length > 0);
   }, [layers, onDesignChange]);
+
+  useEffect(() => {
+    if (exportRef) {
+      exportRef.current = {
+        toImage: () => {
+          const c = canvasRef.current;
+          if (!c) return null;
+          try {
+            return c.toDataURL("image/png");
+          } catch {
+            return null;
+          }
+        },
+      };
+    }
+  }, [exportRef]);
 
   const drawGrid = (c: CanvasRenderingContext2D, w: number, h: number) => {
     c.strokeStyle = "rgba(0,0,0,0.06)";
