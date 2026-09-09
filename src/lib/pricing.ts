@@ -1,11 +1,9 @@
 import type { Customization, Product } from "@/types";
 
-export function calcPrice(product: Product, c: Omit<Customization, "price" | "productId">): number {
-  const colorExtra = product.options.colors.find((x) => x.name === c.color)?.extra ?? 0;
-  const matExtra = product.options.materials.find((x) => x.name === c.material)?.extra ?? 0;
-  const sizeExtra = product.options.sizes.find((x) => x.name === c.size)?.extra ?? 0;
-  const textExtra = c.text && c.text.trim().length > 0 ? product.options.texts.extra : 0;
-  return product.basePrice + colorExtra + matExtra + sizeExtra + textExtra;
+export function calcPrice(product: Product, _c?: Omit<Customization, "price" | "productId">): number {
+  // El precio final se coordina por chat con el artesano.
+  // Se mantiene el precio base como referencia para el carrito.
+  return product.basePrice;
 }
 
 export const AYN_LEVELS = [

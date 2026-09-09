@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { categories, products } from "@/data/mock";
-import { calcPrice } from "@/lib/pricing";
-import { ArrowRight, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Upload } from "lucide-react";
+import { categories, products, artisans } from "@/data/mock";
+import { ArrowRight, MessageCircle, Compass, Upload, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
+import { ChatDrawer } from "@/components/ChatDrawer";
+import type { Artisan } from "@/types";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -17,43 +18,29 @@ const iconMap: Record<string, typeof Shirt> = {
 export default function CrearPage() {
   const router = useRouter();
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
-  const [savedImage, setSavedImage] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [showDropZone, setShowDropZone] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [color, setColor] = useState("");
-  const [material, setMaterial] = useState("");
-  const [size, setSize] = useState("");
-  const [text, setText] = useState("");
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
 
-  const catProducts = selectedCat ? products.filter((p) => p.categoryId === selectedCat) : [];
-  const template = catProducts[0];
-
-  useEffect(() => {
-    if (template && !color) setColor(template.options.colors[0].name);
-    if (template && !material) setMaterial(template.options.materials[0].name);
-    if (template && !size) {
-      const sz = template.options.sizes[1] ?? template.options.sizes[0];
-      if (sz) setSize(sz.name);
-    }
-  }, [selectedCat]);
-
-  const total = template ? calcPrice(template, { color, material, size, text }) : 0;
+  const template = selectedCat ? products.filter((p) => p.categoryId === selectedCat)[0] : null;
 
   const handleContinue = () => {
     if (!template) return;
-    const params = new URLSearchParams({ color, material, size, text });
-    router.push(`/crear/${template.id}/elegir-artesano?${params.toString()}`);
+    router.push(`/crear/${template.id}/elegir-artesano`);
+  };
+
+  const handleOpenChat = () => {
+    if (!template) return;
+    const available = artisans.filter((a) => a.categoryIds.includes(template.categoryId));
+    setChatArtisan(available[0] ?? artisans[0] ?? null);
+    setChatOpen(true);
   };
 
   const handleCatClick = (catId: string) => {
     setSelectedCat(catId);
-    setSavedImage(null);
     setUploadedImage(null);
-    setColor("");
-    setMaterial("");
-    setSize("");
-    setText("");
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,83 +131,7 @@ export default function CrearPage() {
             <div className="space-y-5">
               <div className="bg-white rounded-2xl border border-border p-5 shadow-card space-y-5">
                 <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Color</h3>
-                  <div className="flex gap-2 flex-wrap">
-                    {template.options.colors.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => setColor(c.name)}
-                        className={cn(
-                          "flex items-center gap-2 px-3 py-2 rounded-xl border transition",
-                          color === c.name ? "border-secondary bg-white shadow-soft" : "border-border bg-white hover:border-primary/40"
-                        )}
-                      >
-                        <span className="w-5 h-5 rounded-full border border-black/10" style={{ background: c.hex }} />
-                        <span className="text-sm font-medium">{c.name}</span>
-                        {c.extra > 0 && <span className="text-[10px] text-neutral-500">+Bs {c.extra}</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Material</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {template.options.materials.map((m) => (
-                      <button
-                        key={m.name}
-                        onClick={() => setMaterial(m.name)}
-                        className={cn(
-                          "p-3 rounded-xl border text-sm font-medium text-center transition",
-                          material === m.name ? "border-secondary bg-white shadow-soft" : "border-border bg-white hover:border-primary/40"
-                        )}
-                      >
-                        {m.name}
-                        <span className="block text-[10px] text-neutral-500 mt-0.5">
-                          {m.extra > 0 ? `+Bs ${m.extra}` : "Incluido"}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Tamaño</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {template.options.sizes.map((s) => (
-                      <button
-                        key={s.name}
-                        onClick={() => setSize(s.name)}
-                        className={cn(
-                          "p-3 rounded-xl border text-sm font-medium text-center transition",
-                          size === s.name ? "border-secondary bg-white shadow-soft" : "border-border bg-white hover:border-primary/40"
-                        )}
-                      >
-                        {s.name}
-                        <span className="block text-[10px] text-neutral-500 mt-0.5">
-                          {s.extra > 0 ? `+Bs ${s.extra}` : "Base"}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Texto personalizado</h3>
-                  <input
-                    value={text}
-                    onChange={(e) => setText(e.target.value.slice(0, 14))}
-                    maxLength={14}
-                    placeholder="JULIO"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
-                  />
-                  <p className="text-[11px] text-neutral-500 mt-1">
-                    {text.length}/14 caracteres {text && `· +Bs ${template.options.texts.extra}`}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-900 mb-3">Imagen</h3>
+                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Imagen</h3>
                   <label onClick={() => setShowDropZone(!showDropZone)} className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
                     <Upload className="w-5 h-5 text-white group-hover:text-neutral-900" />
                     <span className="text-sm text-white group-hover:text-neutral-900 font-bold">
@@ -236,7 +147,6 @@ export default function CrearPage() {
                   )}
                 </div>
 
-                {/* Panel de drag-and-drop */}
                 <AnimatePresence>
                   {showDropZone && (
                     <motion.div
@@ -261,21 +171,19 @@ export default function CrearPage() {
                   )}
                 </AnimatePresence>
 
-                <motion.div layout className="bg-secondary text-white rounded-2xl p-5 shadow-soft">
-                  <div className="flex items-center justify-between">
+                <motion.div layout className="bg-secondary text-white rounded-2xl p-5 shadow-soft space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Compass className="w-5 h-5" />
                     <div>
-                      <p className="text-xs opacity-80 uppercase tracking-widest">Precio estimado</p>
-                      <motion.p key={total} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="font-display text-3xl font-extrabold">
-                        Bs {total}
-                      </motion.p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs opacity-80">Tiempo aprox.</p>
-                      <p className="font-semibold">~{template.productionDays} días</p>
+                      <p className="text-xs opacity-80 uppercase tracking-widest">Explorar artesanía para su elaboración</p>
+                      <p className="text-sm font-semibold">Tu diseño se elabora con un artesano disponible</p>
                     </div>
                   </div>
-                  <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />} className="mt-4">
-                    Continuar
+                  <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />}>
+                    Explorar artesano disponible
+                  </Button>
+                  <Button onClick={handleOpenChat} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20">
+                    Chatear con artesano
                   </Button>
                 </motion.div>
               </div>
@@ -293,12 +201,14 @@ export default function CrearPage() {
         >
           <div className="inline-flex flex-col items-center gap-4">
             <div className="w-24 h-24 rounded-3xl bg-neutral-100 flex items-center justify-center">
-              <Shirt className="w-10 h-10 text-neutral-300" />
+              <span className="text-4xl">🎨</span>
             </div>
             <p className="text-neutral-400 text-sm">Seleccioná una categoría para comenzar a diseñar</p>
           </div>
         </motion.div>
       )}
+
+      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

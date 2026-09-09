@@ -34,9 +34,9 @@ describe('calcPrice', () => {
     expect(price).toBe(100);
   });
 
-  it('suma extras de color, material, tamaño y texto', () => {
+  it('devuelve el precio base: el precio final se coordina por chat con el artesano', () => {
     const price = calcPrice(mockProduct, { color: 'Dorado', material: 'Cuero', size: 'Grande', text: 'HOLA' });
-    expect(price).toBe(100 + 12 + 30 + 40 + 10);
+    expect(price).toBe(100);
   });
 
   it('no suma extra de texto si está vacío', () => {

@@ -3,20 +3,23 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck, MessageCircle, Compass } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
-import { calcPrice } from "@/lib/pricing";
+import { ChatDrawer } from "@/components/ChatDrawer";
+import type { Artisan } from "@/types";
 
 export default function ElegirArtesanoPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
   const { addToCart } = useStore();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const product = products.find((p) => p.id === params.productId);
 
   if (!product) {
@@ -32,23 +35,18 @@ export default function ElegirArtesanoPage() {
     );
   }
 
-  const customization = useMemo(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return {
-      color: urlParams.get("color") || product.options.colors[0].name,
-      material: urlParams.get("material") || product.options.materials[0].name,
-      size: urlParams.get("size") || product.options.sizes[1]?.name || product.options.sizes[0].name,
-      text: urlParams.get("text") || "",
-    };
-  }, [product]);
-
   const availableArtisans = artisans.filter((a) => a.categoryIds.includes(product.categoryId));
+
+  const openChat = (artisan: Artisan) => {
+    setChatArtisan(artisan);
+    setChatOpen(true);
+  };
 
   const handleSelectArtisan = (artisanId: string) => {
     const artisan = artisans.find((a) => a.id === artisanId);
     if (!artisan) return;
 
-    const total = calcPrice(product, customization);
+    const total = product.basePrice;
 
     addToCart({
       productId: product.id,
@@ -57,7 +55,10 @@ export default function ElegirArtesanoPage() {
       productImage: product.image,
       customization: {
         productId: product.id,
-        ...customization,
+        color: "",
+        material: "",
+        size: "",
+        text: "",
         price: total,
       },
       shipping: total >= 200 ? 0 : 15,
@@ -72,14 +73,14 @@ export default function ElegirArtesanoPage() {
         onClick={() => router.back()}
         className="flex items-center gap-1 text-sm text-neutral-500 hover:text-secondary mb-6 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" /> Volver a personalizar
+        <ArrowLeft className="w-4 h-4" /> Volver al lienzo
       </button>
 
       <div className="mb-8">
-        <p className="text-primary text-sm font-semibold tracking-widest uppercase">Paso 3 de 4</p>
-        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">Elige tu artesano</h1>
+        <p className="text-primary text-sm font-semibold tracking-widest uppercase">Paso 2 de 3</p>
+        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">Explora artesanos disponibles</h1>
         <p className="text-neutral-500 mt-2 max-w-2xl">
-          Tu diseño irá directo al taller del artesano que elijas. Cada uno tiene su estilo y tiempo de producción.
+          Tu diseño del lienzo irá directo al taller del artesano que elijas. Chateá con él para coordinar la elaboración.
         </p>
       </div>
 
@@ -94,22 +95,10 @@ export default function ElegirArtesanoPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-display font-bold truncate text-secondary">{product.name}</h3>
-            <div className="mt-2 flex flex-wrap gap-2 text-sm">
-              <span className="px-2.5 py-1 rounded-full bg-secondary/10 text-secondary">
-                Color: {customization.color}
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-secondary/10 text-secondary">
-                Material: {customization.material}
-              </span>
-              <span className="px-2.5 py-1 rounded-full bg-secondary/10 text-secondary">
-                Tamaño: {customization.size}
-              </span>
-              {customization.text && (
-                <span className="px-2.5 py-1 rounded-full bg-accent/10 text-primary">
-                  Texto: "{customization.text}"
-                </span>
-              )}
-            </div>
+            <p className="mt-1 text-sm text-neutral-500 flex items-center gap-1.5">
+              <Compass className="w-4 h-4 text-primary" />
+              Diseño del lienzo listo para su elaboración por un artesano disponible.
+            </p>
           </div>
         </div>
       </motion.div>
@@ -135,10 +124,7 @@ export default function ElegirArtesanoPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
               >
-                <button
-                  onClick={() => handleSelectArtisan(a.id)}
-                  className="w-full group relative bg-white rounded-2xl border border-border p-5 shadow-card hover:shadow-lift hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 text-left"
-                >
+                <div className="w-full group relative bg-white rounded-2xl border border-border p-5 shadow-card hover:shadow-lift hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300">
                   <div className="flex items-start gap-4">
                     <div className="relative shrink-0 w-14 h-14">
                       <Image
@@ -175,10 +161,29 @@ export default function ElegirArtesanoPage() {
                         </span>
                       </div>
                       <p className="mt-2 text-sm text-neutral-600 line-clamp-2">{a.description}</p>
+                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                        <Button
+                          onClick={() => handleSelectArtisan(a.id)}
+                          variant="primary"
+                          size="sm"
+                          rightIcon={<ArrowRight className="w-4 h-4" />}
+                          className="flex-1"
+                        >
+                          Elegir artesano
+                        </Button>
+                        <Button
+                          onClick={() => openChat(a)}
+                          variant="outline"
+                          size="sm"
+                          leftIcon={<MessageCircle className="w-4 h-4" />}
+                          className="flex-1"
+                        >
+                          Chatear
+                        </Button>
+                      </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                   </div>
-                </button>
+                </div>
               </motion.article>
             ))}
           </div>
@@ -188,8 +193,7 @@ export default function ElegirArtesanoPage() {
       <div className="mt-10 hidden md:flex items-center justify-center gap-2">
         {[
           { label: "Categoría", done: true },
-          { label: "Producto", done: true },
-          { label: "Personalizar", done: true },
+          { label: "Lienzo", done: true },
           { label: "Artesano", done: false, active: true },
           { label: "Carrito", done: false },
         ].map((s, i) => (
@@ -210,7 +214,7 @@ export default function ElegirArtesanoPage() {
             >
               {s.label}
             </span>
-            {i < 4 && (
+            {i < 3 && (
               <div
                 className={cn(
                   "w-16 h-px hidden sm:block",
@@ -221,6 +225,8 @@ export default function ElegirArtesanoPage() {
           </div>
         ))}
       </div>
+
+      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
