@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { artisans } from "@/data/mock";
+import { artisans, products } from "@/data/mock";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -38,6 +38,10 @@ export default function CarritoPage() {
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
+  const maxProductionDays = cart.reduce((acc, c) => {
+    const days = products.find((p) => p.id === c.productId)?.productionDays ?? 0;
+    return Math.max(acc, days);
+  }, 0);
   const missingNotes = cart.some((c) => !(c.notes ?? "").trim());
   const isAgreed = (artisanId: string, productId: string) => !!agreed[agreedKey(artisanId, productId)];
   const missingAgreement = cart.some((c) => !isAgreed(c.artisanId, c.productId));
@@ -113,6 +117,7 @@ export default function CarritoPage() {
         <div className="md:col-span-2 space-y-3">
           {cart.map((item, i) => {
             const artisan = artisans.find((a) => a.id === item.artisanId);
+            const productionDays = products.find((p) => p.id === item.productId)?.productionDays;
             return (
               <div
                 key={i}
@@ -131,6 +136,7 @@ export default function CarritoPage() {
                   <h3 className="font-display font-bold text-secondary">{item.productName}</h3>
                   <p className="text-xs text-neutral-500">
                     Artesano: {artisan?.name}
+                    {productionDays ? ` · Confección: ~${productionDays} días` : ""}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
                     {item.customization.color && <Tag>Color: {item.customization.color}</Tag>}
@@ -200,6 +206,9 @@ export default function CarritoPage() {
           )}
           <Row label="Subtotal" value={`Bs ${subtotal}`} />
           <Row label="Envío" value={shipping === 0 ? "Gratis" : `Bs ${shipping}`} />
+          {maxProductionDays > 0 && (
+            <Row label="Duración de confección" value={`~${maxProductionDays} días`} />
+          )}
           <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent my-3" />
           <Row label="Total" value={`Bs ${total}`} bold />
           <Button
