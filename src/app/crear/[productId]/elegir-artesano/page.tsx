@@ -117,7 +117,7 @@ export default function ElegirArtesanoPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <h2 className="font-display text-xl font-bold mb-5 text-secondary">Artesanos disponibles para {product.name}</h2>
+        <h2 className="font-display text-xl font-bold mb-5 text-secondary">Artesanos disponibles para tu diseño</h2>
         {availableArtisans.length === 0 ? (
           <div className="bg-white rounded-2xl border border-border p-8 text-center">
             <User className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
