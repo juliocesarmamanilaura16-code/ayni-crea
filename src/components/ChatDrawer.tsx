@@ -140,20 +140,27 @@ export function ChatDrawer({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-100">
               {messages.map((m) => (
                 <div
                   key={m.id}
                   className={`flex ${m.from === "client" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      m.from === "client"
-                        ? "bg-secondary text-white rounded-br-md"
-                        : "bg-white border border-border text-neutral-800 rounded-bl-md shadow-card"
-                    }`}
-                  >
-                    {m.text}
+                  <div className={`max-w-[85%] ${m.from === "client" ? "flex flex-col items-end" : "flex flex-col items-start"}`}>
+                    {m.from === "artisan" && (
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1 ml-1">
+                        Artesano
+                      </span>
+                    )}
+                    <div
+                      className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed font-medium ${
+                        m.from === "client"
+                          ? "bg-secondary text-white rounded-br-md"
+                          : "bg-amber-50 border-2 border-amber-300 text-neutral-900 rounded-bl-md shadow-card"
+                      }`}
+                    >
+                      {m.text}
+                    </div>
                   </div>
                 </div>
               ))}
