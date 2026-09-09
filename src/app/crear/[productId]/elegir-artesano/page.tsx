@@ -55,6 +55,7 @@ export default function ElegirArtesanoPage() {
       artisanId,
       productName: product.name,
       productImage: displayImage,
+      notes: "",
       customization: {
         productId: product.id,
         color: "",

@@ -12,10 +12,11 @@ import { EmptyState } from "@/components/EmptyState";
 
 export default function CarritoPage() {
   const router = useRouter();
-  const { cart, removeFromCart, placeOrder, user } = useStore();
+  const { cart, removeFromCart, updateNotes, placeOrder, user } = useStore();
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
+  const missingNotes = cart.some((c) => !(c.notes ?? "").trim());
 
   const handleConfirm = () => {
     if (!user) {
@@ -25,6 +26,10 @@ export default function CarritoPage() {
     }
     if (user.role === "artisan") {
       toast("Inicia sesión como cliente", "error");
+      return;
+    }
+    if (missingNotes) {
+      toast("Agregá la descripción de tu producto antes de confirmar", "error");
       return;
     }
     const order = placeOrder();
@@ -92,6 +97,18 @@ export default function CarritoPage() {
                       <Tag>Diseño personalizado del lienzo</Tag>
                     )}
                   </div>
+                  <div className="mt-3">
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                      Descripción del producto *
+                    </label>
+                    <textarea
+                      value={item.notes ?? ""}
+                      onChange={(e) => updateNotes(i, e.target.value)}
+                      placeholder="Describí tu producto para el artesano: medidas, colores, detalles..."
+                      rows={2}
+                      className="mt-1 w-full text-sm px-3 py-2 rounded-xl bg-white border border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
                   <span className="font-display font-bold text-secondary">Bs {item.customization.price}</span>
@@ -119,10 +136,16 @@ export default function CarritoPage() {
             variant="primary"
             size="lg"
             fullWidth
-            className="mt-4"
+            disabled={missingNotes}
+            className="mt-4 disabled:opacity-40"
           >
             Confirmar pedido
           </Button>
+          {missingNotes && (
+            <p className="text-[11px] text-error-600 text-center mt-2">
+              Escribí la descripción de cada producto para poder confirmar.
+            </p>
+          )}
           <div className="mt-5 grid grid-cols-2 gap-2.5">
             <div className="flex items-center gap-2 rounded-xl border border-border bg-neutral-50 p-2.5">
               <Lock className="w-4 h-4 text-success shrink-0" />

@@ -12,6 +12,7 @@ type CartItem = {
   productImage: string;
   customization: Customization;
   shipping: number;
+  notes: string;
 };
 
 type State = {
@@ -23,6 +24,7 @@ type State = {
   logout: () => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (index: number) => void;
+  updateNotes: (index: number, notes: string) => void;
   clearCart: () => void;
   placeOrder: () => Order | null;
   advanceOrder: (orderId: string) => void;
@@ -45,6 +47,8 @@ export const useStore = create<State>()(
       addToCart: (item) =>
         set((s) => ({ cart: [...s.cart, { ...item, shipping: shippingFor(item.customization.price) }] })),
       removeFromCart: (i) => set((s) => ({ cart: s.cart.filter((_, idx) => idx !== i) })),
+      updateNotes: (i, notes) =>
+        set((s) => ({ cart: s.cart.map((c, idx) => (idx === i ? { ...c, notes } : c)) })),
       clearCart: () => set({ cart: [] }),
       placeOrder: () => {
         const { user, cart } = get();
@@ -56,6 +60,7 @@ export const useStore = create<State>()(
           productId: c.productId,
           productName: c.productName,
           productImage: c.productImage,
+          notes: c.notes,
           customization: c.customization,
           shipping: c.shipping,
           total: c.customization.price + c.shipping,
