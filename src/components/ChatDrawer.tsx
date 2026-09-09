@@ -53,7 +53,8 @@ function amountsLine(p: PriceProposal): string {
 function getBotReply(
   input: string,
   p: PriceProposal | null,
-  artisanFirstName: string
+  artisanFirstName: string,
+  proposalSent?: boolean
 ): { text: string; applyDiscount: boolean } {
   const t = input.toLowerCase();
   const has = (...words: string[]) => words.some((w) => t.includes(w));
@@ -84,7 +85,9 @@ function getBotReply(
   if (has("hola", "buenas", "buenos días", "buenas tardes", "hey", "saludos")) {
     return {
       text: amounts
-        ? `¡Hola! Soy ${artisanFirstName}. Mi propuesta es: ${amounts}. ¿Te parece bien?`
+        ? proposalSent
+          ? `¡Hola! Soy ${artisanFirstName}. Mi propuesta es: ${amounts}. ¿Te parece bien?`
+          : `¡Hola! Qué bueno verte por acá. Ya tengo tu diseño en mi taller: contame qué colores y materiales preferís y elegí la entrega para darte los costos.`
         : `¡Hola! Soy ${artisanFirstName}. Contame qué diseño tenés en mente y lo elaboramos juntos.`,
       applyDiscount: false,
     };
@@ -112,6 +115,8 @@ export function ChatDrawer({
   proposal,
   askDelivery,
   threadId,
+  designImage,
+  productName,
   onProposalChange,
   onConfirmAmounts,
 }: {
@@ -123,6 +128,8 @@ export function ChatDrawer({
   proposal?: PriceProposal | null;
   askDelivery?: boolean;
   threadId?: string | null;
+  designImage?: string | null;
+  productName?: string | null;
   onProposalChange?: (p: { price: number; shipping: number }) => void;
   onConfirmAmounts?: (a: ConfirmedAgreement) => void;
 }) {
@@ -172,15 +179,41 @@ export function ChatDrawer({
           }
           setMessages(stored);
         } else {
-          // Primero el saludo, sin costos: la charla y la propuesta vienen después
-          setMessages([
+          // Saludo inicial + el diseño ya recibido + pedido de detalles (sin costos todavía)
+          const welcome: ChatMessage[] = [
             {
               id: "welcome",
               from: "artisan",
-              text: `¡Hola! Soy ${artisan.name} 👋 ¿Qué diseño tenés en mente? Contame medidas, colores o pasame tu imagen y lo elaboramos juntos.`,
+              text: `¡Hola! Soy ${artisan.name} 👋 ¡Gracias por elegirme para elaborar tu diseño!`,
               at: new Date().toISOString(),
             },
-          ]);
+          ];
+          if (designImage || productName) {
+            welcome.push({
+              id: "design",
+              from: "artisan",
+              text: `Ya recibí tu diseño${productName ? ` "${productName}"` : ""}, lo tengo aquí en mi taller.`,
+              image: designImage ?? undefined,
+              at: new Date().toISOString(),
+            });
+          }
+          if (initialProposal) {
+            welcome.push({
+              id: "details",
+              from: "artisan",
+              text: "Para dejarlo perfecto necesito unos detalles: ¿qué colores y materiales preferís? Y para los costos, ¿cómo querés recibirlo?",
+              options: askDelivery ? DELIVERY_OPTIONS : undefined,
+              at: new Date().toISOString(),
+            });
+          } else {
+            welcome.push({
+              id: "details",
+              from: "artisan",
+              text: "¿En qué te ayudo con tu pedido?",
+              at: new Date().toISOString(),
+            });
+          }
+          setMessages(welcome);
         }
       } catch {
         setMessages([]);
@@ -203,7 +236,7 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  const pushArtisan = (msgs: { text: string; options?: string[] }[]) => {
+  const pushArtisan = (msgs: { text: string; image?: string; options?: string[] }[]) => {
     setMessages((prev) => [
       ...prev,
       ...msgs.map((m, k) => ({
@@ -237,7 +270,7 @@ export function ChatDrawer({
       if (forImage) {
         if (snapshot && askDelivery && !methodRef.current && !proposalSentRef.current) {
           pushArtisan([
-            { text: "¡Recibí tu imagen! Se ve muy linda. Para armarte bien los costos finales:" },
+            { text: "¡Recibí tu imagen! Se ve muy linda. Contame qué colores y materiales preferís para dejarla perfecta. Para los costos:" },
             { text: "¿Cómo querés recibir tu pedido? Elegí una opción:", options: DELIVERY_OPTIONS },
           ]);
         } else if (snapshot && proposalSentRef.current) {
@@ -316,17 +349,17 @@ export function ChatDrawer({
         return;
       }
 
-      // 5) Primera charla (todavía sin costos): conversar y pedir la entrega
+      // 5) Primera charla (todavía sin costos): pedir detalles y la entrega
       if (snapshot && askDelivery && !methodRef.current && !proposalSentRef.current) {
         pushArtisan([
-          { text: `¡Buenísimo, tomo nota! Soy ${firstName} y te voy a acompañar en tu pedido. Para armarte bien los costos, contame:` },
+          { text: `¡Buenísimo! Anoto esos detalles de colores y materiales. Para armarte bien los costos, contame:` },
           { text: "¿Cómo querés recibir tu pedido? Elegí una opción:", options: DELIVERY_OPTIONS },
         ]);
         return;
       }
 
       // 6) Charla normal (con propuesta o chat libre de pedidos)
-      const { text } = getBotReply(inputText, snapshot, firstName);
+      const { text } = getBotReply(inputText, snapshot, firstName, proposalSentRef.current);
       pushArtisan([{ text }]);
     }, 900);
   };

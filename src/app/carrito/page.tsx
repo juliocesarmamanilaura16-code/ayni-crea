@@ -358,6 +358,8 @@ export default function CarritoPage() {
         contextLine={chatContextLine}
         proposal={chatProposal}
         askDelivery
+        designImage={chatItemIndex !== null ? cart[chatItemIndex]?.productImage ?? null : null}
+        productName={chatItemIndex !== null ? cart[chatItemIndex]?.productName ?? null : null}
         threadId={
           chatArtisan && chatItemIndex !== null && cart[chatItemIndex]
             ? threadOf(

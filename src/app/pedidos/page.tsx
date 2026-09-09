@@ -23,6 +23,7 @@ export default function PedidosPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatOrderId, setChatOrderId] = useState<string | null>(null);
+  const chatOrder = chatOrderId ? orders.find((o) => o.id === chatOrderId) ?? null : null;
   const [ratingMap, setRatingMap] = useState<Record<string, { rating: number; comment: string }>>(
     {}
   );
@@ -243,6 +244,8 @@ export default function PedidosPage() {
         open={chatOpen}
         onClose={() => setChatOpen(false)}
         threadId={chatArtisan && chatOrderId ? `order-${chatArtisan.id}-${chatOrderId}` : null}
+        designImage={chatOrder?.productImage ?? null}
+        productName={chatOrder?.productName ?? null}
       />
     </div>
   );
