@@ -84,10 +84,13 @@ export default function CarritoPage() {
                     Artesano: {artisan?.name}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                    <Tag>Color: {item.customization.color}</Tag>
-                    <Tag>Material: {item.customization.material}</Tag>
-                    <Tag>Tamaño: {item.customization.size}</Tag>
+                    {item.customization.color && <Tag>Color: {item.customization.color}</Tag>}
+                    {item.customization.material && <Tag>Material: {item.customization.material}</Tag>}
+                    {item.customization.size && <Tag>Tamaño: {item.customization.size}</Tag>}
                     {item.customization.text && <Tag>Texto: "{item.customization.text}"</Tag>}
+                    {!item.customization.color && !item.customization.material && !item.customization.size && !item.customization.text && (
+                      <Tag>Diseño personalizado del lienzo</Tag>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">

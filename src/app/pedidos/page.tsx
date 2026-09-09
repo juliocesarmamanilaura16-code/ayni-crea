@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, ChevronDown, ChevronUp, Package } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, Package, MessageCircle } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans } from "@/data/mock";
 import { OrderTimeline } from "@/components/OrderTimeline";
@@ -12,13 +12,28 @@ import { Rating } from "@/components/Rating";
 import { Button } from "@/components/Button";
 import { toast } from "@/components/Toast";
 import { ORDER_STEPS } from "@/types";
+import { ChatDrawer } from "@/components/ChatDrawer";
+import type { Artisan } from "@/types";
+
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=200&q=80&auto=format&fit=crop";
 
 export default function PedidosPage() {
   const { orders, rateOrder } = useStore();
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [ratingMap, setRatingMap] = useState<Record<string, { rating: number; comment: string }>>(
     {}
   );
+
+  const openChat = (artisan: Artisan | undefined) => {
+    if (!artisan) {
+      toast("Artesano no disponible", "error");
+      return;
+    }
+    setChatArtisan(artisan);
+    setChatOpen(true);
+  };
 
   if (orders.length === 0) {
     return (
@@ -62,7 +77,7 @@ export default function PedidosPage() {
               >
                 <div className="relative w-14 h-14 shrink-0">
                   <Image
-                    src={`https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=200&q=80&auto=format&fit=crop`}
+                    src={o.productImage || FALLBACK_IMAGE}
                     alt={o.productName}
                     fill
                     sizes="56px"
@@ -108,13 +123,17 @@ export default function PedidosPage() {
                       <div className="grid sm:grid-cols-2 gap-3 text-sm">
                         <div>
                           <p className="text-[10px] uppercase tracking-widest text-neutral-500">
-                            Personalización
+                            Tu diseño
                           </p>
-                          <p className="text-secondary">
-                            Color: {o.customization.color} · Material: {o.customization.material} ·
-                            Tamaño: {o.customization.size}
-                            {o.customization.text && ` · Texto: "${o.customization.text}"`}
-                          </p>
+                          <div className="relative w-full h-32 rounded-xl overflow-hidden bg-neutral-100 mt-1">
+                            <Image
+                              src={o.productImage || FALLBACK_IMAGE}
+                              alt={`Diseño de ${o.productName}`}
+                              fill
+                              sizes="300px"
+                              className="object-cover"
+                            />
+                          </div>
                         </div>
                         <div>
                           <p className="text-[10px] uppercase tracking-widest text-neutral-500">
@@ -123,6 +142,15 @@ export default function PedidosPage() {
                           <p className="text-secondary">
                             Producto Bs {o.customization.price} + Envío Bs {o.shipping} = Bs {o.total}
                           </p>
+                          <Button
+                            onClick={() => openChat(artisan)}
+                            variant="outline"
+                            size="sm"
+                            leftIcon={<MessageCircle className="w-4 h-4" />}
+                            className="mt-3"
+                          >
+                            Chatear con {artisan ? artisan.name.split(" ")[0] : "artesano"}
+                          </Button>
                         </div>
                       </div>
 
@@ -193,6 +221,8 @@ export default function PedidosPage() {
           );
         })}
       </div>
+
+      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

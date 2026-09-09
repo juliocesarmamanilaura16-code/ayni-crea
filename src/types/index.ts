@@ -81,6 +81,7 @@ export type Order = {
   artisanId: string;
   productId: string;
   productName: string;
+  productImage: string;
   customization: Customization;
   shipping: number;
   total: number;

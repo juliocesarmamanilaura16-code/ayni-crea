@@ -55,6 +55,7 @@ export const useStore = create<State>()(
           artisanId: c.artisanId,
           productId: c.productId,
           productName: c.productName,
+          productImage: c.productImage,
           customization: c.customization,
           shipping: c.shipping,
           total: c.customization.price + c.shipping,

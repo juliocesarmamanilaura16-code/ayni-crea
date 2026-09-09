@@ -4,11 +4,12 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { categories, products } from "@/data/mock";
-import { ArrowRight, MessageCircle, Compass, Upload, Palette, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
+import { ArrowRight, Compass, Upload, Palette, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
 import { toast } from "@/components/Toast";
+import { DESIGN_IMAGE_KEY } from "@/lib/design";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -27,13 +28,17 @@ export default function CrearPage() {
   const hasDesign = hasCanvasDesign || !!uploadedImage;
 
   const handleContinue = () => {
-    if (!template) return;
-    router.push(`/crear/${template.id}/elegir-artesano`);
-  };
-
-  const handleGoToChat = () => {
     if (!template || !hasDesign) return;
-    router.push(`/crear/${template.id}/elegir-artesano?chat=1`);
+    try {
+      if (uploadedImage) {
+        sessionStorage.setItem(DESIGN_IMAGE_KEY, uploadedImage);
+      } else {
+        sessionStorage.removeItem(DESIGN_IMAGE_KEY);
+      }
+    } catch {
+      /* noop */
+    }
+    router.push(`/crear/${template.id}/elegir-artesano`);
   };
 
   const handleUploadDesign = () => {
@@ -51,6 +56,11 @@ export default function CrearPage() {
     setSelectedCat(catId);
     setUploadedImage(null);
     setHasCanvasDesign(false);
+    try {
+      sessionStorage.removeItem(DESIGN_IMAGE_KEY);
+    } catch {
+      /* noop */
+    }
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,25 +202,12 @@ export default function CrearPage() {
                       <p className="text-sm font-semibold">Tu diseño se elabora con un artesano disponible</p>
                     </div>
                   </div>
-                  <AnimatePresence>
-                    {hasDesign && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                      >
-                        <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />}>
-                          Seleccionar artesano disponible
-                        </Button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  <Button onClick={handleGoToChat} disabled={!hasDesign} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20 disabled:opacity-40">
-                    Chatear con artesano
+                  <Button onClick={handleContinue} disabled={!hasDesign} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />} className="disabled:opacity-40">
+                    Seleccionar artesano disponible
                   </Button>
                   {!hasDesign && (
                     <p className="text-xs text-white/70 text-center">
-                      Diseñá en el lienzo o subí una imagen para seleccionar un artesano o chatear.
+                      Diseñá en el lienzo o subí tu diseño para seleccionar un artesano disponible.
                     </p>
                   )}
                 </motion.div>

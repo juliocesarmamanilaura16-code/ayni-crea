@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, MessageCircle, Compass } from "lucide-react";
+import { ArrowLeft, Compass } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { ProductPreview } from "@/components/ProductPreview";
 import { Button } from "@/components/Button";
@@ -29,10 +29,6 @@ export default function CustomizerPage() {
 
   const handleContinue = () => {
     router.push(`/crear/${product.id}/elegir-artesano`);
-  };
-
-  const handleGoToChat = () => {
-    router.push(`/crear/${product.id}/elegir-artesano?chat=1`);
   };
 
   return (
@@ -77,9 +73,6 @@ export default function CustomizerPage() {
             </div>
             <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<Compass className="w-4 h-4" />}>
               Explorar artesano disponible
-            </Button>
-            <Button onClick={handleGoToChat} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20">
-              Chatear con artesano
             </Button>
           </motion.div>
         </div>

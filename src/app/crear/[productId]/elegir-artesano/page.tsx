@@ -1,28 +1,32 @@
 "use client";
 
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck, MessageCircle, Compass } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck, Compass } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
-import { ChatDrawer } from "@/components/ChatDrawer";
-import type { Artisan } from "@/types";
+import { DESIGN_IMAGE_KEY } from "@/lib/design";
 
 export default function ElegirArtesanoPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const chatMode = searchParams.get("chat") === "1";
   const { addToCart } = useStore();
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
+  const [designImage, setDesignImage] = useState<string | null>(null);
   const product = products.find((p) => p.id === params.productId);
+
+  useEffect(() => {
+    try {
+      setDesignImage(sessionStorage.getItem(DESIGN_IMAGE_KEY));
+    } catch {
+      setDesignImage(null);
+    }
+  }, []);
 
   if (!product) {
     return (
@@ -38,11 +42,7 @@ export default function ElegirArtesanoPage() {
   }
 
   const availableArtisans = artisans.filter((a) => a.categoryIds.includes(product.categoryId));
-
-  const openChat = (artisan: Artisan) => {
-    setChatArtisan(artisan);
-    setChatOpen(true);
-  };
+  const displayImage = designImage ?? product.image;
 
   const handleSelectArtisan = (artisanId: string) => {
     const artisan = artisans.find((a) => a.id === artisanId);
@@ -54,7 +54,7 @@ export default function ElegirArtesanoPage() {
       productId: product.id,
       artisanId,
       productName: product.name,
-      productImage: product.image,
+      productImage: displayImage,
       customization: {
         productId: product.id,
         color: "",
@@ -80,13 +80,9 @@ export default function ElegirArtesanoPage() {
 
       <div className="mb-8">
         <p className="text-primary text-sm font-semibold tracking-widest uppercase">Paso 2 de 3</p>
-        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">
-          {chatMode ? "Elige con quién chatear" : "Explora artesanos disponibles"}
-        </h1>
+        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">Explora artesanos disponibles</h1>
         <p className="text-neutral-500 mt-2 max-w-2xl">
-          {chatMode
-            ? "Seleccioná un artesano disponible para conversar sobre tu diseño y coordinar su elaboración."
-            : "Tu diseño del lienzo irá directo al taller del artesano que elijas. Chateá con él para coordinar la elaboración."}
+          Tu diseño irá directo al taller del artesano que elijas para su elaboración.
         </p>
       </div>
 
@@ -97,13 +93,17 @@ export default function ElegirArtesanoPage() {
       >
         <div className="flex items-start gap-4">
           <div className="relative w-20 h-20 rounded-xl bg-neutral-100 overflow-hidden flex-shrink-0">
-            <Image src={product.image} alt={product.name} fill sizes="80px" className="object-cover" />
+            <Image src={displayImage} alt={designImage ? "Tu diseño" : product.name} fill sizes="80px" className="object-cover" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-display font-bold truncate text-secondary">{product.name}</h3>
+            <h3 className="font-display font-bold truncate text-secondary">
+              {designImage ? "Tu diseño" : product.name}
+            </h3>
             <p className="mt-1 text-sm text-neutral-500 flex items-center gap-1.5">
               <Compass className="w-4 h-4 text-primary" />
-              Diseño del lienzo listo para su elaboración por un artesano disponible.
+              {designImage
+                ? "Tu diseño subido se mantendrá hasta solicitar el pedido."
+                : "Diseño listo para su elaboración por un artesano disponible."}
             </p>
           </div>
         </div>
@@ -130,7 +130,10 @@ export default function ElegirArtesanoPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
               >
-                <div className="w-full group relative bg-white rounded-2xl border border-border p-5 shadow-card hover:shadow-lift hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300">
+                <button
+                  onClick={() => handleSelectArtisan(a.id)}
+                  className="w-full group relative bg-white rounded-2xl border border-border p-5 shadow-card hover:shadow-lift hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 text-left"
+                >
                   <div className="flex items-start gap-4">
                     <div className="relative shrink-0 w-14 h-14">
                       <Image
@@ -167,54 +170,10 @@ export default function ElegirArtesanoPage() {
                         </span>
                       </div>
                       <p className="mt-2 text-sm text-neutral-600 line-clamp-2">{a.description}</p>
-                      <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        {chatMode ? (
-                          <>
-                            <Button
-                              onClick={() => openChat(a)}
-                              variant="primary"
-                              size="sm"
-                              leftIcon={<MessageCircle className="w-4 h-4" />}
-                              className="flex-1"
-                            >
-                              Chatear con {a.name.split(" ")[0]}
-                            </Button>
-                            <Button
-                              onClick={() => handleSelectArtisan(a.id)}
-                              variant="outline"
-                              size="sm"
-                              rightIcon={<ArrowRight className="w-4 h-4" />}
-                              className="flex-1"
-                            >
-                              Elegir para elaborar
-                            </Button>
-                          </>
-                        ) : (
-                          <>
-                            <Button
-                              onClick={() => handleSelectArtisan(a.id)}
-                              variant="primary"
-                              size="sm"
-                              rightIcon={<ArrowRight className="w-4 h-4" />}
-                              className="flex-1"
-                            >
-                              Elegir artesano
-                            </Button>
-                            <Button
-                              onClick={() => openChat(a)}
-                              variant="outline"
-                              size="sm"
-                              leftIcon={<MessageCircle className="w-4 h-4" />}
-                              className="flex-1"
-                            >
-                              Chatear
-                            </Button>
-                          </>
-                        )}
-                      </div>
                     </div>
+                    <ArrowRight className="w-5 h-5 text-neutral-300 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                   </div>
-                </div>
+                </button>
               </motion.article>
             ))}
           </div>
@@ -256,8 +215,6 @@ export default function ElegirArtesanoPage() {
           </div>
         ))}
       </div>
-
-      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
