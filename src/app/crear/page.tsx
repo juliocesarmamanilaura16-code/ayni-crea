@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { categories, products } from "@/data/mock";
 import { calcPrice } from "@/lib/pricing";
@@ -19,6 +19,8 @@ export default function CrearPage() {
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [savedImage, setSavedImage] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [showDropZone, setShowDropZone] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [color, setColor] = useState("");
   const [material, setMaterial] = useState("");
   const [size, setSize] = useState("");
@@ -60,9 +62,25 @@ export default function CrearPage() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       setUploadedImage(ev.target?.result as string);
+      setShowDropZone(false);
     };
     reader.readAsDataURL(file);
   };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    setShowDropZone(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (ev) => { setUploadedImage(ev.target?.result as string); };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragOver(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setDragOver(false); };
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
@@ -203,7 +221,7 @@ export default function CrearPage() {
 
                 <div>
                   <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-900 mb-3">Imagen</h3>
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
+                  <label onClick={() => setShowDropZone(!showDropZone)} className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
                     <Upload className="w-5 h-5 text-white group-hover:text-neutral-900" />
                     <span className="text-sm text-white group-hover:text-neutral-900 font-bold">
                       {uploadedImage ? "Cambiar imagen" : "Subir imagen"}
@@ -217,6 +235,31 @@ export default function CrearPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Panel de drag-and-drop */}
+                <AnimatePresence>
+                  {showDropZone && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        className={`rounded-2xl border-2 border-dashed p-6 text-center transition ${dragOver ? "border-orange-500 bg-orange-500/10" : "border-neutral-900 bg-neutral-900/5"}`}
+                      >
+                        <Upload className={`w-8 h-8 mx-auto mb-2 transition ${dragOver ? "text-orange-500 scale-110" : "text-neutral-900"}`} />
+                        <p className={`font-bold text-sm ${dragOver ? "text-orange-600" : "text-neutral-900"}`}>
+                          {dragOver ? "¡Suelta la imagen aquí!" : "Arrastrá una imagen aquí"}
+                        </p>
+                        <p className="text-[10px] text-neutral-500 mt-1">JPG, PNG, WEBP hasta 10MB</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <motion.div layout className="bg-secondary text-white rounded-2xl p-5 shadow-soft">
                   <div className="flex items-center justify-between">
