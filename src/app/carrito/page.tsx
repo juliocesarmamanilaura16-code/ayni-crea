@@ -3,20 +3,67 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck } from "lucide-react";
+import { useState } from "react";
+import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans } from "@/data/mock";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
+import { ChatDrawer, chatDoneKey } from "@/components/ChatDrawer";
+import type { Artisan } from "@/types";
+
+function hasChatted(artisanId: string) {
+  try {
+    return localStorage.getItem(chatDoneKey(artisanId)) === "1";
+  } catch {
+    return false;
+  }
+}
 
 export default function CarritoPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateNotes, placeOrder, user } = useStore();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
+  const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
+  const [chatted, setChatted] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    try {
+      const raw = localStorage.getItem("ayni-crea-store");
+      const parsed = raw ? JSON.parse(raw) : null;
+      const items = parsed?.state?.cart ?? [];
+      for (const c of items) {
+        if (c?.artisanId && localStorage.getItem(chatDoneKey(c.artisanId)) === "1") {
+          init[c.artisanId] = true;
+        }
+      }
+    } catch {
+      /* noop */
+    }
+    return init;
+  });
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
   const missingNotes = cart.some((c) => !(c.notes ?? "").trim());
+  const isChatted = (artisanId: string) => !!chatted[artisanId] || hasChatted(artisanId);
+  const missingChat = cart.some((c) => !isChatted(c.artisanId));
+
+  const openChat = (artisan: Artisan | undefined, itemIndex: number) => {
+    if (!artisan) {
+      toast("Artesano no disponible", "error");
+      return;
+    }
+    setChatArtisan(artisan);
+    setChatItemIndex(itemIndex);
+    setChatOpen(true);
+  };
+
+  const chatContextLine =
+    chatItemIndex !== null && cart[chatItemIndex]
+      ? `Acuerdo de precio con el artesano — ${cart[chatItemIndex].productName}: Producto Bs ${cart[chatItemIndex].customization.price} + Envío Bs ${cart[chatItemIndex].shipping} = Total Bs ${cart[chatItemIndex].customization.price + cart[chatItemIndex].shipping}. Confirmá estos montos en este chat antes de confirmar el pedido.`
+      : null;
 
   const handleConfirm = () => {
     if (!user) {
@@ -30,6 +77,10 @@ export default function CarritoPage() {
     }
     if (missingNotes) {
       toast("Agregá la descripción de tu producto antes de confirmar", "error");
+      return;
+    }
+    if (missingChat) {
+      toast("Chateá con el artesano y acordá el precio antes de confirmar", "error");
       return;
     }
     const order = placeOrder();
@@ -109,6 +160,23 @@ export default function CarritoPage() {
                       className="mt-1 w-full text-sm px-3 py-2 rounded-xl bg-white border border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
                     />
                   </div>
+                  <div className="mt-3">
+                    {isChatted(item.artisanId) ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success">
+                        <CheckCheck className="w-4 h-4" />
+                        Precio acordado con {artisan?.name.split(" ")[0]} en el chat
+                      </span>
+                    ) : (
+                      <Button
+                        onClick={() => openChat(artisan, i)}
+                        variant="outline"
+                        size="sm"
+                        leftIcon={<MessageCircle className="w-4 h-4" />}
+                      >
+                        Chatear con el artesano *
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-col items-end justify-between">
                   <span className="font-display font-bold text-secondary">Bs {item.customization.price}</span>
@@ -136,14 +204,18 @@ export default function CarritoPage() {
             variant="primary"
             size="lg"
             fullWidth
-            disabled={missingNotes}
+            disabled={missingNotes || missingChat}
             className="mt-4 disabled:opacity-40"
           >
             Confirmar pedido
           </Button>
-          {missingNotes && (
+          {(missingNotes || missingChat) && (
             <p className="text-[11px] text-error-600 text-center mt-2">
-              Escribí la descripción de cada producto para poder confirmar.
+              {missingNotes && missingChat
+                ? "Escribí la descripción y chateá con el artesano para acordar el precio antes de confirmar."
+                : missingNotes
+                  ? "Escribí la descripción de cada producto para poder confirmar."
+                  : "Chateá con el artesano y acordá subtotal, envío y total antes de confirmar."}
             </p>
           )}
           <div className="mt-5 grid grid-cols-2 gap-2.5">
@@ -169,6 +241,18 @@ export default function CarritoPage() {
           </p>
         </aside>
       </div>
+
+      <ChatDrawer
+        artisan={chatArtisan}
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        contextLine={chatContextLine}
+        onClientMessage={() => {
+          if (chatArtisan) {
+            setChatted((prev) => ({ ...prev, [chatArtisan.id]: true }));
+          }
+        }}
+      />
     </div>
   );
 }

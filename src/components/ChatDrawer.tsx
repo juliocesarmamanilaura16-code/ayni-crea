@@ -24,14 +24,22 @@ function storageKey(artisanId: string) {
   return `ayni-chat-${artisanId}`;
 }
 
+export function chatDoneKey(artisanId: string) {
+  return `ayni-chat-done-${artisanId}`;
+}
+
 export function ChatDrawer({
   artisan,
   open,
   onClose,
+  contextLine,
+  onClientMessage,
 }: {
   artisan: Artisan | null;
   open: boolean;
   onClose: () => void;
+  contextLine?: string | null;
+  onClientMessage?: () => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -74,8 +82,7 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  const sendAutoReply = (forImage: boolean) => {
-    setTimeout(() => {
+  const sendAutoReply = (forImage: boolean) => {    setTimeout(() => {
       setMessages((prev) => [
         ...prev,
         {
@@ -90,6 +97,16 @@ export function ChatDrawer({
     }, 900);
   };
 
+  const notifyClientMessage = () => {
+    if (!artisan) return;
+    try {
+      localStorage.setItem(chatDoneKey(artisan.id), "1");
+    } catch {
+      /* noop */
+    }
+    onClientMessage?.();
+  };
+
   const send = () => {
     const text = draft.trim();
     if (!text || !artisan) return;
@@ -101,6 +118,7 @@ export function ChatDrawer({
     };
     setMessages((prev) => [...prev, userMsg]);
     setDraft("");
+    notifyClientMessage();
     sendAutoReply(false);
   };
 
@@ -121,6 +139,7 @@ export function ChatDrawer({
         },
       ]);
       setDraft("");
+      notifyClientMessage();
       sendAutoReply(true);
     };
     reader.readAsDataURL(file);
@@ -171,6 +190,11 @@ export function ChatDrawer({
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-neutral-100">
+              {contextLine && (
+                <div className="mx-auto max-w-[90%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed bg-secondary/10 border border-secondary/30 text-secondary font-semibold text-center">
+                  {contextLine}
+                </div>
+              )}
               {messages.map((m) => (
                 <div
                   key={m.id}
