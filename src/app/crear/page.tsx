@@ -3,13 +3,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { categories, products, artisans } from "@/data/mock";
+import { categories, products } from "@/data/mock";
 import { ArrowRight, MessageCircle, Compass, Upload, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
-import { ChatDrawer } from "@/components/ChatDrawer";
-import type { Artisan } from "@/types";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -21,26 +19,25 @@ export default function CrearPage() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [showDropZone, setShowDropZone] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
+  const [hasCanvasDesign, setHasCanvasDesign] = useState(false);
 
   const template = selectedCat ? products.filter((p) => p.categoryId === selectedCat)[0] : null;
+  const hasDesign = hasCanvasDesign || !!uploadedImage;
 
   const handleContinue = () => {
     if (!template) return;
     router.push(`/crear/${template.id}/elegir-artesano`);
   };
 
-  const handleOpenChat = () => {
-    if (!template) return;
-    const available = artisans.filter((a) => a.categoryIds.includes(template.categoryId));
-    setChatArtisan(available[0] ?? artisans[0] ?? null);
-    setChatOpen(true);
+  const handleGoToChat = () => {
+    if (!template || !hasDesign) return;
+    router.push(`/crear/${template.id}/elegir-artesano?chat=1`);
   };
 
   const handleCatClick = (catId: string) => {
     setSelectedCat(catId);
     setUploadedImage(null);
+    setHasCanvasDesign(false);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,7 +122,7 @@ export default function CrearPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
-              <DesignCanvas uploadedImage={uploadedImage} />
+              <DesignCanvas uploadedImage={uploadedImage} onDesignChange={setHasCanvasDesign} />
             </div>
 
             <div className="space-y-5">
@@ -180,7 +177,7 @@ export default function CrearPage() {
                     </div>
                   </div>
                   <AnimatePresence>
-                    {uploadedImage && (
+                    {hasDesign && (
                       <motion.div
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -192,14 +189,14 @@ export default function CrearPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                  {!uploadedImage && (
-                    <p className="text-xs text-white/70 text-center">
-                      Subí una imagen de tu diseño para seleccionar un artesano disponible.
-                    </p>
-                  )}
-                  <Button onClick={handleOpenChat} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20">
+                  <Button onClick={handleGoToChat} disabled={!hasDesign} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20 disabled:opacity-40">
                     Chatear con artesano
                   </Button>
+                  {!hasDesign && (
+                    <p className="text-xs text-white/70 text-center">
+                      Diseñá en el lienzo o subí una imagen para seleccionar un artesano o chatear.
+                    </p>
+                  )}
                 </motion.div>
               </div>
             </div>
@@ -222,8 +219,6 @@ export default function CrearPage() {
           </div>
         </motion.div>
       )}
-
-      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }

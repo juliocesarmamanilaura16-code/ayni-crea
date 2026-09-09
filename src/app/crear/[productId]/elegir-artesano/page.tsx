@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
@@ -17,6 +17,8 @@ import type { Artisan } from "@/types";
 export default function ElegirArtesanoPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatMode = searchParams.get("chat") === "1";
   const { addToCart } = useStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
@@ -78,9 +80,13 @@ export default function ElegirArtesanoPage() {
 
       <div className="mb-8">
         <p className="text-primary text-sm font-semibold tracking-widest uppercase">Paso 2 de 3</p>
-        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">Explora artesanos disponibles</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">
+          {chatMode ? "Elige con quién chatear" : "Explora artesanos disponibles"}
+        </h1>
         <p className="text-neutral-500 mt-2 max-w-2xl">
-          Tu diseño del lienzo irá directo al taller del artesano que elijas. Chateá con él para coordinar la elaboración.
+          {chatMode
+            ? "Seleccioná un artesano disponible para conversar sobre tu diseño y coordinar su elaboración."
+            : "Tu diseño del lienzo irá directo al taller del artesano que elijas. Chateá con él para coordinar la elaboración."}
         </p>
       </div>
 
@@ -162,24 +168,49 @@ export default function ElegirArtesanoPage() {
                       </div>
                       <p className="mt-2 text-sm text-neutral-600 line-clamp-2">{a.description}</p>
                       <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                        <Button
-                          onClick={() => handleSelectArtisan(a.id)}
-                          variant="primary"
-                          size="sm"
-                          rightIcon={<ArrowRight className="w-4 h-4" />}
-                          className="flex-1"
-                        >
-                          Elegir artesano
-                        </Button>
-                        <Button
-                          onClick={() => openChat(a)}
-                          variant="outline"
-                          size="sm"
-                          leftIcon={<MessageCircle className="w-4 h-4" />}
-                          className="flex-1"
-                        >
-                          Chatear
-                        </Button>
+                        {chatMode ? (
+                          <>
+                            <Button
+                              onClick={() => openChat(a)}
+                              variant="primary"
+                              size="sm"
+                              leftIcon={<MessageCircle className="w-4 h-4" />}
+                              className="flex-1"
+                            >
+                              Chatear con {a.name.split(" ")[0]}
+                            </Button>
+                            <Button
+                              onClick={() => handleSelectArtisan(a.id)}
+                              variant="outline"
+                              size="sm"
+                              rightIcon={<ArrowRight className="w-4 h-4" />}
+                              className="flex-1"
+                            >
+                              Elegir para elaborar
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() => handleSelectArtisan(a.id)}
+                              variant="primary"
+                              size="sm"
+                              rightIcon={<ArrowRight className="w-4 h-4" />}
+                              className="flex-1"
+                            >
+                              Elegir artesano
+                            </Button>
+                            <Button
+                              onClick={() => openChat(a)}
+                              variant="outline"
+                              size="sm"
+                              leftIcon={<MessageCircle className="w-4 h-4" />}
+                              className="flex-1"
+                            >
+                              Chatear
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

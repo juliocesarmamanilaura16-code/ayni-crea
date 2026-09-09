@@ -124,7 +124,7 @@ const TEMPLATES: Record<string, TemplateItem[]> = {
 
 const DEFAULT_TEMPLATES = [...TEMPLATES.Textiles, ...TEMPLATES.Cuero, ...TEMPLATES.Joyería, ...TEMPLATES.Accesorios];
 
-export function DesignCanvas({ uploadedImage }: { uploadedImage?: string | null }) {
+export function DesignCanvas({ uploadedImage, onDesignChange }: { uploadedImage?: string | null; onDesignChange?: (hasDesign: boolean) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>("brush");
@@ -198,6 +198,10 @@ export function DesignCanvas({ uploadedImage }: { uploadedImage?: string | null 
   }, []);
 
   useEffect(() => { redraw(); }, [bgColor, showGrid, opacity, layers]);
+
+  useEffect(() => {
+    onDesignChange?.(layers.length > 0);
+  }, [layers, onDesignChange]);
 
   const drawGrid = (c: CanvasRenderingContext2D, w: number, h: number) => {
     c.strokeStyle = "rgba(0,0,0,0.06)";
