@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck, Compass } from "lucide-react";
+import { ArrowLeft, ArrowRight, User, MapPin, Star, BadgeCheck, Truck, Compass, Search } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
@@ -18,6 +18,7 @@ export default function ElegirArtesanoPage() {
   const router = useRouter();
   const { addToCart } = useStore();
   const [designImage, setDesignImage] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
   const product = products.find((p) => p.id === params.productId);
 
   useEffect(() => {
@@ -42,6 +43,14 @@ export default function ElegirArtesanoPage() {
   }
 
   const availableArtisans = artisans.filter((a) => a.categoryIds.includes(product.categoryId));
+  const query = search.trim().toLowerCase();
+  const filteredArtisans = query
+    ? availableArtisans.filter((a) =>
+        [a.name, a.specialty, a.city, a.description].some((f) =>
+          f.toLowerCase().includes(query)
+        )
+      )
+    : availableArtisans;
   const displayImage = designImage ?? product.image;
 
   const handleSelectArtisan = (artisanId: string) => {
@@ -117,15 +126,29 @@ export default function ElegirArtesanoPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <h2 className="font-display text-xl font-bold mb-5 text-secondary">Artesanos disponibles para tu diseño</h2>
+        <h2 className="font-display text-xl font-bold mb-3 text-secondary">Artesanos disponibles para tu diseño</h2>
+        <div className="relative mb-5">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar artesano por nombre, especialidad o ciudad..."
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+          />
+        </div>
         {availableArtisans.length === 0 ? (
           <div className="bg-white rounded-2xl border border-border p-8 text-center">
             <User className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
             <p className="text-neutral-500">No hay artesanos disponibles para esta categoría por ahora.</p>
           </div>
+        ) : filteredArtisans.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-border p-8 text-center">
+            <Search className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
+            <p className="text-neutral-500">No se encontró ningún artesano con "{search}".</p>
+          </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
-            {availableArtisans.map((a, i) => (
+            {filteredArtisans.map((a, i) => (
               <motion.article
                 key={a.id}
                 initial={{ opacity: 0, y: 16 }}
