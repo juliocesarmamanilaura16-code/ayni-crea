@@ -10,14 +10,21 @@ import { artisans } from "@/data/mock";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { ChatDrawer, chatDoneKey } from "@/components/ChatDrawer";
+import { ChatDrawer } from "@/components/ChatDrawer";
 import type { Artisan } from "@/types";
 
-function hasChatted(artisanId: string) {
+const AGREED_KEY = "ayni-agreed-prices";
+
+function agreedKey(artisanId: string, productId: string) {
+  return `${artisanId}:${productId}`;
+}
+
+function loadAgreed(): Record<string, boolean> {
   try {
-    return localStorage.getItem(chatDoneKey(artisanId)) === "1";
+    const raw = localStorage.getItem(AGREED_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
   } catch {
-    return false;
+    return {};
   }
 }
 
@@ -27,28 +34,14 @@ export default function CarritoPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
-  const [chatted, setChatted] = useState<Record<string, boolean>>(() => {
-    const init: Record<string, boolean> = {};
-    try {
-      const raw = localStorage.getItem("ayni-crea-store");
-      const parsed = raw ? JSON.parse(raw) : null;
-      const items = parsed?.state?.cart ?? [];
-      for (const c of items) {
-        if (c?.artisanId && localStorage.getItem(chatDoneKey(c.artisanId)) === "1") {
-          init[c.artisanId] = true;
-        }
-      }
-    } catch {
-      /* noop */
-    }
-    return init;
-  });
+  const [agreed, setAgreed] = useState<Record<string, boolean>>(() => loadAgreed());
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
   const missingNotes = cart.some((c) => !(c.notes ?? "").trim());
-  const isChatted = (artisanId: string) => !!chatted[artisanId] || hasChatted(artisanId);
-  const missingChat = cart.some((c) => !isChatted(c.artisanId));
+  const isAgreed = (artisanId: string, productId: string) => !!agreed[agreedKey(artisanId, productId)];
+  const missingAgreement = cart.some((c) => !isAgreed(c.artisanId, c.productId));
+  const allAgreed = cart.length > 0 && !missingAgreement;
 
   const openChat = (artisan: Artisan | undefined, itemIndex: number) => {
     if (!artisan) {
@@ -79,8 +72,8 @@ export default function CarritoPage() {
       toast("Agregá la descripción de tu producto antes de confirmar", "error");
       return;
     }
-    if (missingChat) {
-      toast("Chateá con el artesano y acordá el precio antes de confirmar", "error");
+    if (missingAgreement) {
+      toast("Confirmá los montos en el chat con cada artesano antes de confirmar", "error");
       return;
     }
     const order = placeOrder();
@@ -161,10 +154,10 @@ export default function CarritoPage() {
                     />
                   </div>
                   <div className="mt-3">
-                    {isChatted(item.artisanId) ? (
+                    {isAgreed(item.artisanId, item.productId) ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success">
                         <CheckCheck className="w-4 h-4" />
-                        Precio acordado con {artisan?.name.split(" ")[0]} en el chat
+                        Montos confirmados en el chat: Bs {item.customization.price + item.shipping}
                       </span>
                     ) : (
                       <Button
@@ -173,7 +166,7 @@ export default function CarritoPage() {
                         size="sm"
                         leftIcon={<MessageCircle className="w-4 h-4" />}
                       >
-                        Chatear con el artesano *
+                        Chatear y confirmar montos *
                       </Button>
                     )}
                   </div>
@@ -195,6 +188,16 @@ export default function CarritoPage() {
 
         <aside className="bg-white rounded-2xl border border-border p-5 shadow-card h-fit">
           <h3 className="font-display font-bold text-secondary">Resumen</h3>
+          {allAgreed ? (
+            <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-semibold text-success">
+              <CheckCheck className="w-4 h-4" />
+              Precios acordados en el chat
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-neutral-500">
+              Los precios se confirman en el chat con cada artesano.
+            </p>
+          )}
           <Row label="Subtotal" value={`Bs ${subtotal}`} />
           <Row label="Envío" value={shipping === 0 ? "Gratis" : `Bs ${shipping}`} />
           <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent my-3" />
@@ -204,18 +207,18 @@ export default function CarritoPage() {
             variant="primary"
             size="lg"
             fullWidth
-            disabled={missingNotes || missingChat}
+            disabled={missingNotes || missingAgreement}
             className="mt-4 disabled:opacity-40"
           >
             Confirmar pedido
           </Button>
-          {(missingNotes || missingChat) && (
+          {(missingNotes || missingAgreement) && (
             <p className="text-[11px] text-error-600 text-center mt-2">
-              {missingNotes && missingChat
-                ? "Escribí la descripción y chateá con el artesano para acordar el precio antes de confirmar."
+              {missingNotes && missingAgreement
+                ? "Escribí la descripción y confirmá los montos en el chat antes de confirmar."
                 : missingNotes
                   ? "Escribí la descripción de cada producto para poder confirmar."
-                  : "Chateá con el artesano y acordá subtotal, envío y total antes de confirmar."}
+                  : "Confirmá los montos en el chat con cada artesano antes de confirmar."}
             </p>
           )}
           <div className="mt-5 grid grid-cols-2 gap-2.5">
@@ -247,10 +250,27 @@ export default function CarritoPage() {
         open={chatOpen}
         onClose={() => setChatOpen(false)}
         contextLine={chatContextLine}
-        onClientMessage={() => {
-          if (chatArtisan) {
-            setChatted((prev) => ({ ...prev, [chatArtisan.id]: true }));
+        confirmAmountsLabel={
+          chatItemIndex !== null && cart[chatItemIndex]
+            ? `Bs ${cart[chatItemIndex].customization.price + cart[chatItemIndex].shipping}`
+            : null
+        }
+        onConfirmAmounts={() => {
+          if (chatItemIndex !== null && cart[chatItemIndex]) {
+            const item = cart[chatItemIndex];
+            const key = agreedKey(item.artisanId, item.productId);
+            setAgreed((prev) => {
+              const next = { ...prev, [key]: true };
+              try {
+                localStorage.setItem(AGREED_KEY, JSON.stringify(next));
+              } catch {
+                /* noop */
+              }
+              return next;
+            });
+            toast("Montos confirmados, revisá el resumen para confirmar el pedido");
           }
+          setChatOpen(false);
         }}
       />
     </div>

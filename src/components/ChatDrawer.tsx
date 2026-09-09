@@ -34,12 +34,16 @@ export function ChatDrawer({
   onClose,
   contextLine,
   onClientMessage,
+  confirmAmountsLabel,
+  onConfirmAmounts,
 }: {
   artisan: Artisan | null;
   open: boolean;
   onClose: () => void;
   contextLine?: string | null;
   onClientMessage?: () => void;
+  confirmAmountsLabel?: string | null;
+  onConfirmAmounts?: () => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -229,6 +233,14 @@ export function ChatDrawer({
             </div>
 
             <div className="p-3 border-t border-border bg-white">
+              {confirmAmountsLabel && onConfirmAmounts && (
+                <button
+                  onClick={() => onConfirmAmounts()}
+                  className="w-full mb-2 px-4 py-2.5 rounded-xl bg-success text-white text-sm font-bold hover:bg-success-600 transition"
+                >
+                  Confirmar montos: {confirmAmountsLabel}
+                </button>
+              )}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => fileRef.current?.click()}
