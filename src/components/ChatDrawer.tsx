@@ -60,8 +60,7 @@ function getBotReply(
   const amounts = p ? amountsLine(p) : null;
 
   if (has("descuento", "rebaja", "menos", "barato", "oferta", "precio final")) {
-    if (p) return { text: "", applyDiscount: true };
-    return { text: "Decime qué producto te interesa y te armo una propuesta con el mejor precio.", applyDiscount: false };
+    return { text: "Con gusto te hago precio. Sigamos charlando y te presento los costos con descuento.", applyDiscount: false };
   }
   if (has("confirmo", "confirmar", "acepto", "de acuerdo", "dale", "si ", "sí", "ok")) {
     return { text: `¡Genial! Entonces apretá el botón verde "Confirmar montos" aquí abajo para cerrar el acuerdo.`, applyDiscount: false };
@@ -132,8 +131,10 @@ export function ChatDrawer({
   const [liveProposal, setLiveProposal] = useState<PriceProposal | null>(null);
   const [artisanReplied, setArtisanReplied] = useState(false);
   const [clientReady, setClientReady] = useState(false);
+  const [proposalSent, setProposalSent] = useState(false);
   const discountGivenRef = useRef(false);
   const methodRef = useRef<DeliveryMethod | null>(null);
+  const proposalSentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -147,8 +148,10 @@ export function ChatDrawer({
       setLiveProposal(initialProposal);
       setArtisanReplied(false);
       setClientReady(false);
+      setProposalSent(false);
       discountGivenRef.current = false;
       methodRef.current = null;
+      proposalSentRef.current = false;
       try {
         const raw = localStorage.getItem(storageKey(artisan.id, threadId));
         if (raw) {
@@ -157,58 +160,27 @@ export function ChatDrawer({
           if (stored.some((m) => m.from === "artisan" && m.text.includes("10% de descuento"))) {
             discountGivenRef.current = true;
           }
+          if (stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
+            proposalSentRef.current = true;
+            setProposalSent(true);
+          }
           const clientChoice = stored.find(
             (m) => m.from === "client" && (m.text.toLowerCase().includes("personal") || m.text.toLowerCase().includes("paquet"))
           );
           if (clientChoice) {
             methodRef.current = clientChoice.text.toLowerCase().includes("personal") ? "personal" : "paqueteria";
           }
-          const withProposal = [...stored];
-          if (initialProposal && !stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
-            withProposal.push({
-              id: `p-${Date.now()}`,
-              from: "artisan",
-              text: proposalMessage(initialProposal),
-              at: new Date().toISOString(),
-            });
-          }
-          if (initialProposal && askDelivery && !methodRef.current && !withProposal.some((m) => m.options && m.options.length > 0)) {
-            withProposal.push({
-              id: `d-${Date.now()}`,
-              from: "artisan",
-              text: "¿Cómo querés recibir tu pedido? Elegí una opción:",
-              options: DELIVERY_OPTIONS,
-              at: new Date().toISOString(),
-            });
-          }
-          setMessages(withProposal);
+          setMessages(stored);
         } else {
-          const welcome: ChatMessage[] = [
+          // Primero el saludo, sin costos: la charla y la propuesta vienen después
+          setMessages([
             {
               id: "welcome",
               from: "artisan",
-              text: `¡Hola! Soy ${artisan.name}. Escribime tu idea y coordinamos la elaboración de tu pieza.`,
+              text: `¡Hola! Soy ${artisan.name} 👋 ¿Qué diseño tenés en mente? Contame medidas, colores o pasame tu imagen y lo elaboramos juntos.`,
               at: new Date().toISOString(),
             },
-          ];
-          if (initialProposal) {
-            welcome.push({
-              id: `p-${Date.now()}`,
-              from: "artisan",
-              text: proposalMessage(initialProposal),
-              at: new Date().toISOString(),
-            });
-          }
-          if (initialProposal && askDelivery) {
-            welcome.push({
-              id: `d-${Date.now()}`,
-              from: "artisan",
-              text: "¿Cómo querés recibir tu pedido? Elegí una opción:",
-              options: DELIVERY_OPTIONS,
-              at: new Date().toISOString(),
-            });
-          }
-          setMessages(welcome);
+          ]);
         }
       } catch {
         setMessages([]);
@@ -231,86 +203,131 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
+  const pushArtisan = (msgs: { text: string; options?: string[] }[]) => {
+    setMessages((prev) => [
+      ...prev,
+      ...msgs.map((m, k) => ({
+        ...m,
+        id: `a-${Date.now()}-${k}`,
+        from: "artisan" as const,
+        at: new Date().toISOString(),
+      })),
+    ]);
+  };
+
   const botReply = (inputText: string, forImage: boolean) => {
     const firstName = artisan?.name.split(" ")[0] ?? "el artesano";
+    const snapshot = liveProposal;
+    const lower = inputText.toLowerCase();
+    const hasAny = (...words: string[]) => words.some((w) => lower.includes(w));
+    const wantsMethod = !!snapshot && (lower.includes("personal") || lower.includes("paquet"));
+    const wantsDiscount = !!snapshot && hasAny("descuento", "rebaja", "barato", "oferta");
+    const saysReady =
+      lower.includes("listo") ||
+      lower.includes("de acuerdo") ||
+      lower.includes("confirmo") ||
+      lower.includes("acepto") ||
+      lower.includes("dale") ||
+      lower.includes("perfecto") ||
+      lower.includes("genial");
     setTimeout(() => {
       setArtisanReplied(true);
+
+      // 1) Imagen: celebrar y encaminar la charla (todavía sin costos)
       if (forImage) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `a-${Date.now()}`,
-            from: "artisan",
-            text: liveProposal
-              ? `¡Recibí tu imagen! Se ve muy bien. Mi propuesta sigue en: Producto Bs ${liveProposal.price} + Envío Bs ${liveProposal.shipping} = Total Bs ${liveProposal.price + liveProposal.shipping}. Confirmala con el botón verde.`
-              : "¡Recibí tu imagen! Se ve muy bien. Decime qué tamaño y materiales preferís y coordinamos la elaboración.",
-            at: new Date().toISOString(),
-          },
-        ]);
+        if (snapshot && askDelivery && !methodRef.current && !proposalSentRef.current) {
+          pushArtisan([
+            { text: "¡Recibí tu imagen! Se ve muy linda. Para armarte bien los costos finales:" },
+            { text: "¿Cómo querés recibir tu pedido? Elegí una opción:", options: DELIVERY_OPTIONS },
+          ]);
+        } else if (snapshot && proposalSentRef.current) {
+          pushArtisan([
+            { text: `¡Recibí tu imagen! Mi propuesta sigue en: ${amountsLine(snapshot)}. Cuando escribas "listo" aparece el botón verde para confirmar.` },
+          ]);
+        } else {
+          pushArtisan([
+            { text: "¡Recibí tu imagen! Se ve muy bien. Decime qué tamaño y materiales preferís y coordinamos la elaboración." },
+          ]);
+        }
         return;
       }
-      const { text, applyDiscount } = getBotReply(inputText, liveProposal, firstName);
-      const lower = inputText.toLowerCase();
-      const wantsMethod = liveProposal && (lower.includes("personal") || lower.includes("paquet"));
-      if (wantsMethod && liveProposal) {
+
+      // 2) Elección de entrega: recién acá se presentan los costos
+      if (wantsMethod && snapshot) {
         const method: DeliveryMethod = lower.includes("personal") ? "personal" : "paqueteria";
         methodRef.current = method;
         const ship = method === "personal" ? 0 : 15;
-        const updated = { price: liveProposal.price, shipping: ship };
-        setLiveProposal({ ...updated, days: liveProposal.days, size: liveProposal.size });
+        const updated = { price: snapshot.price, shipping: ship };
+        setLiveProposal({ ...updated, days: snapshot.days, size: snapshot.size });
         onProposalChange?.(updated);
-        setMessages((prev) => [
-          ...prev,
+        const full = { ...updated, days: snapshot.days, size: snapshot.size };
+        proposalSentRef.current = true;
+        setProposalSent(true);
+        pushArtisan([
           {
-            id: `a-${Date.now()}`,
-            from: "artisan",
             text:
               method === "personal"
-                ? `Perfecto, entrega personal conmigo: sin costo de envío. Queda en Producto Bs ${updated.price} + Envío Bs 0 = Total Bs ${updated.price}. Confirmá los montos con el botón verde.`
-                : `Perfecto, envío por paquetería (Bs 15). Queda en Producto Bs ${updated.price} + Envío Bs 15 = Total Bs ${updated.price + 15}. Confirmá los montos con el botón verde.`,
-            at: new Date().toISOString(),
+                ? `Perfecto, entrega personal conmigo: sin costo de envío. Entonces quedamos en: ${amountsLine(full)}. Si estás de acuerdo, escribí "listo".`
+                : `Perfecto, envío por paquetería (Bs 15). Entonces quedamos en: ${amountsLine(full)}. Si estás de acuerdo, escribí "listo".`,
           },
         ]);
         return;
       }
-      if (applyDiscount && liveProposal) {
+
+      // 3) Descuento: solo con propuesta ya presentada
+      if (wantsDiscount && snapshot) {
+        if (!proposalSentRef.current) {
+          const q: { text: string; options?: string[] } = askDelivery && !methodRef.current
+            ? { text: "Con gusto te hago precio. Primero elijamos la entrega:", options: DELIVERY_OPTIONS }
+            : { text: "Con gusto te hago precio. Sigamos charlando un poquito y te presento los costos." };
+          pushArtisan([q]);
+          return;
+        }
         if (discountGivenRef.current) {
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `a-${Date.now()}`,
-              from: "artisan",
-              text: "Ya te apliqué mi mejor descuento en esta propuesta. Confirmá los montos con el botón verde para empezar.",
-              at: new Date().toISOString(),
-            },
+          pushArtisan([
+            { text: "Ya te apliqué mi mejor descuento en esta propuesta. Escribí \"listo\" y confirmá los montos con el botón verde." },
           ]);
           return;
         }
         discountGivenRef.current = true;
-        const newPrice = Math.max(1, Math.round(liveProposal.price * 0.9));
-        const updated = { price: newPrice, shipping: liveProposal.shipping };
-        setLiveProposal({ ...updated, days: liveProposal.days, size: liveProposal.size });
+        const newPrice = Math.max(1, Math.round(snapshot.price * 0.9));
+        const updated = { price: newPrice, shipping: snapshot.shipping };
+        setLiveProposal({ ...updated, days: snapshot.days, size: snapshot.size });
         onProposalChange?.(updated);
-        setMessages((prev) => [
-          ...prev,
+        pushArtisan([
           {
-            id: `a-${Date.now()}`,
-            from: "artisan",
-            text: `¡De acuerdo! Te hago un 10% de descuento: Producto Bs ${newPrice} + Envío Bs ${updated.shipping} = Total Bs ${newPrice + updated.shipping}. Ya actualicé la propuesta; confirmala con el botón verde de aquí abajo.`,
-            at: new Date().toISOString(),
+            text: `¡De acuerdo! Te hago un 10% de descuento: ${amountsLine({ ...updated, days: snapshot.days, size: snapshot.size })}. Escribí "listo" y confirmalo con el botón verde de aquí abajo.`,
           },
         ]);
         return;
       }
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `a-${Date.now()}`,
-          from: "artisan",
-          text,
-          at: new Date().toISOString(),
-        },
-      ]);
+
+      // 4) "Listo" antes de la propuesta: encaminar, no confirmar aún
+      if (saysReady) {
+        if (snapshot && askDelivery && !methodRef.current && !proposalSentRef.current) {
+          pushArtisan([
+            { text: "¡Buenísimo! Antes de cerrar los montos, ¿cómo querés recibir tu pedido?", options: DELIVERY_OPTIONS },
+          ]);
+          return;
+        }
+        pushArtisan([
+          { text: `¡Genial! Entonces apretá el botón verde "Confirmar montos" aquí abajo para cerrar el acuerdo.` },
+        ]);
+        return;
+      }
+
+      // 5) Primera charla (todavía sin costos): conversar y pedir la entrega
+      if (snapshot && askDelivery && !methodRef.current && !proposalSentRef.current) {
+        pushArtisan([
+          { text: `¡Buenísimo, tomo nota! Soy ${firstName} y te voy a acompañar en tu pedido. Para armarte bien los costos, contame:` },
+          { text: "¿Cómo querés recibir tu pedido? Elegí una opción:", options: DELIVERY_OPTIONS },
+        ]);
+        return;
+      }
+
+      // 6) Charla normal (con propuesta o chat libre de pedidos)
+      const { text } = getBotReply(inputText, snapshot, firstName);
+      pushArtisan([{ text }]);
     }, 900);
   };
 
@@ -483,7 +500,7 @@ export function ChatDrawer({
             </div>
 
             <div className="p-3 border-t border-border bg-white">
-              {liveProposal && onConfirmAmounts && artisanReplied && clientReady && (
+              {liveProposal && onConfirmAmounts && proposalSent && artisanReplied && clientReady && (
                 <button
                   onClick={() =>
                     onConfirmAmounts({
@@ -497,11 +514,13 @@ export function ChatDrawer({
                   Confirmar montos: Bs {liveProposal.price + liveProposal.shipping}
                 </button>
               )}
-              {liveProposal && onConfirmAmounts && (!artisanReplied || !clientReady) && (
+              {liveProposal && onConfirmAmounts && (!proposalSent || !artisanReplied || !clientReady) && (
                 <p className="text-[11px] text-neutral-500 text-center mb-2">
                   {!artisanReplied
-                    ? "Escribí tu mensaje y esperá la respuesta del artesano."
-                    : "Cuando estés de acuerdo, escribí \"listo\" para confirmar los montos."}
+                    ? "Saludá al artesano y charlen un poco antes de los costos."
+                    : !proposalSent
+                      ? "Seguí la charla: elegí la entrega para conocer los costos."
+                      : "Cuando estés de acuerdo con los costos, escribí \"listo\" para confirmar los montos."}
                 </p>
               )}
               <div className="flex items-center gap-2">
