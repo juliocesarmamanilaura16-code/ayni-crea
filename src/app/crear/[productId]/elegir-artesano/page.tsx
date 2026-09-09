@@ -11,21 +11,24 @@ import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
-import { DESIGN_IMAGE_KEY } from "@/lib/design";
+import { DESIGN_IMAGE_KEY, DESIGN_NAME_KEY } from "@/lib/design";
 
 export default function ElegirArtesanoPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
   const { addToCart } = useStore();
   const [designImage, setDesignImage] = useState<string | null>(null);
+  const [designName, setDesignName] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const product = products.find((p) => p.id === params.productId);
 
   useEffect(() => {
     try {
       setDesignImage(sessionStorage.getItem(DESIGN_IMAGE_KEY));
+      setDesignName(sessionStorage.getItem(DESIGN_NAME_KEY));
     } catch {
       setDesignImage(null);
+      setDesignName(null);
     }
   }, []);
 
@@ -52,6 +55,7 @@ export default function ElegirArtesanoPage() {
       )
     : availableArtisans;
   const displayImage = designImage ?? product.image;
+  const displayName = designName?.trim() ? designName.trim() : "Tu diseño";
 
   const handleSelectArtisan = (artisanId: string) => {
     const artisan = artisans.find((a) => a.id === artisanId);
@@ -63,7 +67,7 @@ export default function ElegirArtesanoPage() {
     addToCart({
       productId: product.id,
       artisanId,
-      productName: product.name,
+      productName: displayName === "Tu diseño" ? product.name : displayName,
       productImage: displayImage,
       shippingMethod: "",
       notes: "",
@@ -105,11 +109,11 @@ export default function ElegirArtesanoPage() {
       >
         <div className="flex items-start gap-4">
           <div className="relative w-20 h-20 rounded-xl bg-neutral-100 overflow-hidden flex-shrink-0">
-            <Image src={displayImage} alt={designImage ? "Tu diseño" : product.name} fill sizes="80px" className="object-cover" />
+            <Image src={displayImage} alt={displayName} fill sizes="80px" className="object-cover" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-display font-bold truncate text-secondary">
-              {designImage ? "Tu diseño" : product.name}
+              {displayName}
             </h3>
             <p className="mt-1 text-sm text-neutral-500 flex items-center gap-1.5">
               <Compass className="w-4 h-4 text-primary" />

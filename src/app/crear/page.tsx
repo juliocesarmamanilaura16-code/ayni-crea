@@ -9,7 +9,7 @@ import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
 import { toast } from "@/components/Toast";
-import { DESIGN_IMAGE_KEY } from "@/lib/design";
+import { DESIGN_IMAGE_KEY, DESIGN_NAME_KEY } from "@/lib/design";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -22,19 +22,23 @@ export default function CrearPage() {
   const [showDropZone, setShowDropZone] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [hasCanvasDesign, setHasCanvasDesign] = useState(false);
+  const [productName, setProductName] = useState("");
   const exportRef = useRef<{ toImage: () => string | null } | null>(null);
 
   const template = selectedCat ? products.filter((p) => p.categoryId === selectedCat)[0] : null;
   const hasDesign = hasCanvasDesign || !!uploadedImage;
+  const hasName = productName.trim().length > 0;
+  const canContinue = hasDesign && hasName;
 
   const handleContinue = () => {
-    if (!template || !hasDesign) return;
+    if (!template || !canContinue) return;
     try {
       if (uploadedImage) {
         sessionStorage.setItem(DESIGN_IMAGE_KEY, uploadedImage);
       } else {
         sessionStorage.removeItem(DESIGN_IMAGE_KEY);
       }
+      sessionStorage.setItem(DESIGN_NAME_KEY, productName.trim());
     } catch {
       /* noop */
     }
@@ -56,8 +60,10 @@ export default function CrearPage() {
     setSelectedCat(catId);
     setUploadedImage(null);
     setHasCanvasDesign(false);
+    setProductName("");
     try {
       sessionStorage.removeItem(DESIGN_IMAGE_KEY);
+      sessionStorage.removeItem(DESIGN_NAME_KEY);
     } catch {
       /* noop */
     }
@@ -152,6 +158,16 @@ export default function CrearPage() {
               <div className="bg-white rounded-2xl border border-border p-5 shadow-card space-y-5">
                 <div>
                   <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Diseño</h3>
+                  <label className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                    Nombre del producto *
+                  </label>
+                  <input
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value.slice(0, 40))}
+                    maxLength={40}
+                    placeholder="Ej. Poncho para mamá"
+                    className="mt-1 mb-3 w-full px-4 py-2.5 rounded-xl bg-white border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+                  />
                   <Button onClick={handleUploadDesign} disabled={!hasCanvasDesign} variant="secondary" size="md" fullWidth leftIcon={<Palette className="w-4 h-4" />} className="disabled:opacity-40">
                     Subir diseño del lienzo
                   </Button>
@@ -202,12 +218,14 @@ export default function CrearPage() {
                       <p className="text-sm font-semibold">Tu diseño se elabora con un artesano disponible</p>
                     </div>
                   </div>
-                  <Button onClick={handleContinue} disabled={!hasDesign} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />} className="disabled:opacity-40">
+                  <Button onClick={handleContinue} disabled={!canContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />} className="disabled:opacity-40">
                     Seleccionar artesano disponible
                   </Button>
-                  {!hasDesign && (
+                  {!canContinue && (
                     <p className="text-xs text-white/70 text-center">
-                      Diseñá en el lienzo o subí tu diseño para seleccionar un artesano disponible.
+                      {!hasDesign
+                        ? "Diseñá en el lienzo o subí tu diseño para seleccionar un artesano disponible."
+                        : "Ponle un nombre a tu producto para continuar."}
                     </p>
                   )}
                 </motion.div>
