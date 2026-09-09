@@ -15,8 +15,8 @@ type ChatMessage = {
   at: string;
 };
 
-function storageKey(artisanId: string) {
-  return `ayni-chat-${artisanId}`;
+function storageKey(artisanId: string, threadId?: string | null) {
+  return threadId ? `ayni-chat-${threadId}` : `ayni-chat-${artisanId}`;
 }
 
 export function chatDoneKey(artisanId: string) {
@@ -112,6 +112,7 @@ export function ChatDrawer({
   onClientMessage,
   proposal,
   askDelivery,
+  threadId,
   onProposalChange,
   onConfirmAmounts,
 }: {
@@ -122,12 +123,15 @@ export function ChatDrawer({
   onClientMessage?: () => void;
   proposal?: PriceProposal | null;
   askDelivery?: boolean;
+  threadId?: string | null;
   onProposalChange?: (p: { price: number; shipping: number }) => void;
   onConfirmAmounts?: (a: ConfirmedAgreement) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [liveProposal, setLiveProposal] = useState<PriceProposal | null>(null);
+  const [artisanReplied, setArtisanReplied] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
   const discountGivenRef = useRef(false);
   const methodRef = useRef<DeliveryMethod | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -141,10 +145,12 @@ export function ChatDrawer({
     if (open && artisan) {
       const initialProposal = proposal ? { ...proposal } : null;
       setLiveProposal(initialProposal);
+      setArtisanReplied(false);
+      setClientReady(false);
       discountGivenRef.current = false;
       methodRef.current = null;
       try {
-        const raw = localStorage.getItem(storageKey(artisan.id));
+        const raw = localStorage.getItem(storageKey(artisan.id, threadId));
         if (raw) {
           const stored = JSON.parse(raw) as ChatMessage[];
           // Restaurar estado desde el historial
@@ -209,17 +215,17 @@ export function ChatDrawer({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, artisan?.id, proposalPrice, proposalShipping, proposalDays]);
+  }, [open, artisan?.id, threadId, proposalPrice, proposalShipping, proposalDays]);
 
   useEffect(() => {
     if (open && artisan && messages.length > 0) {
       try {
-        localStorage.setItem(storageKey(artisan.id), JSON.stringify(messages));
+        localStorage.setItem(storageKey(artisan.id, threadId), JSON.stringify(messages));
       } catch {
         /* noop */
       }
     }
-  }, [messages, open, artisan]);
+  }, [messages, open, artisan, threadId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -228,6 +234,7 @@ export function ChatDrawer({
   const botReply = (inputText: string, forImage: boolean) => {
     const firstName = artisan?.name.split(" ")[0] ?? "el artesano";
     setTimeout(() => {
+      setArtisanReplied(true);
       if (forImage) {
         setMessages((prev) => [
           ...prev,
@@ -326,6 +333,21 @@ export function ChatDrawer({
 
   const sendClientText = (text: string) => {
     if (!artisan) return;
+    const lower = text.toLowerCase();
+    if (
+      lower.includes("listo") ||
+      lower.includes("de acuerdo") ||
+      lower.includes("confirmo") ||
+      lower.includes("acepto") ||
+      lower.includes("dale") ||
+      lower.includes("perfecto") ||
+      lower.includes("genial") ||
+      lower === "ok" ||
+      lower === "sí" ||
+      lower === "si"
+    ) {
+      setClientReady(true);
+    }
     const userMsg: ChatMessage = {
       id: `m-${Date.now()}`,
       from: "client",
@@ -461,7 +483,7 @@ export function ChatDrawer({
             </div>
 
             <div className="p-3 border-t border-border bg-white">
-              {liveProposal && onConfirmAmounts && (
+              {liveProposal && onConfirmAmounts && artisanReplied && clientReady && (
                 <button
                   onClick={() =>
                     onConfirmAmounts({
@@ -474,6 +496,13 @@ export function ChatDrawer({
                 >
                   Confirmar montos: Bs {liveProposal.price + liveProposal.shipping}
                 </button>
+              )}
+              {liveProposal && onConfirmAmounts && (!artisanReplied || !clientReady) && (
+                <p className="text-[11px] text-neutral-500 text-center mb-2">
+                  {!artisanReplied
+                    ? "Escribí tu mensaje y esperá la respuesta del artesano."
+                    : "Cuando estés de acuerdo, escribí \"listo\" para confirmar los montos."}
+                </p>
               )}
               <div className="flex items-center gap-2">
                 <button

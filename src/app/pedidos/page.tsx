@@ -22,15 +22,17 @@ export default function PedidosPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
+  const [chatOrderId, setChatOrderId] = useState<string | null>(null);
   const [ratingMap, setRatingMap] = useState<Record<string, { rating: number; comment: string }>>(
     {}
   );
 
-  const openChat = (artisan: Artisan | undefined) => {
+  const openChat = (orderId: string, artisan: Artisan | undefined) => {
     if (!artisan) {
       toast("Artesano no disponible", "error");
       return;
     }
+    setChatOrderId(orderId);
     setChatArtisan(artisan);
     setChatOpen(true);
   };
@@ -157,7 +159,7 @@ export default function PedidosPage() {
                             </>
                           )}
                           <Button
-                            onClick={() => openChat(artisan)}
+                            onClick={() => openChat(o.id, artisan)}
                             variant="outline"
                             size="sm"
                             leftIcon={<MessageCircle className="w-4 h-4" />}
@@ -236,7 +238,12 @@ export default function PedidosPage() {
         })}
       </div>
 
-      <ChatDrawer artisan={chatArtisan} open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatDrawer
+        artisan={chatArtisan}
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        threadId={chatArtisan && chatOrderId ? `order-${chatArtisan.id}-${chatOrderId}` : null}
+      />
     </div>
   );
 }

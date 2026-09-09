@@ -355,6 +355,11 @@ export default function CarritoPage() {
         contextLine={chatContextLine}
         proposal={chatProposal}
         askDelivery
+        threadId={
+          chatArtisan && chatItemIndex !== null && cart[chatItemIndex]
+            ? `cart-${chatArtisan.id}-${cart[chatItemIndex].productId}-${chatItemIndex}`
+            : null
+        }
         onConfirmAmounts={(a) => {
           if (chatItemIndex !== null && cart[chatItemIndex]) {
             updateAgreedPrice(chatItemIndex, a.price, a.shipping, a.method ?? "");
