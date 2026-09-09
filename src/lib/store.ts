@@ -15,6 +15,7 @@ type CartItem = {
   shippingMethod: string;
   notes: string;
   agreed: boolean;
+  chatThread: string;
 };
 
 type State = {
@@ -25,7 +26,7 @@ type State = {
   paidAmounts: Record<string, number>; // artisanId -> monto pagado con QR
   login: (u: User) => void;
   logout: () => void;
-  addToCart: (item: CartItem) => void;
+  addToCart: (item: Omit<CartItem, "chatThread" | "agreed">) => void;
   removeFromCart: (index: number) => void;
   updateNotes: (index: number, notes: string) => void;
   updateSize: (index: number, size: string) => void;
@@ -73,7 +74,13 @@ export const useStore = create<State>()(
         set((s) => ({
           cart: [
             ...s.cart,
-            { ...item, agreed: false, shipping: shippingFor(item.customization.price) },
+            {
+              ...item,
+              agreed: false,
+              // Hilo único por agregado: cada compra/negociación empieza con chat limpio
+              chatThread: `cart-${item.artisanId}-${item.productId}-${Date.now()}`,
+              shipping: shippingFor(item.customization.price),
+            },
           ],
         })),
       removeFromCart: (i) => set((s) => ({ cart: s.cart.filter((_, idx) => idx !== i) })),

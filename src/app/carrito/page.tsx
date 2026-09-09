@@ -51,6 +51,9 @@ export default function CarritoPage() {
     setChatOpen(true);
   };
 
+  const threadOf = (artisanId: string, productId: string, index: number, thread?: string) =>
+    thread || `cart-${artisanId}-${productId}-${index}`;
+
   const chatContextLine =
     chatItemIndex !== null && cart[chatItemIndex]
       ? `Acordá con el artesano el subtotal, el envío y el total de ${cart[chatItemIndex].productName} antes de confirmar el pedido.`
@@ -357,7 +360,12 @@ export default function CarritoPage() {
         askDelivery
         threadId={
           chatArtisan && chatItemIndex !== null && cart[chatItemIndex]
-            ? `cart-${chatArtisan.id}-${cart[chatItemIndex].productId}-${chatItemIndex}`
+            ? threadOf(
+                chatArtisan.id,
+                cart[chatItemIndex].productId,
+                chatItemIndex,
+                cart[chatItemIndex].chatThread
+              )
             : null
         }
         onConfirmAmounts={(a) => {
