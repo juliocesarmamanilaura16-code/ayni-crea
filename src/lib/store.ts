@@ -12,6 +12,7 @@ type CartItem = {
   productImage: string;
   customization: Customization;
   shipping: number;
+  shippingMethod: string;
   notes: string;
 };
 
@@ -25,7 +26,8 @@ type State = {
   addToCart: (item: CartItem) => void;
   removeFromCart: (index: number) => void;
   updateNotes: (index: number, notes: string) => void;
-  updateAgreedPrice: (index: number, price: number, shipping: number) => void;
+  updateSize: (index: number, size: string) => void;
+  updateAgreedPrice: (index: number, price: number, shipping: number, method: string) => void;
   clearCart: () => void;
   placeOrder: () => Order | null;
   advanceOrder: (orderId: string) => void;
@@ -50,10 +52,18 @@ export const useStore = create<State>()(
       removeFromCart: (i) => set((s) => ({ cart: s.cart.filter((_, idx) => idx !== i) })),
       updateNotes: (i, notes) =>
         set((s) => ({ cart: s.cart.map((c, idx) => (idx === i ? { ...c, notes } : c)) })),
-      updateAgreedPrice: (i, price, shipping) =>
+      updateSize: (i, size) =>
         set((s) => ({
           cart: s.cart.map((c, idx) =>
-            idx === i ? { ...c, shipping, customization: { ...c.customization, price } } : c
+            idx === i ? { ...c, customization: { ...c.customization, size } } : c
+          ),
+        })),
+      updateAgreedPrice: (i, price, shipping, method) =>
+        set((s) => ({
+          cart: s.cart.map((c, idx) =>
+            idx === i
+              ? { ...c, shipping, shippingMethod: method, customization: { ...c.customization, price } }
+              : c
           ),
         })),
       clearCart: () => set({ cart: [] }),
@@ -67,6 +77,7 @@ export const useStore = create<State>()(
           productId: c.productId,
           productName: c.productName,
           productImage: c.productImage,
+          shippingMethod: c.shippingMethod ?? "",
           notes: c.notes,
           customization: c.customization,
           shipping: c.shipping,

@@ -49,18 +49,20 @@ export default function ElegirArtesanoPage() {
     if (!artisan) return;
 
     const total = product.basePrice;
+    const defaultSize = product.options.sizes[1]?.name ?? product.options.sizes[0]?.name ?? "";
 
     addToCart({
       productId: product.id,
       artisanId,
       productName: product.name,
       productImage: displayImage,
+      shippingMethod: "",
       notes: "",
       customization: {
         productId: product.id,
         color: "",
         material: "",
-        size: "",
+        size: defaultSize,
         text: "",
         price: total,
       },

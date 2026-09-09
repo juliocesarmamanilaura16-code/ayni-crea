@@ -4,37 +4,49 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck, QrCode } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans, products } from "@/data/mock";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatDrawer } from "@/components/ChatDrawer";
+import { methodLabel } from "@/lib/design";
 import type { Artisan } from "@/types";
 
 const AGREED_KEY = "ayni-agreed-prices";
+const PAID_KEY = "ayni-paid-artisans";
 
 function agreedKey(artisanId: string, productId: string) {
   return `${artisanId}:${productId}`;
 }
 
-function loadAgreed(): Record<string, boolean> {
+function loadMap(key: string): Record<string, boolean> {
   try {
-    const raw = localStorage.getItem(AGREED_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
   } catch {
     return {};
   }
 }
 
+function saveMap(key: string, map: Record<string, boolean>) {
+  try {
+    localStorage.setItem(key, JSON.stringify(map));
+  } catch {
+    /* noop */
+  }
+}
+
 export default function CarritoPage() {
   const router = useRouter();
-  const { cart, removeFromCart, updateNotes, updateAgreedPrice, placeOrder, user } = useStore();
+  const { cart, removeFromCart, updateNotes, updateSize, updateAgreedPrice, placeOrder, user } = useStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
-  const [agreed, setAgreed] = useState<Record<string, boolean>>(() => loadAgreed());
+  const [agreed, setAgreed] = useState<Record<string, boolean>>(() => loadMap(AGREED_KEY));
+  const [paid, setPaid] = useState<Record<string, boolean>>(() => loadMap(PAID_KEY));
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
@@ -46,6 +58,22 @@ export default function CarritoPage() {
   const isAgreed = (artisanId: string, productId: string) => !!agreed[agreedKey(artisanId, productId)];
   const missingAgreement = cart.some((c) => !isAgreed(c.artisanId, c.productId));
   const allAgreed = cart.length > 0 && !missingAgreement;
+  const artisanIds = [...new Set(cart.map((c) => c.artisanId))];
+  const missingPayment = artisanIds.some((id) => !paid[id]);
+
+  const artisanAmount = (artisanId: string) =>
+    cart
+      .filter((c) => c.artisanId === artisanId)
+      .reduce((acc, c) => acc + c.customization.price + c.shipping, 0);
+
+  const markPaid = (artisanId: string) => {
+    setPaid((prev) => {
+      const next = { ...prev, [artisanId]: true };
+      saveMap(PAID_KEY, next);
+      return next;
+    });
+    toast("Pago registrado, ya podés confirmar tu pedido");
+  };
 
   const openChat = (artisan: Artisan | undefined, itemIndex: number) => {
     if (!artisan) {
@@ -68,6 +96,7 @@ export default function CarritoPage() {
           price: cart[chatItemIndex].customization.price,
           shipping: cart[chatItemIndex].shipping,
           days: products.find((p) => p.id === cart[chatItemIndex].productId)?.productionDays,
+          size: cart[chatItemIndex].customization.size || undefined,
         }
       : null;
 
@@ -87,6 +116,10 @@ export default function CarritoPage() {
     }
     if (missingAgreement) {
       toast("Confirmá los montos en el chat con cada artesano antes de confirmar", "error");
+      return;
+    }
+    if (missingPayment) {
+      toast("Pagá con el QR de cada artesano antes de confirmar", "error");
       return;
     }
     const order = placeOrder();
@@ -127,6 +160,7 @@ export default function CarritoPage() {
           {cart.map((item, i) => {
             const artisan = artisans.find((a) => a.id === item.artisanId);
             const productionDays = products.find((p) => p.id === item.productId)?.productionDays;
+            const sizeOptions = products.find((p) => p.id === item.productId)?.options.sizes ?? [];
             return (
               <div
                 key={i}
@@ -158,6 +192,23 @@ export default function CarritoPage() {
                   </div>
                   <div className="mt-3">
                     <label className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
+                      Tamaño del producto
+                    </label>
+                    <select
+                      value={item.customization.size}
+                      onChange={(e) => updateSize(i, e.target.value)}
+                      className="mt-1 w-full text-sm px-3 py-2 rounded-xl bg-white border border-border focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition"
+                    >
+                      {item.customization.size === "" && <option value="">Elegí un tamaño</option>}
+                      {sizeOptions.map((s) => (
+                        <option key={s.name} value={s.name}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mt-3">
+                    <label className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500">
                       Descripción del producto *
                     </label>
                     <textarea
@@ -173,6 +224,7 @@ export default function CarritoPage() {
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success">
                         <CheckCheck className="w-4 h-4" />
                         Montos confirmados en el chat: Bs {item.customization.price + item.shipping}
+                        {item.shippingMethod ? ` · ${methodLabel(item.shippingMethod)}` : ""}
                       </span>
                     ) : (
                       <Button
@@ -218,25 +270,80 @@ export default function CarritoPage() {
           {maxProductionDays > 0 && (
             <Row label="Duración de confección" value={`~${maxProductionDays} días`} />
           )}
+          <div className="mt-2 space-y-1">
+            {cart.map((c, idx) => (
+              <div key={idx} className="flex items-center justify-between text-xs">
+                <span className="text-neutral-500 truncate">
+                  Tamaño · {c.productName}
+                  {c.shippingMethod ? ` · ${methodLabel(c.shippingMethod)}` : ""}
+                </span>
+                <span className="text-secondary font-semibold ml-2 shrink-0">
+                  {c.customization.size || "A convenir"}
+                </span>
+              </div>
+            ))}
+          </div>
           <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent my-3" />
           <Row label="Total" value={`Bs ${total}`} bold />
+          <div className="mt-4 rounded-2xl border border-border bg-neutral-50 p-4">
+            <p className="font-display font-bold text-secondary text-sm flex items-center gap-1.5">
+              <QrCode className="w-4 h-4 text-primary" />
+              Pago al artesano *
+            </p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">
+              Escaneá el QR de cada artesano para pagar. Recién después se habilita confirmar.
+            </p>
+            <div className="mt-3 space-y-3">
+              {artisanIds.map((id) => {
+                const a = artisans.find((x) => x.id === id);
+                const amount = artisanAmount(id);
+                return (
+                  <div key={id} className="bg-white rounded-xl border border-border p-3 flex items-center gap-3">
+                    <QRCodeSVG
+                      value={`AYNI-PAGO|artesano:${id}|monto:Bs ${amount}`}
+                      size={88}
+                      className="rounded-lg shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-secondary truncate">{a?.name}</p>
+                      <p className="text-xs text-neutral-500">Monto: Bs {amount}</p>
+                      {paid[id] ? (
+                        <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-success">
+                          <CheckCheck className="w-4 h-4" /> Pagado
+                        </span>
+                      ) : (
+                        <Button
+                          onClick={() => markPaid(id)}
+                          variant="secondary"
+                          size="sm"
+                          className="mt-1"
+                        >
+                          Ya pagué
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
           <Button
             onClick={handleConfirm}
             variant="primary"
             size="lg"
             fullWidth
-            disabled={missingNotes || missingAgreement}
+            disabled={missingNotes || missingAgreement || missingPayment}
             className="mt-4 disabled:opacity-40"
           >
             Confirmar pedido
           </Button>
-          {(missingNotes || missingAgreement) && (
+          {(missingNotes || missingAgreement || missingPayment) && (
             <p className="text-[11px] text-error-600 text-center mt-2">
-              {missingNotes && missingAgreement
-                ? "Escribí la descripción y confirmá los montos en el chat antes de confirmar."
-                : missingNotes
-                  ? "Escribí la descripción de cada producto para poder confirmar."
-                  : "Confirmá los montos en el chat con cada artesano antes de confirmar."}
+              {missingNotes
+                ? "Escribí la descripción de cada producto para poder confirmar."
+                : missingAgreement
+                  ? "Confirmá los montos en el chat con cada artesano antes de confirmar."
+                  : "Pagá con el QR de cada artesano antes de confirmar."}
             </p>
           )}
           <div className="mt-5 grid grid-cols-2 gap-2.5">
@@ -269,21 +376,26 @@ export default function CarritoPage() {
         onClose={() => setChatOpen(false)}
         contextLine={chatContextLine}
         proposal={chatProposal}
-        onConfirmAmounts={(p) => {
+        askDelivery
+        onConfirmAmounts={(a) => {
           if (chatItemIndex !== null && cart[chatItemIndex]) {
             const item = cart[chatItemIndex];
-            updateAgreedPrice(chatItemIndex, p.price, p.shipping);
+            updateAgreedPrice(chatItemIndex, a.price, a.shipping, a.method ?? "");
             const key = agreedKey(item.artisanId, item.productId);
             setAgreed((prev) => {
               const next = { ...prev, [key]: true };
-              try {
-                localStorage.setItem(AGREED_KEY, JSON.stringify(next));
-              } catch {
-                /* noop */
-              }
+              saveMap(AGREED_KEY, next);
               return next;
             });
-            toast("Montos confirmados, revisá el resumen para confirmar el pedido");
+            // Si cambió el monto, hay que volver a pagar
+            setPaid((prev) => {
+              if (!prev[item.artisanId]) return prev;
+              const next = { ...prev };
+              delete next[item.artisanId];
+              saveMap(PAID_KEY, next);
+              return next;
+            });
+            toast("Montos confirmados, pagá con el QR y revisá el resumen");
           }
           setChatOpen(false);
         }}

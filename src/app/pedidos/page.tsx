@@ -142,6 +142,12 @@ export default function PedidosPage() {
                           <p className="text-secondary">
                             Producto Bs {o.customization.price} + Envío Bs {o.shipping} = Bs {o.total}
                           </p>
+                          <p className="text-secondary mt-1 text-[13px]">
+                            Tamaño: {o.customization.size || "A convenir"}
+                            {o.shippingMethod
+                              ? ` · ${o.shippingMethod === "personal" ? "Entrega personal" : o.shippingMethod === "paqueteria" ? "Paquetería" : o.shippingMethod}`
+                              : ""}
+                          </p>
                           {o.notes && (
                             <>
                               <p className="text-[10px] uppercase tracking-widest text-neutral-500 mt-3">

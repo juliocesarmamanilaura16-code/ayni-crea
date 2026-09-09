@@ -11,6 +11,7 @@ type ChatMessage = {
   from: "client" | "artisan";
   text: string;
   image?: string;
+  options?: string[];
   at: string;
 };
 
@@ -26,12 +27,27 @@ export type PriceProposal = {
   price: number;
   shipping: number;
   days?: number;
+  size?: string;
+};
+
+export type DeliveryMethod = "personal" | "paqueteria";
+
+export type ConfirmedAgreement = {
+  price: number;
+  shipping: number;
+  method: DeliveryMethod | null;
 };
 
 const totalOf = (p: PriceProposal) => p.price + p.shipping;
 
+const DELIVERY_OPTIONS = ["🤝 Entrega personal", "📦 Paquetería"];
+
 function proposalMessage(p: PriceProposal): string {
-  return `¡Hola! Te propongo lo siguiente: Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.days ? `, con confección de ~${p.days} días` : ""}. Si estás de acuerdo, apretá "Confirmar montos" aquí abajo. ¿Querés ajustar algo?`;
+  return `¡Hola! Te propongo lo siguiente: Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.size ? `, tamaño ${p.size}` : ""}${p.days ? `, con confección de ~${p.days} días` : ""}. Si estás de acuerdo, apretá "Confirmar montos" aquí abajo. ¿Querés ajustar algo?`;
+}
+
+function amountsLine(p: PriceProposal): string {
+  return `Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.size ? `, tamaño ${p.size}` : ""}${p.days ? `, confección ~${p.days} días` : ""}`;
 }
 
 function getBotReply(
@@ -41,9 +57,7 @@ function getBotReply(
 ): { text: string; applyDiscount: boolean } {
   const t = input.toLowerCase();
   const has = (...words: string[]) => words.some((w) => t.includes(w));
-  const amounts = p
-    ? `Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.days ? `, confección ~${p.days} días` : ""}`
-    : null;
+  const amounts = p ? amountsLine(p) : null;
 
   if (has("descuento", "rebaja", "menos", "barato", "oferta", "precio final")) {
     if (p) return { text: "", applyDiscount: true };
@@ -97,6 +111,7 @@ export function ChatDrawer({
   contextLine,
   onClientMessage,
   proposal,
+  askDelivery,
   onProposalChange,
   onConfirmAmounts,
 }: {
@@ -106,13 +121,15 @@ export function ChatDrawer({
   contextLine?: string | null;
   onClientMessage?: () => void;
   proposal?: PriceProposal | null;
+  askDelivery?: boolean;
   onProposalChange?: (p: { price: number; shipping: number }) => void;
-  onConfirmAmounts?: (p: { price: number; shipping: number }) => void;
+  onConfirmAmounts?: (a: ConfirmedAgreement) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [liveProposal, setLiveProposal] = useState<PriceProposal | null>(null);
   const discountGivenRef = useRef(false);
+  const methodRef = useRef<DeliveryMethod | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -125,22 +142,40 @@ export function ChatDrawer({
       const initialProposal = proposal ? { ...proposal } : null;
       setLiveProposal(initialProposal);
       discountGivenRef.current = false;
+      methodRef.current = null;
       try {
         const raw = localStorage.getItem(storageKey(artisan.id));
         if (raw) {
           const stored = JSON.parse(raw) as ChatMessage[];
-          setMessages(stored);
-          if (initialProposal && !stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
-            setMessages([
-              ...stored,
-              {
-                id: `p-${Date.now()}`,
-                from: "artisan",
-                text: proposalMessage(initialProposal),
-                at: new Date().toISOString(),
-              },
-            ]);
+          // Restaurar estado desde el historial
+          if (stored.some((m) => m.from === "artisan" && m.text.includes("10% de descuento"))) {
+            discountGivenRef.current = true;
           }
+          const clientChoice = stored.find(
+            (m) => m.from === "client" && (m.text.toLowerCase().includes("personal") || m.text.toLowerCase().includes("paquet"))
+          );
+          if (clientChoice) {
+            methodRef.current = clientChoice.text.toLowerCase().includes("personal") ? "personal" : "paqueteria";
+          }
+          const withProposal = [...stored];
+          if (initialProposal && !stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
+            withProposal.push({
+              id: `p-${Date.now()}`,
+              from: "artisan",
+              text: proposalMessage(initialProposal),
+              at: new Date().toISOString(),
+            });
+          }
+          if (initialProposal && askDelivery && !methodRef.current && !withProposal.some((m) => m.options && m.options.length > 0)) {
+            withProposal.push({
+              id: `d-${Date.now()}`,
+              from: "artisan",
+              text: "¿Cómo querés recibir tu pedido? Elegí una opción:",
+              options: DELIVERY_OPTIONS,
+              at: new Date().toISOString(),
+            });
+          }
+          setMessages(withProposal);
         } else {
           const welcome: ChatMessage[] = [
             {
@@ -155,6 +190,15 @@ export function ChatDrawer({
               id: `p-${Date.now()}`,
               from: "artisan",
               text: proposalMessage(initialProposal),
+              at: new Date().toISOString(),
+            });
+          }
+          if (initialProposal && askDelivery) {
+            welcome.push({
+              id: `d-${Date.now()}`,
+              from: "artisan",
+              text: "¿Cómo querés recibir tu pedido? Elegí una opción:",
+              options: DELIVERY_OPTIONS,
               at: new Date().toISOString(),
             });
           }
@@ -199,6 +243,29 @@ export function ChatDrawer({
         return;
       }
       const { text, applyDiscount } = getBotReply(inputText, liveProposal, firstName);
+      const lower = inputText.toLowerCase();
+      const wantsMethod = liveProposal && (lower.includes("personal") || lower.includes("paquet"));
+      if (wantsMethod && liveProposal) {
+        const method: DeliveryMethod = lower.includes("personal") ? "personal" : "paqueteria";
+        methodRef.current = method;
+        const ship = method === "personal" ? 0 : 15;
+        const updated = { price: liveProposal.price, shipping: ship };
+        setLiveProposal({ ...updated, days: liveProposal.days, size: liveProposal.size });
+        onProposalChange?.(updated);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `a-${Date.now()}`,
+            from: "artisan",
+            text:
+              method === "personal"
+                ? `Perfecto, entrega personal conmigo: sin costo de envío. Queda en Producto Bs ${updated.price} + Envío Bs 0 = Total Bs ${updated.price}. Confirmá los montos con el botón verde.`
+                : `Perfecto, envío por paquetería (Bs 15). Queda en Producto Bs ${updated.price} + Envío Bs 15 = Total Bs ${updated.price + 15}. Confirmá los montos con el botón verde.`,
+            at: new Date().toISOString(),
+          },
+        ]);
+        return;
+      }
       if (applyDiscount && liveProposal) {
         if (discountGivenRef.current) {
           setMessages((prev) => [
@@ -215,7 +282,7 @@ export function ChatDrawer({
         discountGivenRef.current = true;
         const newPrice = Math.max(1, Math.round(liveProposal.price * 0.9));
         const updated = { price: newPrice, shipping: liveProposal.shipping };
-        setLiveProposal({ ...updated, days: liveProposal.days });
+        setLiveProposal({ ...updated, days: liveProposal.days, size: liveProposal.size });
         onProposalChange?.(updated);
         setMessages((prev) => [
           ...prev,
@@ -253,6 +320,12 @@ export function ChatDrawer({
   const send = () => {
     const text = draft.trim();
     if (!text || !artisan) return;
+    sendClientText(text);
+    setDraft("");
+  };
+
+  const sendClientText = (text: string) => {
+    if (!artisan) return;
     const userMsg: ChatMessage = {
       id: `m-${Date.now()}`,
       from: "client",
@@ -260,9 +333,12 @@ export function ChatDrawer({
       at: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMsg]);
-    setDraft("");
     notifyClientMessage();
     botReply(text, false);
+  };
+
+  const sendOption = (opt: string) => {
+    sendClientText(opt);
   };
 
   const sendImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,7 +414,7 @@ export function ChatDrawer({
                   {contextLine}
                 </div>
               )}
-              {messages.map((m) => (
+              {messages.map((m, idx) => (
                 <div
                   key={m.id}
                   className={`flex ${m.from === "client" ? "justify-end" : "justify-start"}`}
@@ -365,6 +441,19 @@ export function ChatDrawer({
                       )}
                       {m.text}
                     </div>
+                    {m.options && m.options.length > 0 && idx === messages.length - 1 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {m.options.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => sendOption(opt)}
+                            className="px-3.5 py-2 rounded-full bg-secondary text-white text-xs font-bold hover:bg-secondary-700 transition shadow-card"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -374,7 +463,13 @@ export function ChatDrawer({
             <div className="p-3 border-t border-border bg-white">
               {liveProposal && onConfirmAmounts && (
                 <button
-                  onClick={() => onConfirmAmounts({ price: liveProposal.price, shipping: liveProposal.shipping })}
+                  onClick={() =>
+                    onConfirmAmounts({
+                      price: liveProposal.price,
+                      shipping: liveProposal.shipping,
+                      method: methodRef.current,
+                    })
+                  }
                   className="w-full mb-2 px-4 py-2.5 rounded-xl bg-success text-white text-sm font-bold hover:bg-success-600 transition"
                 >
                   Confirmar montos: Bs {liveProposal.price + liveProposal.shipping}

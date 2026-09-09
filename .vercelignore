@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.vercel
+*.log
+.env*.local
+tsconfig.tsbuildinfo
+out/
+dist/
+.tmp
+coverage
+.nyc_output
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+tmp-fix*.js

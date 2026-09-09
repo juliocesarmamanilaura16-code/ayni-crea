@@ -82,6 +82,7 @@ export type Order = {
   productId: string;
   productName: string;
   productImage: string;
+  shippingMethod: string;
   notes: string;
   customization: Customization;
   shipping: number;
