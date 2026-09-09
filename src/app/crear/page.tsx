@@ -202,18 +202,18 @@ export default function CrearPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-500 mb-3">Imagen</h3>
-                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border bg-white hover:border-primary/40 cursor-pointer transition group">
-                    <Upload className="w-5 h-5 text-neutral-400 group-hover:text-secondary" />
-                    <span className="text-sm text-neutral-600 group-hover:text-secondary font-medium">
+                  <h3 className="font-display font-bold text-sm uppercase tracking-widest text-neutral-900 mb-3">Imagen</h3>
+                  <label className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-neutral-900 bg-neutral-900 hover:bg-orange-500 hover:border-orange-500 cursor-pointer transition group">
+                    <Upload className="w-5 h-5 text-white group-hover:text-neutral-900" />
+                    <span className="text-sm text-white group-hover:text-neutral-900 font-bold">
                       {uploadedImage ? "Cambiar imagen" : "Subir imagen"}
                     </span>
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                   {uploadedImage && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <img src={uploadedImage} alt="Preview" className="w-16 h-16 object-cover rounded-lg border border-border" />
-                      <button onClick={() => setUploadedImage(null)} className="text-[11px] text-red-500 hover:text-red-700">Eliminar</button>
+                    <div className="mt-3 flex items-center gap-3 bg-neutral-900 rounded-xl p-3">
+                      <img src={uploadedImage} alt="Preview" className="w-14 h-14 object-cover rounded-lg border-2 border-orange-500" />
+                      <button onClick={() => setUploadedImage(null)} className="text-xs text-white bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded-lg font-bold transition">Eliminar</button>
                     </div>
                   )}
                 </div>
