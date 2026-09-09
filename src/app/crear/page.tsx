@@ -179,9 +179,24 @@ export default function CrearPage() {
                       <p className="text-sm font-semibold">Tu diseño se elabora con un artesano disponible</p>
                     </div>
                   </div>
-                  <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />}>
-                    Explorar artesano disponible
-                  </Button>
+                  <AnimatePresence>
+                    {uploadedImage && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                      >
+                        <Button onClick={handleContinue} variant="primary" size="lg" fullWidth leftIcon={<ArrowRight className="w-4 h-4" />}>
+                          Seleccionar artesano disponible
+                        </Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {!uploadedImage && (
+                    <p className="text-xs text-white/70 text-center">
+                      Subí una imagen de tu diseño para seleccionar un artesano disponible.
+                    </p>
+                  )}
                   <Button onClick={handleOpenChat} variant="outline" size="lg" fullWidth leftIcon={<MessageCircle className="w-4 h-4" />} className="border-white/40 bg-white/10 text-white hover:bg-white/20">
                     Chatear con artesano
                   </Button>

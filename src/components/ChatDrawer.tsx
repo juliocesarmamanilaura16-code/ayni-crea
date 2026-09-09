@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, X, ImagePlus } from "lucide-react";
 import type { Artisan } from "@/types";
 
 type ChatMessage = {
   id: string;
   from: "client" | "artisan";
   text: string;
+  image?: string;
   at: string;
 };
 
@@ -35,6 +36,7 @@ export function ChatDrawer({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open && artisan) {
@@ -72,6 +74,22 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
+  const sendAutoReply = (forImage: boolean) => {
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          from: "artisan",
+          text: forImage
+            ? "¡Recibí tu imagen! Se ve muy bien. Decime qué tamaño y materiales preferís y coordinamos la elaboración."
+            : AUTO_REPLIES[prev.length % AUTO_REPLIES.length],
+          at: new Date().toISOString(),
+        },
+      ]);
+    }, 900);
+  };
+
   const send = () => {
     const text = draft.trim();
     if (!text || !artisan) return;
@@ -83,18 +101,30 @@ export function ChatDrawer({
     };
     setMessages((prev) => [...prev, userMsg]);
     setDraft("");
-    const replyIndex = messages.length % AUTO_REPLIES.length;
-    setTimeout(() => {
+    sendAutoReply(false);
+  };
+
+  const sendImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !artisan) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const image = ev.target?.result as string;
       setMessages((prev) => [
         ...prev,
         {
-          id: `a-${Date.now()}`,
-          from: "artisan",
-          text: AUTO_REPLIES[replyIndex],
+          id: `m-${Date.now()}`,
+          from: "client",
+          text: draft.trim() || "Te comparto mi diseño",
+          image,
           at: new Date().toISOString(),
         },
       ]);
-    }, 900);
+      setDraft("");
+      sendAutoReply(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   return (
@@ -159,6 +189,13 @@ export function ChatDrawer({
                           : "bg-amber-50 border-2 border-amber-300 text-neutral-900 rounded-bl-md shadow-card"
                       }`}
                     >
+                      {m.image && (
+                        <img
+                          src={m.image}
+                          alt="Imagen compartida en el chat"
+                          className="rounded-xl mb-2 max-h-48 w-full object-cover"
+                        />
+                      )}
                       {m.text}
                     </div>
                   </div>
@@ -169,6 +206,21 @@ export function ChatDrawer({
 
             <div className="p-3 border-t border-border bg-white">
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  aria-label="Subir imagen al chat"
+                  title="Subir imagen"
+                  className="w-11 h-11 rounded-xl border-2 border-border grid place-items-center hover:border-primary hover:text-primary text-neutral-500 transition shrink-0"
+                >
+                  <ImagePlus className="w-5 h-5" />
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={sendImage}
+                  className="hidden"
+                />
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
