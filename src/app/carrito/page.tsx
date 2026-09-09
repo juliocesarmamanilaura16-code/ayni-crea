@@ -30,7 +30,7 @@ function loadAgreed(): Record<string, boolean> {
 
 export default function CarritoPage() {
   const router = useRouter();
-  const { cart, removeFromCart, updateNotes, placeOrder, user } = useStore();
+  const { cart, removeFromCart, updateNotes, updateAgreedPrice, placeOrder, user } = useStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
@@ -59,7 +59,16 @@ export default function CarritoPage() {
 
   const chatContextLine =
     chatItemIndex !== null && cart[chatItemIndex]
-      ? `Acuerdo de precio con el artesano — ${cart[chatItemIndex].productName}: Producto Bs ${cart[chatItemIndex].customization.price} + Envío Bs ${cart[chatItemIndex].shipping} = Total Bs ${cart[chatItemIndex].customization.price + cart[chatItemIndex].shipping}. Confirmá estos montos en este chat antes de confirmar el pedido.`
+      ? `Acordá con el artesano el subtotal, el envío y el total de ${cart[chatItemIndex].productName} antes de confirmar el pedido.`
+      : null;
+
+  const chatProposal =
+    chatItemIndex !== null && cart[chatItemIndex]
+      ? {
+          price: cart[chatItemIndex].customization.price,
+          shipping: cart[chatItemIndex].shipping,
+          days: products.find((p) => p.id === cart[chatItemIndex].productId)?.productionDays,
+        }
       : null;
 
   const handleConfirm = () => {
@@ -259,14 +268,11 @@ export default function CarritoPage() {
         open={chatOpen}
         onClose={() => setChatOpen(false)}
         contextLine={chatContextLine}
-        confirmAmountsLabel={
-          chatItemIndex !== null && cart[chatItemIndex]
-            ? `Bs ${cart[chatItemIndex].customization.price + cart[chatItemIndex].shipping}`
-            : null
-        }
-        onConfirmAmounts={() => {
+        proposal={chatProposal}
+        onConfirmAmounts={(p) => {
           if (chatItemIndex !== null && cart[chatItemIndex]) {
             const item = cart[chatItemIndex];
+            updateAgreedPrice(chatItemIndex, p.price, p.shipping);
             const key = agreedKey(item.artisanId, item.productId);
             setAgreed((prev) => {
               const next = { ...prev, [key]: true };

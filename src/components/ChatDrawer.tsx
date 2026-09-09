@@ -14,12 +14,6 @@ type ChatMessage = {
   at: string;
 };
 
-const AUTO_REPLIES = [
-  "¡Hola! Gracias por escribirme. Contame qué diseño tenés en mente y lo elaboramos juntos.",
-  "Puedo hacerlo en el tiempo indicado en mi perfil. Si me pasás tu lienzo, te confirmo detalles.",
-  "El precio final lo convenimos por acá según el diseño que subiste al lienzo.",
-];
-
 function storageKey(artisanId: string) {
   return `ayni-chat-${artisanId}`;
 }
@@ -28,13 +22,82 @@ export function chatDoneKey(artisanId: string) {
   return `ayni-chat-done-${artisanId}`;
 }
 
+export type PriceProposal = {
+  price: number;
+  shipping: number;
+  days?: number;
+};
+
+const totalOf = (p: PriceProposal) => p.price + p.shipping;
+
+function proposalMessage(p: PriceProposal): string {
+  return `¡Hola! Te propongo lo siguiente: Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.days ? `, con confección de ~${p.days} días` : ""}. Si estás de acuerdo, apretá "Confirmar montos" aquí abajo. ¿Querés ajustar algo?`;
+}
+
+function getBotReply(
+  input: string,
+  p: PriceProposal | null,
+  artisanFirstName: string
+): { text: string; applyDiscount: boolean } {
+  const t = input.toLowerCase();
+  const has = (...words: string[]) => words.some((w) => t.includes(w));
+  const amounts = p
+    ? `Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.days ? `, confección ~${p.days} días` : ""}`
+    : null;
+
+  if (has("descuento", "rebaja", "menos", "barato", "oferta", "precio final")) {
+    if (p) return { text: "", applyDiscount: true };
+    return { text: "Decime qué producto te interesa y te armo una propuesta con el mejor precio.", applyDiscount: false };
+  }
+  if (has("confirmo", "confirmar", "acepto", "de acuerdo", "dale", "si ", "sí", "ok")) {
+    return { text: `¡Genial! Entonces apretá el botón verde "Confirmar montos" aquí abajo para cerrar el acuerdo.`, applyDiscount: false };
+  }
+  if (has("precio", "cuesta", "cuestan", "costo", "cuánto", "cuanto", "total", "subtotal", "envío", "envio", "pagar", "pago")) {
+    return {
+      text: amounts
+        ? `La propuesta actual es: ${amounts}. Confirmala con el botón verde o pedime un descuento.`
+        : "El precio lo definimos según tu diseño. Pasame los detalles y te propongo montos.",
+      applyDiscount: false,
+    };
+  }
+  if (has("tiempo", "días", "dias", "demora", "tarda", "tardan", "confección", "confeccion", "cuándo", "cuando", "entrega")) {
+    return {
+      text: p?.days
+        ? `La confección toma ~${p.days} días desde que confirmás el pedido. ¿Seguimos?`
+        : "El tiempo de confección depende del diseño, normalmente entre 3 y 10 días. ¿Qué querés crear?",
+      applyDiscount: false,
+    };
+  }
+  if (has("hola", "buenas", "buenos días", "buenas tardes", "hey", "saludos")) {
+    return {
+      text: amounts
+        ? `¡Hola! Soy ${artisanFirstName}. Mi propuesta es: ${amounts}. ¿Te parece bien?`
+        : `¡Hola! Soy ${artisanFirstName}. Contame qué diseño tenés en mente y lo elaboramos juntos.`,
+      applyDiscount: false,
+    };
+  }
+  if (has("gracias")) {
+    return { text: "¡De nada! Quedo atenta a tu confirmación de montos para empezar la elaboración.", applyDiscount: false };
+  }
+  if (has("medida", "tamaño", "tamano", "grande", "pequeño", "mediano", "material", "color", "tela", "cuero", "diseño", "diseno", "imagen", "foto")) {
+    return { text: "Perfecto, tomo nota de esos detalles para la elaboración. ¿Confirmamos los montos con el botón verde?", applyDiscount: false };
+  }
+  return {
+    text: amounts
+      ? `Entendido. Mi propuesta sigue en pie: ${amounts}. Confirmala abajo o decime qué ajustar.`
+      : "Entendido. Contame más de tu idea: medidas, colores y materiales, y te armo la propuesta.",
+    applyDiscount: false,
+  };
+}
+
 export function ChatDrawer({
   artisan,
   open,
   onClose,
   contextLine,
   onClientMessage,
-  confirmAmountsLabel,
+  proposal,
+  onProposalChange,
   onConfirmAmounts,
 }: {
   artisan: Artisan | null;
@@ -42,35 +105,67 @@ export function ChatDrawer({
   onClose: () => void;
   contextLine?: string | null;
   onClientMessage?: () => void;
-  confirmAmountsLabel?: string | null;
-  onConfirmAmounts?: () => void;
+  proposal?: PriceProposal | null;
+  onProposalChange?: (p: { price: number; shipping: number }) => void;
+  onConfirmAmounts?: (p: { price: number; shipping: number }) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
+  const [liveProposal, setLiveProposal] = useState<PriceProposal | null>(null);
+  const discountGivenRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const proposalPrice = proposal?.price;
+  const proposalShipping = proposal?.shipping;
+  const proposalDays = proposal?.days;
+
   useEffect(() => {
     if (open && artisan) {
+      const initialProposal = proposal ? { ...proposal } : null;
+      setLiveProposal(initialProposal);
+      discountGivenRef.current = false;
       try {
         const raw = localStorage.getItem(storageKey(artisan.id));
         if (raw) {
-          setMessages(JSON.parse(raw));
+          const stored = JSON.parse(raw) as ChatMessage[];
+          setMessages(stored);
+          if (initialProposal && !stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
+            setMessages([
+              ...stored,
+              {
+                id: `p-${Date.now()}`,
+                from: "artisan",
+                text: proposalMessage(initialProposal),
+                at: new Date().toISOString(),
+              },
+            ]);
+          }
         } else {
-          setMessages([
+          const welcome: ChatMessage[] = [
             {
               id: "welcome",
               from: "artisan",
               text: `¡Hola! Soy ${artisan.name}. Escribime tu idea y coordinamos la elaboración de tu pieza.`,
               at: new Date().toISOString(),
             },
-          ]);
+          ];
+          if (initialProposal) {
+            welcome.push({
+              id: `p-${Date.now()}`,
+              from: "artisan",
+              text: proposalMessage(initialProposal),
+              at: new Date().toISOString(),
+            });
+          }
+          setMessages(welcome);
         }
       } catch {
         setMessages([]);
       }
     }
-  }, [open, artisan]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, artisan?.id, proposalPrice, proposalShipping, proposalDays]);
 
   useEffect(() => {
     if (open && artisan && messages.length > 0) {
@@ -86,15 +181,59 @@ export function ChatDrawer({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  const sendAutoReply = (forImage: boolean) => {    setTimeout(() => {
+  const botReply = (inputText: string, forImage: boolean) => {
+    const firstName = artisan?.name.split(" ")[0] ?? "el artesano";
+    setTimeout(() => {
+      if (forImage) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `a-${Date.now()}`,
+            from: "artisan",
+            text: liveProposal
+              ? `¡Recibí tu imagen! Se ve muy bien. Mi propuesta sigue en: Producto Bs ${liveProposal.price} + Envío Bs ${liveProposal.shipping} = Total Bs ${liveProposal.price + liveProposal.shipping}. Confirmala con el botón verde.`
+              : "¡Recibí tu imagen! Se ve muy bien. Decime qué tamaño y materiales preferís y coordinamos la elaboración.",
+            at: new Date().toISOString(),
+          },
+        ]);
+        return;
+      }
+      const { text, applyDiscount } = getBotReply(inputText, liveProposal, firstName);
+      if (applyDiscount && liveProposal) {
+        if (discountGivenRef.current) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `a-${Date.now()}`,
+              from: "artisan",
+              text: "Ya te apliqué mi mejor descuento en esta propuesta. Confirmá los montos con el botón verde para empezar.",
+              at: new Date().toISOString(),
+            },
+          ]);
+          return;
+        }
+        discountGivenRef.current = true;
+        const newPrice = Math.max(1, Math.round(liveProposal.price * 0.9));
+        const updated = { price: newPrice, shipping: liveProposal.shipping };
+        setLiveProposal({ ...updated, days: liveProposal.days });
+        onProposalChange?.(updated);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `a-${Date.now()}`,
+            from: "artisan",
+            text: `¡De acuerdo! Te hago un 10% de descuento: Producto Bs ${newPrice} + Envío Bs ${updated.shipping} = Total Bs ${newPrice + updated.shipping}. Ya actualicé la propuesta; confirmala con el botón verde de aquí abajo.`,
+            at: new Date().toISOString(),
+          },
+        ]);
+        return;
+      }
       setMessages((prev) => [
         ...prev,
         {
           id: `a-${Date.now()}`,
           from: "artisan",
-          text: forImage
-            ? "¡Recibí tu imagen! Se ve muy bien. Decime qué tamaño y materiales preferís y coordinamos la elaboración."
-            : AUTO_REPLIES[prev.length % AUTO_REPLIES.length],
+          text,
           at: new Date().toISOString(),
         },
       ]);
@@ -123,7 +262,7 @@ export function ChatDrawer({
     setMessages((prev) => [...prev, userMsg]);
     setDraft("");
     notifyClientMessage();
-    sendAutoReply(false);
+    botReply(text, false);
   };
 
   const sendImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,7 +283,7 @@ export function ChatDrawer({
       ]);
       setDraft("");
       notifyClientMessage();
-      sendAutoReply(true);
+      botReply(draft.trim() || "Te comparto mi diseño", true);
     };
     reader.readAsDataURL(file);
     e.target.value = "";
@@ -233,12 +372,12 @@ export function ChatDrawer({
             </div>
 
             <div className="p-3 border-t border-border bg-white">
-              {confirmAmountsLabel && onConfirmAmounts && (
+              {liveProposal && onConfirmAmounts && (
                 <button
-                  onClick={() => onConfirmAmounts()}
+                  onClick={() => onConfirmAmounts({ price: liveProposal.price, shipping: liveProposal.shipping })}
                   className="w-full mb-2 px-4 py-2.5 rounded-xl bg-success text-white text-sm font-bold hover:bg-success-600 transition"
                 >
-                  Confirmar montos: {confirmAmountsLabel}
+                  Confirmar montos: Bs {liveProposal.price + liveProposal.shipping}
                 </button>
               )}
               <div className="flex items-center gap-2">
