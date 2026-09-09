@@ -67,6 +67,7 @@ export default function ElegirArtesanoPage() {
       productImage: displayImage,
       shippingMethod: "",
       notes: "",
+      agreed: false,
       customization: {
         productId: product.id,
         color: "",

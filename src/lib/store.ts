@@ -14,6 +14,7 @@ type CartItem = {
   shipping: number;
   shippingMethod: string;
   notes: string;
+  agreed: boolean;
 };
 
 type State = {
@@ -21,6 +22,7 @@ type State = {
   cart: CartItem[];
   orders: Order[];
   favorites: string[]; // productIds
+  paidAmounts: Record<string, number>; // artisanId -> monto pagado con QR
   login: (u: User) => void;
   logout: () => void;
   addToCart: (item: CartItem) => void;
@@ -28,6 +30,8 @@ type State = {
   updateNotes: (index: number, notes: string) => void;
   updateSize: (index: number, size: string) => void;
   updateAgreedPrice: (index: number, price: number, shipping: number, method: string) => void;
+  setAgreed: (index: number) => void;
+  markPaid: (artisanId: string, amount: number) => void;
   clearCart: () => void;
   placeOrder: () => Order | null;
   advanceOrder: (orderId: string) => void;
@@ -38,6 +42,23 @@ type State = {
 
 const shippingFor = (total: number) => (total >= 200 ? 0 : 15);
 
+// Reinicia los chats y acuerdos cuando se realiza una compra,
+// para que cada pedido nuevo empiece desde cero.
+function resetChatsForNewPurchase() {
+  try {
+    const keys: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && (k.startsWith("ayni-chat-") || k === "ayni-agreed-prices" || k === "ayni-paid-artisans")) {
+        keys.push(k);
+      }
+    }
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* noop */
+  }
+}
+
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
@@ -45,10 +66,16 @@ export const useStore = create<State>()(
       cart: [],
       orders: [],
       favorites: [],
+      paidAmounts: {},
       login: (u) => set({ user: u }),
       logout: () => set({ user: null }),
       addToCart: (item) =>
-        set((s) => ({ cart: [...s.cart, { ...item, shipping: shippingFor(item.customization.price) }] })),
+        set((s) => ({
+          cart: [
+            ...s.cart,
+            { ...item, agreed: false, shipping: shippingFor(item.customization.price) },
+          ],
+        })),
       removeFromCart: (i) => set((s) => ({ cart: s.cart.filter((_, idx) => idx !== i) })),
       updateNotes: (i, notes) =>
         set((s) => ({ cart: s.cart.map((c, idx) => (idx === i ? { ...c, notes } : c)) })),
@@ -66,6 +93,10 @@ export const useStore = create<State>()(
               : c
           ),
         })),
+      setAgreed: (i) =>
+        set((s) => ({ cart: s.cart.map((c, idx) => (idx === i ? { ...c, agreed: true } : c)) })),
+      markPaid: (artisanId, amount) =>
+        set((s) => ({ paidAmounts: { ...s.paidAmounts, [artisanId]: amount } })),
       clearCart: () => set({ cart: [] }),
       placeOrder: () => {
         const { user, cart } = get();
@@ -85,11 +116,20 @@ export const useStore = create<State>()(
           status: "realizado",
           createdAt: new Date().toISOString(),
         }));
-        set((s) => ({
-          orders: [...newOrders, ...s.orders],
-          cart: [],
-          user: { ...s.user!, points: s.user!.points + 10 + newOrders.length * 20 },
-        }));
+        const orderedArtisans = [...new Set(cart.map((c) => c.artisanId))];
+        resetChatsForNewPurchase();
+        set((s) => {
+          const paidAmounts = { ...s.paidAmounts };
+          orderedArtisans.forEach((id) => {
+            delete paidAmounts[id];
+          });
+          return {
+            orders: [...newOrders, ...s.orders],
+            cart: [],
+            paidAmounts,
+            user: { ...s.user!, points: s.user!.points + 10 + newOrders.length * 20 },
+          };
+        });
         return newOrders[0];
       },
       advanceOrder: (orderId) =>

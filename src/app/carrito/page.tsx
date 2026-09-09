@@ -15,38 +15,12 @@ import { ChatDrawer } from "@/components/ChatDrawer";
 import { methodLabel } from "@/lib/design";
 import type { Artisan } from "@/types";
 
-const AGREED_KEY = "ayni-agreed-prices";
-const PAID_KEY = "ayni-paid-artisans";
-
-function agreedKey(artisanId: string, productId: string) {
-  return `${artisanId}:${productId}`;
-}
-
-function loadMap(key: string): Record<string, boolean> {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveMap(key: string, map: Record<string, boolean>) {
-  try {
-    localStorage.setItem(key, JSON.stringify(map));
-  } catch {
-    /* noop */
-  }
-}
-
 export default function CarritoPage() {
   const router = useRouter();
-  const { cart, removeFromCart, updateNotes, updateSize, updateAgreedPrice, placeOrder, user } = useStore();
+  const { cart, removeFromCart, updateNotes, updateSize, updateAgreedPrice, setAgreed, paidAmounts, markPaid, placeOrder, user } = useStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
-  const [agreed, setAgreed] = useState<Record<string, boolean>>(() => loadMap(AGREED_KEY));
-  const [paid, setPaid] = useState<Record<string, boolean>>(() => loadMap(PAID_KEY));
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const total = subtotal + shipping;
@@ -55,25 +29,17 @@ export default function CarritoPage() {
     return Math.max(acc, days);
   }, 0);
   const missingNotes = cart.some((c) => !(c.notes ?? "").trim());
-  const isAgreed = (artisanId: string, productId: string) => !!agreed[agreedKey(artisanId, productId)];
-  const missingAgreement = cart.some((c) => !isAgreed(c.artisanId, c.productId));
+  const missingAgreement = cart.some((c) => !c.agreed);
   const allAgreed = cart.length > 0 && !missingAgreement;
   const artisanIds = [...new Set(cart.map((c) => c.artisanId))];
-  const missingPayment = artisanIds.some((id) => !paid[id]);
 
   const artisanAmount = (artisanId: string) =>
     cart
       .filter((c) => c.artisanId === artisanId)
       .reduce((acc, c) => acc + c.customization.price + c.shipping, 0);
 
-  const markPaid = (artisanId: string) => {
-    setPaid((prev) => {
-      const next = { ...prev, [artisanId]: true };
-      saveMap(PAID_KEY, next);
-      return next;
-    });
-    toast("Pago registrado, ya podés confirmar tu pedido");
-  };
+  const isPaid = (artisanId: string) => paidAmounts[artisanId] === artisanAmount(artisanId);
+  const missingPayment = artisanIds.some((id) => !isPaid(id));
 
   const openChat = (artisan: Artisan | undefined, itemIndex: number) => {
     if (!artisan) {
@@ -220,7 +186,7 @@ export default function CarritoPage() {
                     />
                   </div>
                   <div className="mt-3">
-                    {isAgreed(item.artisanId, item.productId) ? (
+                    {item.agreed ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-success">
                         <CheckCheck className="w-4 h-4" />
                         Montos confirmados en el chat: Bs {item.customization.price + item.shipping}
@@ -297,6 +263,8 @@ export default function CarritoPage() {
               {artisanIds.map((id) => {
                 const a = artisans.find((x) => x.id === id);
                 const amount = artisanAmount(id);
+                const paidAmount = paidAmounts[id];
+                const paidOk = paidAmount === amount;
                 return (
                   <div key={id} className="bg-white rounded-xl border border-border p-3 flex items-center gap-3">
                     <QRCodeSVG
@@ -307,19 +275,29 @@ export default function CarritoPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-secondary truncate">{a?.name}</p>
                       <p className="text-xs text-neutral-500">Monto: Bs {amount}</p>
-                      {paid[id] ? (
+                      {paidOk ? (
                         <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-success">
                           <CheckCheck className="w-4 h-4" /> Pagado
                         </span>
                       ) : (
-                        <Button
-                          onClick={() => markPaid(id)}
-                          variant="secondary"
-                          size="sm"
-                          className="mt-1"
-                        >
-                          Ya pagué
-                        </Button>
+                        <>
+                          {paidAmount !== undefined && (
+                            <p className="text-[11px] text-error-600 font-semibold">
+                              El monto cambió, volvé a pagar
+                            </p>
+                          )}
+                          <Button
+                            onClick={() => {
+                              markPaid(id, amount);
+                              toast("Pago registrado, ya podés confirmar tu pedido");
+                            }}
+                            variant="secondary"
+                            size="sm"
+                            className="mt-1"
+                          >
+                            Ya pagué
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -379,22 +357,8 @@ export default function CarritoPage() {
         askDelivery
         onConfirmAmounts={(a) => {
           if (chatItemIndex !== null && cart[chatItemIndex]) {
-            const item = cart[chatItemIndex];
             updateAgreedPrice(chatItemIndex, a.price, a.shipping, a.method ?? "");
-            const key = agreedKey(item.artisanId, item.productId);
-            setAgreed((prev) => {
-              const next = { ...prev, [key]: true };
-              saveMap(AGREED_KEY, next);
-              return next;
-            });
-            // Si cambió el monto, hay que volver a pagar
-            setPaid((prev) => {
-              if (!prev[item.artisanId]) return prev;
-              const next = { ...prev };
-              delete next[item.artisanId];
-              saveMap(PAID_KEY, next);
-              return next;
-            });
+            setAgreed(chatItemIndex);
             toast("Montos confirmados, pagá con el QR y revisá el resumen");
           }
           setChatOpen(false);
