@@ -219,7 +219,6 @@ export function ChatDrawer({
         setMessages([]);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, artisan?.id, threadId, proposalPrice, proposalShipping, proposalDays]);
 
   useEffect(() => {

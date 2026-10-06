@@ -49,13 +49,13 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-all duration-300",
+        "sticky z-40 transition-all duration-300",
         scrolled
-          ? "bg-background/85 backdrop-blur-xl shadow-soft border-b border-border dark:bg-neutral-950/85 dark:border-neutral-800"
-          : "bg-background/60 backdrop-blur-md border-b border-transparent dark:bg-neutral-950/60 dark:border-neutral-800/0"
+          ? "top-3 mx-3 md:mx-auto max-w-6xl rounded-full mt-3 px-4 md:px-6 py-2 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-2xl shadow-xl border border-neutral-200/60 dark:border-neutral-800"
+          : "top-0 bg-background/60 backdrop-blur-md border-b border-transparent dark:bg-neutral-950/60 dark:border-neutral-800/0"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <div className={cn("flex items-center justify-between gap-2", scrolled ? "h-14" : "max-w-7xl mx-auto px-4 md:px-8 h-16")}>
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-soft group-hover:shadow-glow transition-shadow duration-300">
               <Image src="/logo-ayni-crea.png" alt="Ayni Crea" fill className="object-cover" />

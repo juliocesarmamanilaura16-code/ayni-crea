@@ -433,7 +433,7 @@ const cueroDefs: [string, string, string, number, number][] = [
   ["pc8", "Funda para celular", "Funda protectora de cuero para tu celular con diseño único.", 60, 3],
 ];
 
-const joyeriaDefs: [string, string, string, number, number, any?][] = [
+const joyeriaDefs: [string, string, string, number, number, Partial<Product["options"]>?][] = [
   ["pj1", "Pulsera personalizada", "Pulsera de plata con tu nombre o símbolo preferido.", 85, 5],
   ["pj2", "Anillo", "Anillo de plata 950 con diseño andino o tu nombre.", 70, 4],
   ["pj3", "Aretes", "Aretes de plata con motivos andinos. Livianos y elegantes.", 55, 3],

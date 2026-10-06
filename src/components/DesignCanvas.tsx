@@ -8,6 +8,9 @@ type StrokeStyle = "solid" | "dashed" | "dotted";
 
 interface Layer {
   type: string;
+  // Payload heterogéneo según herramienta (puntos, texto, formas…); tiparlo estricto
+  // implicaría una unión de 15+ formas, fuera del alcance de este cambio.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   id: string;
   opacity: number;
