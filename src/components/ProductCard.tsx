@@ -29,7 +29,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
     >
       {/* Micro-resplandor superior reactivo al hover */}
       <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-2/3 h-16 bg-primary/15 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
-      <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+      <Link href={`/producto/${product.id}`} className="block relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-800 cursor-pointer">
         <Image
           src={product.image}
           alt={product.name}
@@ -46,10 +46,11 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           whileTap={{ scale: 0.85 }}
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             toggleFavorite(product.id);
             toast(fav ? "Eliminado de favoritos" : "Agregado a favoritos");
           }}
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md grid place-items-center shadow-card border border-white/60 dark:border-neutral-700/60 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md grid place-items-center shadow-card border border-white/60 dark:border-neutral-700/60 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none z-20"
           aria-label={fav ? "Quitar de favoritos" : "Agregar a favoritos"}
         >
           <motion.div
@@ -68,30 +69,29 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         </motion.button>
 
         {/* Badge tiempo de producción */}
-        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-secondary/90 dark:text-neutral-200 shadow-sm border border-white/40 dark:border-neutral-700/50">
+        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/85 dark:bg-neutral-900/85 backdrop-blur-md px-2.5 py-1 text-[11px] font-medium text-secondary/90 dark:text-neutral-200 shadow-sm border border-white/40 dark:border-neutral-700/50">
           <Clock className="w-3 h-3 text-primary animate-pulse" />
           ~{product.productionDays} días
         </span>
 
         {/* Acción rápida flotante: Personalizar */}
-        <div className="absolute bottom-3 inset-x-3 flex justify-end translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
-          <Link
-            href={`/producto/${product.id}`}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border border-white/40 dark:border-neutral-700/50 shadow-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
-          >
-            <Wand2 className="w-3.5 h-3.5" />
+        <div className="absolute bottom-3 right-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 pointer-events-none group-hover:pointer-events-auto">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border border-white/50 dark:border-neutral-700/60 shadow-sm text-secondary dark:text-white group-hover:border-primary/60 transition-colors">
+            <Wand2 className="w-3 h-3 text-primary" />
             Personalizar
-          </Link>
+          </span>
         </div>
-      </div>
+      </Link>
 
       <div className="p-4 flex flex-col flex-1 justify-between">
         <div>
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="font-display font-semibold leading-snug truncate group-hover:text-primary transition-colors">
-                {product.name}
-              </h3>
+              <Link href={`/producto/${product.id}`} className="block group/title">
+                <h3 className="font-display font-semibold leading-snug truncate group-hover/title:text-primary transition-colors">
+                  {product.name}
+                </h3>
+              </Link>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
                 por {artisan?.name} · {artisan?.city}
               </p>
@@ -116,10 +116,10 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           </div>
           <Link
             href={`/producto/${product.id}`}
-            className="group/btn inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2.5 rounded-xl bg-secondary dark:bg-neutral-800 text-white shadow-soft hover:bg-primary dark:hover:bg-primary hover:shadow-glow transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="group/btn inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-xl bg-gradient-to-r from-primary to-orange-600 hover:from-primary-600 hover:to-orange-700 text-white shadow-[0_4px_12px_rgba(255,107,0,0.24)] hover:shadow-[0_6px_18px_rgba(255,107,0,0.38)] transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           >
             <Wand2 className="w-3.5 h-3.5 group-hover/btn:rotate-12 transition-transform duration-200" />
-            <span>Ver detalle</span>
+            <span>Personalizar</span>
           </Link>
         </div>
       </div>

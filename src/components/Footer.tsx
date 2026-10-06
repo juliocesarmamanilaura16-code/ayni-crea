@@ -231,7 +231,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-neutral-800">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 pb-24 md:pb-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
 <p className="text-xs text-neutral-500 text-center md:text-left">
                  © {new Date().getFullYear()} Ayni Crea. Prototipo funcional — datos demostrativos. Hecho con{" "}

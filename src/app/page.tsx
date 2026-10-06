@@ -299,7 +299,7 @@ export default function HomePage() {
           <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
             Proceso simple
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-secondary">
+          <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-secondary dark:text-white">
             ¿Cómo funciona?
           </h2>
         </motion.div>
@@ -318,19 +318,24 @@ export default function HomePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative bg-white rounded-3xl p-6 border border-border shadow-card hover:shadow-lift hover:-translate-y-1 hover:border-primary/30 transition-all duration-300"
+              whileHover={{ y: -4 }}
+              className="group relative bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-border dark:border-neutral-800 shadow-card hover:shadow-lift hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 overflow-hidden"
             >
               <div
+                className="absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{ background: s.color + "25" }}
+              />
+              <div
                 className="relative w-12 h-12 rounded-2xl grid place-items-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
-                style={{ background: s.color + "14", color: s.color }}
+                style={{ background: s.color + "18", color: s.color }}
               >
                 <s.icon className="w-5 h-5" />
               </div>
-              <p className="text-[10px] tracking-[0.2em] text-neutral-400 font-bold">
+              <p className="text-[10px] tracking-[0.2em] text-neutral-400 dark:text-neutral-500 font-bold">
                 PASO {s.n}
               </p>
-              <h3 className="font-display font-bold text-lg mt-1 text-secondary">{s.t}</h3>
-              <p className="text-sm text-neutral-500 mt-1.5 leading-relaxed">{s.d}</p>
+              <h3 className="font-display font-bold text-lg mt-1 text-secondary dark:text-white">{s.t}</h3>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1.5 leading-relaxed">{s.d}</p>
             </motion.div>
           ))}
         </div>
@@ -343,13 +348,13 @@ export default function HomePage() {
             <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
               Explora
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary dark:text-white">
               Categorías
             </h2>
           </div>
           <Link
             href="/explorar"
-            className="group text-sm font-semibold text-secondary hover:text-primary flex items-center gap-1 transition-colors"
+            className="group text-sm font-semibold text-secondary dark:text-neutral-300 hover:text-primary dark:hover:text-primary flex items-center gap-1 transition-colors"
           >
             Ver todo
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -393,13 +398,13 @@ export default function HomePage() {
             <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
               Para inspirarte
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary dark:text-white">
               Productos destacados
             </h2>
           </div>
           <Link
             href="/explorar"
-            className="group text-sm font-semibold text-secondary hover:text-primary flex items-center gap-1 transition-colors"
+            className="group text-sm font-semibold text-secondary dark:text-neutral-300 hover:text-primary dark:hover:text-primary flex items-center gap-1 transition-colors"
           >
             Ver todo
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -413,20 +418,20 @@ export default function HomePage() {
       </section>
 
       {/* ============ ARTESANOS DESTACADOS ============ */}
-      <section className="bg-neutral-50 border-y border-border">
+      <section className="bg-neutral-50 dark:bg-neutral-900/40 border-y border-border dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
           <motion.div {...fadeUp} className="flex items-end justify-between mb-7">
             <div>
               <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
                 Manos expertas
               </p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary">
+              <h2 className="font-display text-3xl md:text-4xl font-bold mt-1 text-secondary dark:text-white">
                 Artesanos destacados
               </h2>
             </div>
             <Link
               href="/artesanos"
-              className="group text-sm font-semibold text-secondary hover:text-primary flex items-center gap-1 transition-colors"
+              className="group text-sm font-semibold text-secondary dark:text-neutral-300 hover:text-primary dark:hover:text-primary flex items-center gap-1 transition-colors"
             >
               Ver todos
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
