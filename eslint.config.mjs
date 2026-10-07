@@ -2,7 +2,7 @@ import nextPlugin from '@next/eslint-plugin-next';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['.next/', 'node_modules/', 'e2e/', '*.config.*'] },
+  { ignores: ['.next/', '.vercel/', 'node_modules/', 'e2e/', 'scripts/', 'playwright-report/', 'test-results/', '*.config.*'] },
   ...tseslint.configs.recommended,
   {
     plugins: {

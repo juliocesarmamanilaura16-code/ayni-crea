@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { animate, motion, useInView } from "framer-motion";
+import { animate, AnimatePresence, motion, useInView } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
@@ -29,6 +29,7 @@ import { Button } from "@/components/Button";
 import { useStore } from "@/lib/store";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
 import { useEffect, useRef, useState } from "react";
+import { VantaWaves } from "@/components/VantaWaves";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Package,
@@ -78,17 +79,52 @@ export default function HomePage() {
   const progress = mounted && user ? progressToNext(user.points) : null;
   const featuredArtisans = artisans.slice(0, 3);
 
+  /* Hero rotativo — cicla entre artesanos destacados */
+  const heroArtisans = featuredArtisans.length > 0 ? featuredArtisans : artisans.slice(0, 3);
+  const [heroIndex, setHeroIndex] = useState(0);
+  useEffect(() => {
+    if (heroArtisans.length < 2) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = setInterval(() => setHeroIndex((i) => (i + 1) % heroArtisans.length), 5000);
+    return () => clearInterval(id);
+  }, [heroArtisans.length]);
+  const heroArtisan = heroArtisans[heroIndex % heroArtisans.length];
+  const heroImage = heroArtisan.portfolio?.[0] ?? heroArtisan.photo;
+
+  /* Fondo del hero según tema: 0x5b4d44 en claro, 0x4c2300 en oscuro */
+  const [heroDark, setHeroDark] = useState(false);
+  useEffect(() => {
+    const el = document.documentElement;
+    const update = () => setHeroDark(el.classList.contains("dark"));
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  const heroBg = heroDark ? 0x4c2300 : 0x5b4d44;
+
   return (
     <>
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden bg-mesh-light dark:bg-mesh-dark bg-gradient-to-b from-primary-50/60 via-background to-background dark:from-transparent">
-        {/* Spotlight cinemático superior */}
-        <div className="spotlight-top absolute inset-x-0 -top-40 h-[500px]" />
-        <div className="bg-dots absolute inset-0 opacity-60 pointer-events-none" />
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -left-32 w-80 h-80 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
+      <section
+        className="relative overflow-hidden"
+        style={{ backgroundColor: heroDark ? "#4c2300" : "#5b4d44" }}
+      >
+        {/* Vanta WAVES — fondo 3D animado (cambia con el tema) */}
+        <VantaWaves
+          color={0xff6b00}
+          shininess={55}
+          waveHeight={14}
+          waveSpeed={0.7}
+          zoom={0.9}
+          backgroundAlpha={1}
+          backgroundColor={heroBg}
+        />
+        {/* Overlay gradiente para legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#331a00]/95 via-[#331a00]/70 to-transparent pointer-events-none z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#331a00]/85 via-transparent to-transparent pointer-events-none z-[1]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative z-[2] max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -106,7 +142,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-5xl md:text-7xl font-extrabold leading-[1.04] tracking-tight text-secondary"
+              className="font-display text-5xl md:text-7xl font-extrabold leading-[1.04] tracking-tight text-white"
             >
               No encuentres el producto que imaginas.{" "}
               <span className="relative inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary via-orange-500 to-amber-500">
@@ -131,7 +167,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              className="mt-5 text-neutral-500 text-base md:text-lg max-w-xl leading-relaxed"
+              className="mt-5 text-neutral-200 text-base md:text-lg max-w-xl leading-relaxed"
             >
               Diseña productos únicos y conecta con artesanos de El Alto y La Paz
               que pueden hacerlos realidad, pieza por pieza.
@@ -155,7 +191,7 @@ export default function HomePage() {
                 </Button>
               </Link>
               <Link href="/artesanos">
-                <Button variant="outline" size="lg">
+                <Button variant="glass" size="lg">
                   Explorar artesanos
                 </Button>
               </Link>
@@ -166,15 +202,15 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.45 }}
-              className="mt-6 flex flex-wrap items-center gap-2.5 text-xs text-neutral-500"
+              className="mt-6 flex flex-wrap items-center gap-2.5 text-xs text-neutral-200"
             >
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm transition-colors hover:text-neutral-700 dark:hover:text-neutral-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
                 <ShieldCheck className="w-4 h-4 text-success" /> Pagos mediante proveedor aliado
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm transition-colors hover:text-neutral-700 dark:hover:text-neutral-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
                 <BadgeCheck className="w-4 h-4 text-primary" /> Artesanos en proceso de verificación
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-sm transition-colors hover:text-neutral-700 dark:hover:text-neutral-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
                 <Truck className="w-4 h-4 text-accent" /> El Alto y La Paz
               </span>
             </motion.div>
@@ -226,10 +262,29 @@ export default function HomePage() {
                 src="/aguayo-tegido-a-mano.jpg"
                 alt="Aguayo artesanal"
                 fill
-                priority
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
+              {/* Foto rotativa del artesano destacado */}
+              <AnimatePresence>
+                <motion.div
+                  key={heroArtisan.id}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={heroImage}
+                    alt={`Trabajo de ${heroArtisan.name}`}
+                    fill
+                    priority={heroIndex === 0}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                </motion.div>
+              </AnimatePresence>
               <div className="absolute inset-0 bg-gradient-to-t from-secondary/90 via-secondary/20 to-transparent opacity-90 group-hover:opacity-95 transition-opacity" />
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
@@ -237,36 +292,41 @@ export default function HomePage() {
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[10px] uppercase tracking-[0.2em] font-medium mb-2 border border-white/20">
                   Personalizado por
                 </div>
-                <p className="font-display text-2xl font-bold mt-0.5 tracking-tight drop-shadow-sm">María Quispe</p>
-                <p className="text-xs text-white/85 flex items-center gap-1.5 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  Aguayo tejido a mano · El Alto
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Tarjetas flotantes con animación continua */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0, y: [0, -7, 0] }}
-              transition={{
-                x: { delay: 0.55 },
-                y: { duration: 4.5, repeat: Infinity, ease: "easeInOut" }
-              }}
-              whileHover={{ scale: 1.05 }}
-              className="absolute -top-4 -right-3 md:-right-6 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md rounded-2xl px-4 py-3 shadow-lift border border-border/80 dark:border-neutral-700 transition-all cursor-default"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
-                    Pedido #312
-                  </p>
-                  <p className="font-display font-bold text-lg text-secondary dark:text-white">Bs 140</p>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={heroArtisan.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <p className="font-display text-2xl font-bold mt-0.5 tracking-tight drop-shadow-sm">{heroArtisan.name}</p>
+                    <p className="text-xs text-white/85 flex items-center gap-1.5 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                      {heroArtisan.specialty} · {heroArtisan.city}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+                {/* Indicadores del carrusel */}
+                <div className="flex items-center gap-1.5 mt-3">
+                  {heroArtisans.map((a, i) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => setHeroIndex(i)}
+                      aria-label={`Ver a ${a.name}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === heroIndex % heroArtisans.length
+                          ? "w-6 bg-white"
+                          : "w-1.5 bg-white/40 hover:bg-white/70"
+                      }`}
+                    />
+                  ))}
                 </div>
-                <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
               </div>
             </motion.div>
 
+            {/* Tarjeta flotante con animación continua */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0, translateY: [0, 7, 0] }}
@@ -293,7 +353,39 @@ export default function HomePage() {
         <div className="divider-brand max-w-7xl mx-auto opacity-70" />
       </section>
 
-      {/* ============ CÓMO FUNCIONA ============ */}
+      {/* ============ MARQUEE BENEFICIOS ============ */}
+      <div className="relative overflow-hidden border-y border-border/50 dark:border-neutral-800/60 bg-white/60 dark:bg-neutral-900/40 backdrop-blur-sm py-4">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10 bg-gradient-to-r from-white dark:from-neutral-950 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10 bg-gradient-to-l from-white dark:from-neutral-950 to-transparent" />
+        <div className="marquee-track gap-10">
+          {[
+            "✦ Hecho a mano en Bolivia",
+            "✦ Diseño 100% personalizado",
+            "✦ Artesanos verificados",
+            "✦ Producción bajo pedido",
+            "✦ Envío en El Alto y La Paz",
+            "✦ Comercio justo y sostenible",
+            "✦ Piezas únicas garantizadas",
+            "✦ Materiales naturales de calidad",
+            "✦ Hecho a mano en Bolivia",
+            "✦ Diseño 100% personalizado",
+            "✦ Artesanos verificados",
+            "✦ Producción bajo pedido",
+            "✦ Envío en El Alto y La Paz",
+            "✦ Comercio justo y sostenible",
+            "✦ Piezas únicas garantizadas",
+            "✦ Materiales naturales de calidad",
+          ].map((item, i) => (
+            <span
+              key={i}
+              className="shrink-0 text-xs font-semibold tracking-[0.15em] uppercase text-neutral-500 dark:text-neutral-400 hover:text-primary dark:hover:text-primary transition-colors"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
         <motion.div {...fadeUp} className="text-center mb-12">
           <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
@@ -414,6 +506,131 @@ export default function HomePage() {
           {products.slice(0, 6).map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} />
           ))}
+        </div>
+      </section>
+
+      {/* ============ TESTIMONIOS ============ */}
+      <section className="relative overflow-hidden py-16 md:py-24 bg-gradient-to-b from-neutral-50 to-white dark:from-neutral-900/50 dark:to-neutral-950">
+        {/* Ambient orbs */}
+        <div className="orb-primary absolute w-[500px] h-[500px] -top-40 -left-40 opacity-60" />
+        <div className="orb-accent absolute w-[400px] h-[400px] -bottom-20 right-0 opacity-50" />
+
+        <div className="relative max-w-7xl mx-auto px-4 md:px-8">
+          <motion.div {...fadeUp} className="text-center mb-14">
+            <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
+              Lo que dicen
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-secondary dark:text-white">
+              Clientes que{" "}
+              <span className="text-shimmer-animate">ya lo vivieron</span>
+            </h2>
+            <p className="mt-3 text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto text-sm leading-relaxed">
+              Más de 200 personas ya tienen su pieza única. Esto es lo que nos comparten.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
+            {[
+              {
+                name: "Valentina R.",
+                city: "La Paz",
+                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80&auto=format&fit=crop",
+                rating: 5,
+                text: "Encargué un aguayo personalizado con los colores de nuestra boda. María lo entregó en 5 días y quedó absolutamente perfecto. ¡Lloramos de la emoción!",
+                product: "Aguayo personalizado",
+                delay: 0,
+              },
+              {
+                name: "Carlos M.",
+                city: "El Alto",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format&fit=crop",
+                rating: 5,
+                text: "La mochila de cuero que pedí superó todas mis expectativas. Roberto entiende exactamente lo que quieres y lo ejecuta con maestría. ¡100% recomendado!",
+                product: "Mochila de cuero artesanal",
+                delay: 0.08,
+              },
+              {
+                name: "Sofía T.",
+                city: "La Paz",
+                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80&auto=format&fit=crop",
+                rating: 5,
+                text: "Pedí un chullo para mi hijo con su nombre bordado. La calidad de la lana y el acabado son increíbles. El proceso de diseño en la plataforma fue muy sencillo.",
+                product: "Chullo personalizado",
+                delay: 0.16,
+              },
+            ].map((t) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: t.delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -5 }}
+                className="group relative bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-border dark:border-neutral-800 shadow-card testimonial-glow transition-all duration-300 flex flex-col gap-4"
+              >
+                {/* Glow superior al hover */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-2/3 h-14 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                {/* Quote decorativa */}
+                <span className="absolute top-5 right-6 text-5xl font-serif leading-none text-primary/10 dark:text-primary/15 select-none group-hover:text-primary/20 transition-colors duration-300">
+                  "
+                </span>
+
+                {/* Estrellas */}
+                <div className="flex gap-0.5">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                  ))}
+                </div>
+
+                {/* Texto */}
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed flex-1">
+                  {t.text}
+                </p>
+
+                {/* Badge producto */}
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/8 dark:bg-primary/10 border border-primary/15 text-[11px] font-semibold text-primary w-fit">
+                  <Sparkles className="w-3 h-3" />
+                  {t.product}
+                </span>
+
+                {/* Avatar */}
+                <div className="flex items-center gap-3 pt-2 border-t border-border/50 dark:border-neutral-800/60">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-accent/40 group-hover:ring-primary/50 transition-all">
+                    <Image src={t.avatar} alt={t.name} fill sizes="40px" className="object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-secondary dark:text-white">{t.name}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
+                      <BadgeCheck className="w-3 h-3 text-success" />
+                      Compra verificada · {t.city}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Rating global */}
+          <motion.div
+            {...fadeUp}
+            transition={{ delay: 0.3 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 py-6 px-8 rounded-2xl bg-white/70 dark:bg-neutral-900/70 backdrop-blur-sm border border-border dark:border-neutral-800 max-w-2xl mx-auto shadow-card"
+          >
+            <div className="text-center sm:text-left">
+              <p className="font-display text-5xl font-extrabold text-secondary dark:text-white tracking-tight">4.9</p>
+              <div className="flex gap-0.5 mt-1 justify-center sm:justify-start">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                ))}
+              </div>
+            </div>
+            <div className="h-12 w-px bg-border dark:bg-neutral-800 hidden sm:block" />
+            <div className="text-sm text-center sm:text-left">
+              <p className="font-semibold text-secondary dark:text-white">Valoración media de nuestros clientes</p>
+              <p className="text-neutral-500 dark:text-neutral-400 mt-0.5">Basado en más de 325 reseñas verificadas</p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -601,36 +818,82 @@ export default function HomePage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary-700 text-white p-10 md:p-14 shadow-lift"
+          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-orange-700 text-white p-10 md:p-16 shadow-lift"
         >
           <div className="spotlight-top absolute inset-x-0 -top-24 h-[320px] !bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.22),transparent_65%)]" />
           <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-accent/25 blur-2xl pointer-events-none" />
           <div className="absolute -bottom-20 -left-10 w-72 h-72 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-          <div className="relative max-w-xl">
-            <h2 className="font-display text-3xl md:text-4xl font-bold leading-tight">
-              Tu idea merece ser hecha a mano
-            </h2>
-            <p className="mt-3 text-white/85 text-sm md:text-base leading-relaxed">
-              Únete a cientos de personas que ya crearon piezas únicas con artesanos
-              de El Alto y La Paz.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/crear">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  leftIcon={<Sparkles className="w-4 h-4" />}
-                  className="!bg-white !text-primary hover:!shadow-glow animate-shimmer shadow-[0_0_25px_rgba(255,255,255,0.35)]"
+          {/* Dot pattern */}
+          <div className="absolute inset-0 opacity-[0.06]" style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)",
+            backgroundSize: "24px 24px"
+          }} />
+
+          <div className="relative flex flex-col md:flex-row items-start md:items-center gap-10 md:gap-16">
+            <div className="flex-1">
+              {/* Live badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/25 text-xs font-semibold mb-5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                </span>
+                <span>47 personas diseñando ahora mismo</span>
+              </div>
+
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                Tu idea merece ser hecha a mano
+              </h2>
+              <p className="mt-4 text-white/85 text-sm md:text-base leading-relaxed max-w-lg">
+                Únete a cientos de personas que ya crearon piezas únicas con artesanos
+                de El Alto y La Paz.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/crear">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    leftIcon={<Sparkles className="w-4 h-4" />}
+                    className="!bg-white !text-primary hover:!shadow-glow animate-shimmer shadow-[0_0_25px_rgba(255,255,255,0.35)] font-bold"
+                  >
+                    Empezar a crear gratis
+                  </Button>
+                </Link>
+                <Link
+                  href="/registro"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 backdrop-blur border border-white/30 font-semibold hover:bg-white/20 transition-all duration-200"
                 >
-                  Empezar a crear
-                </Button>
-              </Link>
-              <Link
-                href="/registro"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 backdrop-blur border border-white/30 font-semibold hover:bg-white/20 transition-all duration-200"
-              >
-                Crear cuenta gratis
-              </Link>
+                  Ver artesanos
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Social proof avatars */}
+            <div className="flex flex-col items-center gap-4 shrink-0">
+              <div className="flex -space-x-3">
+                {[
+                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&q=80&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&q=80&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&q=80&auto=format&fit=crop",
+                  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&q=80&auto=format&fit=crop",
+                ].map((src, i) => (
+                  <div key={i} className="relative w-11 h-11 rounded-full ring-2 ring-primary overflow-hidden">
+                    <Image src={src} alt="Cliente" fill sizes="44px" className="object-cover" />
+                  </div>
+                ))}
+                <div className="relative w-11 h-11 rounded-full ring-2 ring-primary bg-white/20 backdrop-blur grid place-items-center text-xs font-bold">
+                  +200
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="flex gap-0.5 justify-center mb-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
+                  ))}
+                </div>
+                <p className="text-xs text-white/80 font-medium">+325 clientes felices</p>
+              </div>
             </div>
           </div>
         </motion.div>

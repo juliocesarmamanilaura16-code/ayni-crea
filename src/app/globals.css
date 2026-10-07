@@ -352,6 +352,60 @@ body {
     background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(255, 107, 0, 0.08), transparent 65%);
     pointer-events: none;
   }
+
+  /* ===== Marquee infinite scroll ===== */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 28s linear infinite;
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* ===== Noise texture overlay ===== */
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.35;
+    z-index: 0;
+    border-radius: inherit;
+  }
+
+  /* ===== Testimonial card glow ===== */
+  .testimonial-glow:hover {
+    box-shadow: 0 0 0 1px rgba(255, 107, 0, 0.25), 0 20px 40px -12px rgba(255, 107, 0, 0.15);
+  }
+
+  /* ===== Floating orb ambient ===== */
+  .orb-primary {
+    background: radial-gradient(circle at center, rgba(255,107,0,0.22) 0%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .orb-accent {
+    background: radial-gradient(circle at center, rgba(212,168,67,0.18) 0%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  /* ===== Gradient text shimmer ===== */
+  .text-shimmer-animate {
+    background: linear-gradient(90deg, var(--color-primary) 0%, #FFA940 30%, var(--color-accent) 50%, #FFA940 70%, var(--color-primary) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: text-shimmer 4s linear infinite;
+  }
+
+  /* ===== Progress bar animated ===== */
+  .progress-animate {
+    animation: progress-fill 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @layer base {
@@ -398,6 +452,30 @@ body {
   @keyframes scale-in {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes text-shimmer {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+  }
+
+  @keyframes progress-fill {
+    from { width: 0; }
+  }
+
+  @keyframes bounce-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes rotate-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 }
 
