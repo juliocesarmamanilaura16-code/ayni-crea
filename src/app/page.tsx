@@ -27,6 +27,7 @@ import { artisans, categories, impactStats, products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/Button";
 import { useStore } from "@/lib/store";
+import { useIsDark } from "@/lib/useIsDark";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
 import { useEffect, useRef, useState } from "react";
 import { VantaWaves } from "@/components/VantaWaves";
@@ -92,15 +93,7 @@ export default function HomePage() {
   const heroImage = heroArtisan.portfolio?.[0] ?? heroArtisan.photo;
 
   /* Fondo del hero según tema: 0x5b4d44 en claro, 0x4c2300 en oscuro */
-  const [heroDark, setHeroDark] = useState(false);
-  useEffect(() => {
-    const el = document.documentElement;
-    const update = () => setHeroDark(el.classList.contains("dark"));
-    update();
-    const obs = new MutationObserver(update);
-    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
-    return () => obs.disconnect();
-  }, []);
+  const heroDark = useIsDark();
   const heroBg = heroDark ? 0x4c2300 : 0x5b4d44;
 
   return (

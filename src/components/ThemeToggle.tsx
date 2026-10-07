@@ -18,6 +18,17 @@ export function ThemeToggle({ className }: { className?: string }) {
   useEffect(() => {
     setTheme(getInitialTheme());
     setMounted(true);
+    // Seguir al sistema en vivo solo si el usuario no eligió manualmente
+    if (localStorage.getItem("ayni-theme")) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (localStorage.getItem("ayni-theme")) return;
+      const next = e.matches ? "dark" : "light";
+      setTheme(next);
+      document.documentElement.classList.toggle("dark", next === "dark");
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   const toggle = () => {

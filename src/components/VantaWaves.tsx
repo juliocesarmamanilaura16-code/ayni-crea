@@ -33,6 +33,10 @@ export function VantaWaves({
     setOptions: (opts: Record<string, number | boolean>) => void;
   } | null>(null);
 
+  /* Últimos props (el init es async: evita crear el efecto con valores viejos) */
+  const optsRef = useRef({ color, shininess, waveHeight, waveSpeed, zoom, mouseControls, touchControls, backgroundAlpha, backgroundColor });
+  optsRef.current = { color, shininess, waveHeight, waveSpeed, zoom, mouseControls, touchControls, backgroundAlpha, backgroundColor };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -44,21 +48,16 @@ export function VantaWaves({
 
       if (cancelled || !containerRef.current) return;
 
-      vantaRef.current = VANTA({
+      const instance = VANTA({
         el: containerRef.current,
         THREE,
-        color,
-        shininess,
-        waveHeight,
-        waveSpeed,
-        zoom,
-        mouseControls,
-        touchControls,
-        backgroundAlpha,
-        backgroundColor,
+        ...optsRef.current,
         minHeight: 200,
         minWidth: 200,
       });
+      /* Por si los props cambiaron mientras cargaba three/vanta */
+      instance.setOptions({ ...optsRef.current });
+      vantaRef.current = instance;
     }
 
     init().catch(console.error);
