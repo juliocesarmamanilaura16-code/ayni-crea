@@ -113,9 +113,9 @@ export default function HomePage() {
           backgroundAlpha={1}
           backgroundColor={heroBg}
         />
-        {/* Overlay gradiente para legibilidad del texto */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#331a00]/95 via-[#331a00]/70 to-transparent pointer-events-none z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#331a00]/85 via-transparent to-transparent pointer-events-none z-[1]" />
+        {/* Overlay gradiente para legibilidad del texto (también cambia con el tema) */}
+        <div className={`absolute inset-0 bg-gradient-to-r pointer-events-none z-[1] ${heroDark ? "from-[#331a00]/95 via-[#331a00]/70" : "from-[#443a31]/95 via-[#443a31]/60"} to-transparent`} />
+        <div className={`absolute inset-0 bg-gradient-to-t pointer-events-none z-[1] ${heroDark ? "from-[#331a00]/85" : "from-[#443a31]/85"} via-transparent to-transparent`} />
 
         <div className="relative z-[2] max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
           <div>
