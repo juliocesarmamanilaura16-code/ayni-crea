@@ -6,7 +6,6 @@ import { animate, AnimatePresence, motion, useInView } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
-  Pencil,
   Users,
   Truck,
   Shirt,
@@ -31,6 +30,7 @@ import { useIsDark } from "@/lib/useIsDark";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
 import { useEffect, useRef, useState } from "react";
 import { VantaWaves } from "@/components/VantaWaves";
+import { HowItWorksCarousel } from "@/components/HowItWorksCarousel";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Package,
@@ -380,52 +380,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
-        <motion.div {...fadeUp} className="text-center mb-12">
-          <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
-            Proceso simple
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-secondary dark:text-white">
-            ¿Cómo funciona?
-          </h2>
-        </motion.div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5 relative">
-          {/* Línea conectora desktop */}
-          <div className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-primary/30 via-accent/40 to-success/30" />
-          {[
-            { n: "01", t: "Diseña", d: "Elige un producto base para empezar.", icon: Pencil, color: "#FF6B00" },
-            { n: "02", t: "Personaliza", d: "Colores, materiales, tamaño y texto.", icon: Sparkles, color: "#D4A843" },
-            { n: "03", t: "Conecta", d: "Encuentra al artesano ideal.", icon: Users, color: "#0A0A0A" },
-            { n: "04", t: "Recibe", d: "Sigue la fabricación hasta tu puerta.", icon: Truck, color: "#10B981" },
-          ].map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -4 }}
-              className="group relative bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-border dark:border-neutral-800 shadow-card hover:shadow-lift hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 overflow-hidden"
-            >
-              <div
-                className="absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{ background: s.color + "25" }}
-              />
-              <div
-                className="relative w-12 h-12 rounded-2xl grid place-items-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
-                style={{ background: s.color + "18", color: s.color }}
-              >
-                <s.icon className="w-5 h-5" />
-              </div>
-              <p className="text-[10px] tracking-[0.2em] text-neutral-400 dark:text-neutral-500 font-bold">
-                PASO {s.n}
-              </p>
-              <h3 className="font-display font-bold text-lg mt-1 text-secondary dark:text-white">{s.t}</h3>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1.5 leading-relaxed">{s.d}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      <HowItWorksCarousel />
 
       {/* ============ CATEGORÍAS ============ */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 pb-16 md:pb-20">
