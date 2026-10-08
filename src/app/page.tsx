@@ -727,9 +727,9 @@ export default function HomePage() {
           </motion.div>
           <div className="impact-cards">
             {[
-              { k: "Artesanos", t: "Impulsamos el talento local", d: "Conectamos a los artesanos con nuevos clientes y oportunidades de comercialización.", icon: Users, image: "/aguayos-personalizados.jpg" },
-              { k: "Clientes", t: "Creamos productos únicos", d: "Permitimos que cada persona transforme sus ideas en productos personalizados.", icon: Sparkles, image: "/mochila-aguayo.webp" },
-              { k: "Medio ambiente", t: "Promovemos una producción responsable", d: "La fabricación bajo demanda ayuda a evitar productos innecesarios y fomenta el uso responsable de materiales.", icon: Recycle, image: "/chullo-andino.jpg" },
+              { k: "Artesanos", t: "Impulsamos el talento local", d: "Conectamos a los artesanos con nuevos clientes y oportunidades de comercialización.", icon: Users, image: "/impacto-artesanos.jpg" },
+              { k: "Clientes", t: "Creamos productos únicos", d: "Permitimos que cada persona transforme sus ideas en productos personalizados.", icon: Sparkles, image: "/impacto-clientes.jpg" },
+              { k: "Medio ambiente", t: "Promovemos una producción responsable", d: "La fabricación bajo demanda ayuda a evitar productos innecesarios y fomenta el uso responsable de materiales.", icon: Recycle, image: "/impacto-medio-ambiente.jpg" },
             ].map((c, i) => (
               <motion.div
                 key={c.k}
