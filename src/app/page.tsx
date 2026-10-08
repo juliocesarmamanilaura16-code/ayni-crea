@@ -6,8 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
-  Users,
-  Truck,
   Shirt,
   Briefcase,
   Gem,
@@ -16,8 +14,6 @@ import {
   Gift,
   Sun,
   BadgeCheck,
-  Recycle,
-  ShieldCheck,
   Star,
   Package,
 } from "lucide-react";
@@ -163,24 +159,6 @@ export default function HomePage() {
                   Explorar artesanos
                 </Button>
               </Link>
-            </motion.div>
-
-            {/* Trust mini bar — cápsulas glass */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45 }}
-              className="mt-6 flex flex-wrap items-center gap-2.5 text-xs text-neutral-200"
-            >
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
-                <ShieldCheck className="w-4 h-4 text-success" /> Pagos mediante proveedor aliado
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
-                <BadgeCheck className="w-4 h-4 text-primary" /> Artesanos en proceso de verificación
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/25 shadow-sm transition-colors hover:text-white">
-                <Truck className="w-4 h-4 text-accent" /> El Alto y La Paz
-              </span>
             </motion.div>
 
             {/* Puntos Ayni si está logueado */}
@@ -727,9 +705,9 @@ export default function HomePage() {
           </motion.div>
           <div className="impact-cards">
             {[
-              { k: "Artesanos", t: "Impulsamos el talento local", d: "Conectamos a los artesanos con nuevos clientes y oportunidades de comercialización.", icon: Users, image: "/impacto-artesanos.jpg" },
-              { k: "Clientes", t: "Creamos productos únicos", d: "Permitimos que cada persona transforme sus ideas en productos personalizados.", icon: Sparkles, image: "/impacto-clientes.jpg" },
-              { k: "Medio ambiente", t: "Promovemos una producción responsable", d: "La fabricación bajo demanda ayuda a evitar productos innecesarios y fomenta el uso responsable de materiales.", icon: Recycle, image: "/impacto-medio-ambiente.jpg" },
+              { k: "Artesanos", t: "Impulsamos el talento local", d: "Conectamos a los artesanos con nuevos clientes y oportunidades de comercialización.", image: "/impacto-artesanos.jpg" },
+              { k: "Clientes", t: "Creamos productos únicos", d: "Permitimos que cada persona transforme sus ideas en productos personalizados.", image: "/impacto-clientes.jpg" },
+              { k: "Medio ambiente", t: "Promovemos una producción responsable", d: "La fabricación bajo demanda ayuda a evitar productos innecesarios y fomenta el uso responsable de materiales.", image: "/impacto-medio-ambiente.jpg" },
             ].map((c, i) => (
               <motion.div
                 key={c.k}
@@ -740,9 +718,6 @@ export default function HomePage() {
               >
                 <article className="impact-card" style={{ backgroundImage: `url(${c.image})` }}>
                   <div className="impact-card-content">
-                    <span className="impact-card-icon">
-                      <c.icon className="w-5 h-5" />
-                    </span>
                     <p className="impact-card-kicker">{c.k}</p>
                     <h3>{c.t}</h3>
                     <p>{c.d}</p>
