@@ -501,9 +501,6 @@ export function HowItWorksCarousel() {
         <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-secondary dark:text-white">
           ¿Cómo funciona?
         </h2>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-          Arrastra, usa las flechas o deja que avance solo
-        </p>
       </motion.div>
 
       <div
