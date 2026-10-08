@@ -408,15 +408,8 @@ export default function HomePage() {
             const count = products.filter((p) => p.categoryId === c.id).length;
             const visualH = ["h-40", "h-56", "h-32", "h-48", "h-52", "h-36", "h-44", "h-60"][i % 8];
             return (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: (i % 4) * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -5 }}
-                className="mb-5 break-inside-avoid"
-              >
+              <div key={c.id} className="cat-animation-layer mb-5 break-inside-avoid">
+              <motion.div whileHover={{ y: -5 }}>
                 <Link
                   href={`/explorar?cat=${c.id}`}
                   style={{ "--cat-shadow": `${c.color}44` } as React.CSSProperties}
@@ -452,6 +445,7 @@ export default function HomePage() {
                   </div>
                 </Link>
               </motion.div>
+              </div>
             );
           })}
         </div>

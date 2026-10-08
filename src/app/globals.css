@@ -487,6 +487,70 @@ body {
   }
 }
 
+/* ===== Categorías: entrada ligada al scroll (view timeline) ===== */
+@keyframes cat-slide-in {
+  from {
+    scale: 0.85;
+    rotate: calc(var(--side, 1) * (5deg * var(--amp, 1)));
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .cat-animation-layer {
+      animation: cat-slide-in linear both;
+      animation-timeline: view();
+      animation-range: cover 0% contain 15%;
+    }
+  }
+}
+/* 2 columnas (móvil): impares desde la derecha, pares desde la izquierda */
+.cat-animation-layer:nth-of-type(2n + 1) {
+  transform-origin: 25vw 100%;
+  --side: -1;
+}
+.cat-animation-layer:nth-of-type(2n) {
+  transform-origin: -25vw 100%;
+  --side: 1;
+}
+/* 3 columnas (md) */
+@media (min-width: 768px) {
+  .cat-animation-layer:nth-of-type(3n + 1) {
+    transform-origin: 33vw 100%;
+    --side: -1;
+    --amp: 2;
+  }
+  .cat-animation-layer:nth-of-type(3n + 2) {
+    transform-origin: 0vw 100%;
+    --side: -1;
+  }
+  .cat-animation-layer:nth-of-type(3n) {
+    transform-origin: -33vw 100%;
+    --side: 1;
+    --amp: 2;
+  }
+}
+/* 4 columnas (xl) */
+@media (min-width: 1280px) {
+  .cat-animation-layer:nth-of-type(4n + 1) {
+    transform-origin: 50vw 100%;
+    --side: -1;
+    --amp: 2;
+  }
+  .cat-animation-layer:nth-of-type(4n + 2) {
+    transform-origin: 25vw 100%;
+    --side: -1;
+  }
+  .cat-animation-layer:nth-of-type(4n + 3) {
+    transform-origin: -25vw 100%;
+    --side: 1;
+  }
+  .cat-animation-layer:nth-of-type(4n) {
+    transform-origin: -50vw 100%;
+    --side: 1;
+    --amp: 2;
+  }
+}
+
 [data-sonner-toaster] {
   --normal-bg: var(--color-secondary);
   --normal-text: var(--color-text-inverse);
