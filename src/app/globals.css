@@ -613,35 +613,12 @@ body {
   margin-top: 0.5rem;
   line-height: 1.6;
 }
-.mzaCarousel-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.25rem;
-}
-.mzaCarousel-prev,
-.mzaCarousel-next {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 9999px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-primary);
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
-}
-.mzaCarousel-prev:hover,
-.mzaCarousel-next:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  transform: scale(1.06);
-}
 .mzaCarousel-pagination {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  margin-top: 1.25rem;
 }
 .mzaCarousel-dot {
   width: 0.6rem;
@@ -653,19 +630,4 @@ body {
 .mzaCarousel-dot[aria-selected="true"] {
   width: 1.75rem;
   background: var(--color-primary);
-}
-.mzaCarousel-progress {
-  height: 4px;
-  border-radius: 9999px;
-  background: rgba(127, 127, 127, 0.22);
-  margin: 1rem auto 0;
-  max-width: 420px;
-  overflow: hidden;
-}
-.mzaCarousel-progressBar {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-  transform-origin: left center;
-  transform: scaleX(0);
 }

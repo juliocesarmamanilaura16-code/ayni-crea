@@ -7,8 +7,6 @@ import {
   Sparkles,
   Users,
   Truck,
-  ChevronLeft,
-  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 
@@ -84,10 +82,10 @@ class MzaCarousel {
   private viewport: HTMLElement;
   private track: HTMLElement;
   private slides: HTMLElement[];
-  private prevBtn: HTMLButtonElement;
-  private nextBtn: HTMLButtonElement;
+  private prevBtn: HTMLButtonElement | null;
+  private nextBtn: HTMLButtonElement | null;
   private pagination: HTMLElement;
-  private progressBar: HTMLElement;
+  private progressBar: HTMLElement | null;
   private isFF: boolean;
   private n: number;
   private slideW = 0;
@@ -127,10 +125,11 @@ class MzaCarousel {
     this.viewport = q(".mzaCarousel-viewport");
     this.track = q(".mzaCarousel-track");
     this.slides = Array.from(root.querySelectorAll<HTMLElement>(".mzaCarousel-slide"));
-    this.prevBtn = q<HTMLButtonElement>(".mzaCarousel-prev");
-    this.nextBtn = q<HTMLButtonElement>(".mzaCarousel-next");
+    // Controles opcionales: si no existen, el carrusel igual funciona (auto + táctil)
+    this.prevBtn = root.querySelector<HTMLButtonElement>(".mzaCarousel-prev");
+    this.nextBtn = root.querySelector<HTMLButtonElement>(".mzaCarousel-next");
     this.pagination = q(".mzaCarousel-pagination");
-    this.progressBar = q(".mzaCarousel-progressBar");
+    this.progressBar = root.querySelector<HTMLElement>(".mzaCarousel-progressBar");
     this.isFF = typeof (window as unknown as Record<string, unknown>).InstallTrigger !== "undefined";
     this.n = this.slides.length;
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
@@ -201,8 +200,8 @@ class MzaCarousel {
   }
 
   private _bind() {
-    this._on(this.prevBtn, "click", () => this.prev());
-    this._on(this.nextBtn, "click", () => this.next());
+    if (this.prevBtn) this._on(this.prevBtn, "click", () => this.prev());
+    if (this.nextBtn) this._on(this.nextBtn, "click", () => this.next());
     if (this.opts.keyboard) {
       this._on(this.root, "keydown", ((e: Event) => {
         const ke = e as KeyboardEvent;
@@ -349,6 +348,7 @@ class MzaCarousel {
   }
 
   private _renderProgress(p: number) {
+    if (!this.progressBar) return;
     this.progressBar.style.transform = `scaleX(${p})`;
   }
 
@@ -551,18 +551,7 @@ export function HowItWorksCarousel() {
           </div>
         </div>
 
-        <div className="mzaCarousel-controls">
-          <button type="button" className="mzaCarousel-prev" aria-label="Paso anterior">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="mzaCarousel-pagination" role="tablist" aria-label="Pasos" />
-          <button type="button" className="mzaCarousel-next" aria-label="Paso siguiente">
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="mzaCarousel-progress" aria-hidden>
-          <div className="mzaCarousel-progressBar" />
-        </div>
+        <div className="mzaCarousel-pagination" role="tablist" aria-label="Pasos" />
       </div>
     </section>
   );
