@@ -759,8 +759,8 @@ export default function HomePage() {
       </section>
 
       {/* ============ TU IMPACTO ============ */}
-      <section className="bg-secondary text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30 bg-dots" />
+      <section className={`relative overflow-hidden ${heroDark ? "bg-secondary text-white" : "bg-[#f3ede3] text-secondary"}`}>
+        <div className={`absolute inset-0 bg-dots ${heroDark ? "opacity-30" : "opacity-40"}`} />
         <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
           <motion.div {...fadeUp} className="text-center mb-12">
@@ -770,7 +770,7 @@ export default function HomePage() {
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-2">
               Cada compra transforma una comunidad
             </h2>
-            <p className="mt-3 text-neutral-400 max-w-2xl mx-auto text-sm leading-relaxed">
+            <p className={`mt-3 max-w-2xl mx-auto text-sm leading-relaxed ${heroDark ? "text-neutral-400" : "text-neutral-600"}`}>
               Ayni Crea impulsa los Objetivos de Desarrollo Sostenible 11 y 12:
               producción bajo pedido, comercio local y reducción de desperdicios.
             </p>
@@ -788,7 +788,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -4, scale: 1.01 }}
-                className="group relative bg-white/[0.04] dark:bg-white/[0.03] border border-white/10 rounded-3xl p-7 backdrop-blur-xl hover:bg-white/[0.08] hover:border-primary/40 transition-colors duration-300 overflow-hidden"
+                className={`group relative rounded-3xl p-7 backdrop-blur-xl transition-colors duration-300 overflow-hidden ${heroDark ? "bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40" : "bg-white border border-border shadow-card hover:shadow-lift hover:border-primary/40"}`}
               >
                 <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-3/4 h-28 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 <div className="relative w-11 h-11 rounded-2xl bg-primary/15 grid place-items-center group-hover:scale-110 transition-transform duration-300">
@@ -797,7 +797,7 @@ export default function HomePage() {
                 <p className="relative font-display text-4xl md:text-5xl font-extrabold mt-4 tracking-tight">
                   <AnimatedCounter value={s.v} />
                 </p>
-                <p className="relative text-neutral-400 text-sm mt-1.5">{s.l}</p>
+                <p className={`relative text-sm mt-1.5 ${heroDark ? "text-neutral-400" : "text-neutral-600"}`}>{s.l}</p>
               </motion.div>
             ))}
           </div>
