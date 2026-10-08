@@ -66,7 +66,7 @@ const DEFAULT_OPTS: MzaOptions = {
   scaleDrop: 0.09,
   blurMax: 2.0,
   activeLeftBias: 0.12,
-  interval: 4500,
+  interval: 7000,
   transitionMs: 900,
   keyboard: true,
   breakpoints: [
