@@ -551,6 +551,92 @@ body {
   }
 }
 
+/* ===== Tu impacto: 3 tarjetas con imagen ===== */
+.impact-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+.impact-card {
+  position: relative;
+  height: 380px;
+  border-radius: 24px;
+  overflow: hidden;
+  cursor: default;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.impact-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.45) 45%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  z-index: 1;
+}
+.impact-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 107, 0, 0.45);
+}
+.impact-card-content {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px 25px;
+  color: #ffffff;
+}
+.impact-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #ff8a47;
+  background: rgba(255, 107, 0, 0.15);
+  border: 1px solid rgba(255, 107, 0, 0.35);
+  margin-bottom: 14px;
+}
+.impact-card-kicker {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #ffb07a;
+}
+.impact-card-content h3 {
+  margin: 0 0 12px;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.impact-card-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+  max-width: 280px;
+}
+@media (max-width: 900px) {
+  .impact-cards {
+    grid-template-columns: 1fr;
+  }
+  .impact-card {
+    height: 350px;
+  }
+}
+
 [data-sonner-toaster] {
   --normal-bg: var(--color-secondary);
   --normal-text: var(--color-text-inverse);

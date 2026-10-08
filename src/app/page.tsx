@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { animate, AnimatePresence, motion, useInView } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
@@ -16,20 +16,19 @@ import {
   Gift,
   Sun,
   BadgeCheck,
-  TrendingUp,
   Recycle,
   ShieldCheck,
   Star,
   Package,
 } from "lucide-react";
-import { artisans, categories, impactStats, products } from "@/data/mock";
+import { artisans, categories, products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/Button";
 import { useStore } from "@/lib/store";
 import { useIsDark } from "@/lib/useIsDark";
 import { productLikes } from "@/types";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { VantaWaves } from "@/components/VantaWaves";
 import { HowItWorksCarousel } from "@/components/HowItWorksCarousel";
 
@@ -42,36 +41,6 @@ const fadeUp = {
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "-60px" },
 } as const;
-
-function AnimatedCounter({ value }: { value: string }) {
-  const parsed = value.match(/^([^0-9]*)([0-9]+(?:\.[0-9]+)?)(.*)$/);
-  const prefix = parsed?.[1] ?? "";
-  const numStr = parsed?.[2] ?? "0";
-  const suffix = parsed?.[3] ?? "";
-  const decimals = numStr.includes(".") ? (numStr.split(".")[1]?.length ?? 0) : 0;
-  const target = parseFloat(numStr);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!inView) return;
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVal(target);
-      return;
-    }
-    const controls = animate(0, target, {
-      duration: 1.8,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: (v) => setVal(v),
-    });
-    return () => controls.stop();
-  }, [inView, target]);
-  return (
-    <span ref={ref} className="tabular-nums whitespace-nowrap">
-      {prefix}{val.toFixed(decimals)}{suffix}
-    </span>
-  );
-}
 
 export default function HomePage() {
   const { user, favorites } = useStore();
@@ -740,8 +709,8 @@ export default function HomePage() {
       </section>
 
       {/* ============ TU IMPACTO ============ */}
-      <section className={`relative overflow-hidden ${heroDark ? "bg-secondary text-white" : "bg-[#f3ede3] text-secondary"}`}>
-        <div className={`absolute inset-0 bg-dots ${heroDark ? "opacity-30" : "opacity-40"}`} />
+      <section className="relative overflow-hidden bg-secondary text-white">
+        <div className="absolute inset-0 bg-dots opacity-20" />
         <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
           <motion.div {...fadeUp} className="text-center mb-12">
@@ -751,37 +720,46 @@ export default function HomePage() {
             <h2 className="font-display text-3xl md:text-4xl font-bold mt-2">
               Cada compra transforma una comunidad
             </h2>
-            <p className={`mt-3 max-w-2xl mx-auto text-sm leading-relaxed ${heroDark ? "text-neutral-400" : "text-neutral-600"}`}>
+            <p className="mt-3 max-w-2xl mx-auto text-sm leading-relaxed text-neutral-400">
               Ayni Crea impulsa los Objetivos de Desarrollo Sostenible 11 y 12:
               producción bajo pedido, comercio local y reducción de desperdicios.
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-5">
+          <div className="impact-cards">
             {[
-              { v: `+${impactStats.artesanosApoyados}`, l: "Artesanos apoyados", icon: Users },
-              { v: `${impactStats.pedidosRealizados}+`, l: "Pedidos personalizados", icon: TrendingUp },
-              { v: String(impactStats.materialesReutilizados), l: "Materiales reutilizados", icon: Recycle },
-            ].map((s, i) => (
+              { k: "Artesanos", t: "Impulsamos el talento local", d: "Conectamos a los artesanos con nuevos clientes y oportunidades de comercialización.", icon: Users, image: "/aguayos-personalizados.jpg" },
+              { k: "Clientes", t: "Creamos productos únicos", d: "Permitimos que cada persona transforme sus ideas en productos personalizados.", icon: Sparkles, image: "/mochila-aguayo.webp" },
+              { k: "Medio ambiente", t: "Promovemos una producción responsable", d: "La fabricación bajo demanda ayuda a evitar productos innecesarios y fomenta el uso responsable de materiales.", icon: Recycle, image: "/chullo-andino.jpg" },
+            ].map((c, i) => (
               <motion.div
-                key={s.l}
-                initial={{ opacity: 0, y: 20 }}
+                key={c.k}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -4, scale: 1.01 }}
-                className={`group relative rounded-3xl p-7 backdrop-blur-xl transition-colors duration-300 overflow-hidden ${heroDark ? "bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-primary/40" : "bg-white border border-border shadow-card hover:shadow-lift hover:border-primary/40"}`}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: i * 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-3/4 h-28 bg-primary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative w-11 h-11 rounded-2xl bg-primary/15 grid place-items-center group-hover:scale-110 transition-transform duration-300">
-                  <s.icon className="w-5 h-5 text-primary" />
-                </div>
-                <p className="relative font-display text-4xl md:text-5xl font-extrabold mt-4 tracking-tight">
-                  <AnimatedCounter value={s.v} />
-                </p>
-                <p className={`relative text-sm mt-1.5 ${heroDark ? "text-neutral-400" : "text-neutral-600"}`}>{s.l}</p>
+                <article className="impact-card" style={{ backgroundImage: `url(${c.image})` }}>
+                  <div className="impact-card-content">
+                    <span className="impact-card-icon">
+                      <c.icon className="w-5 h-5" />
+                    </span>
+                    <p className="impact-card-kicker">{c.k}</p>
+                    <h3>{c.t}</h3>
+                    <p>{c.d}</p>
+                  </div>
+                </article>
               </motion.div>
             ))}
           </div>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-14 text-center font-display text-2xl md:text-3xl font-bold tracking-tight"
+          >
+            Tu idea. <span className="text-primary">Tu producto.</span> Tu impacto.
+          </motion.p>
         </div>
       </section>
 
