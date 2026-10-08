@@ -558,6 +558,31 @@ body {
     transparent 60%
   );
 }
+.mzaCard-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mzaCard-scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.12) 55%, transparent 75%);
+}
+/* Tarjetas con video: texto siempre claro para legibilidad */
+.mzaCard--video .mzaCard-kicker {
+  color: rgba(255, 255, 255, 0.75);
+}
+.mzaCard--video .mzaCard-title {
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+.mzaCard--video .mzaCard-desc {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
 .mzaCard-inner {
   position: absolute;
   inset: 0;

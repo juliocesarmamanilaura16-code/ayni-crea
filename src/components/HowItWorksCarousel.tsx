@@ -448,14 +448,22 @@ interface Step {
   d: string;
   icon: LucideIcon;
   color: string;
+  video: string;
 }
 
 const STEPS: Step[] = [
-  { n: "01", t: "Diseña", d: "Elige un producto base para empezar.", icon: Pencil, color: "#FF6B00" },
-  { n: "02", t: "Personaliza", d: "Colores, materiales, tamaño y texto.", icon: Sparkles, color: "#D4A843" },
-  { n: "03", t: "Conecta", d: "Encuentra al artesano ideal.", icon: Users, color: "#0A0A0A" },
-  { n: "04", t: "Recibe", d: "Sigue la fabricación hasta tu puerta.", icon: Truck, color: "#10B981" },
+  { n: "01", t: "Diseña", d: "Elige un producto base para empezar.", icon: Pencil, color: "#FF6B00", video: "/videos/disena.mp4" },
+  { n: "02", t: "Personaliza", d: "Colores, materiales, tamaño y texto.", icon: Sparkles, color: "#D4A843", video: "/videos/personaliza.mp4" },
+  { n: "03", t: "Conecta", d: "Encuentra al artesano ideal.", icon: Users, color: "#0A0A0A", video: "/videos/conecta.mp4" },
+  { n: "04", t: "Recibe", d: "Sigue la fabricación hasta tu puerta.", icon: Truck, color: "#10B981", video: "/videos/recibe.mp4" },
 ];
+
+/* Solo se muestran los primeros 6 segundos de cada video */
+const VIDEO_PREVIEW_SECONDS = 6;
+
+function capVideoPreview(v: HTMLVideoElement) {
+  if (v.currentTime >= VIDEO_PREVIEW_SECONDS) v.currentTime = 0;
+}
 
 export function HowItWorksCarousel() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -464,6 +472,7 @@ export function HowItWorksCarousel() {
 
   useEffect(() => {
     if (!rootRef.current) return;
+    const el = rootRef.current;
     let mza: MzaCarousel | null = null;
     try {
       mza = new MzaCarousel(rootRef.current, { transitionMs: 900 });
@@ -471,8 +480,27 @@ export function HowItWorksCarousel() {
       console.error("[MzaCarousel]", e);
     }
     mzaRef.current = mza;
+    // Solo el video del paso activo se reproduce (desde el segundo 0); el resto en pausa
+    const syncVideos = () => {
+      el.querySelectorAll<HTMLElement>(".mzaCarousel-slide").forEach((sl) => {
+        const v = sl.querySelector<HTMLVideoElement>("video");
+        if (!v) return;
+        if (sl.dataset.state === "active") {
+          try {
+            v.currentTime = 0;
+            void v.play().catch(() => {});
+          } catch {
+            /* autoplay no permitido */
+          }
+        } else {
+          v.pause();
+        }
+      });
+    };
+    const videoObs = new MutationObserver(syncVideos);
+    videoObs.observe(el, { attributes: true, attributeFilter: ["data-state"], subtree: true });
+    syncVideos();
     // Siempre empieza por el paso 1 cada vez que la sección se ve
-    const el = rootRef.current;
     const obs = new IntersectionObserver(
       (entries) => {
         const vis = entries[0].isIntersecting;
@@ -484,6 +512,7 @@ export function HowItWorksCarousel() {
     obs.observe(el);
     return () => {
       obs.disconnect();
+      videoObs.disconnect();
       mza?.destroy();
       mzaRef.current = null;
     };
@@ -522,7 +551,7 @@ export function HowItWorksCarousel() {
                 aria-label={`Paso ${s.n}: ${s.t}`}
               >
                 <article
-                  className="mzaCard"
+                  className="mzaCard mzaCard--video"
                   style={
                     {
                       "--mzaCard-bg": `linear-gradient(135deg, ${s.color}26, ${s.color}0d)`,
@@ -530,6 +559,18 @@ export function HowItWorksCarousel() {
                     } as CSSProperties
                   }
                 >
+                  <video
+                    className="mzaCard-video"
+                    src={s.video}
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-hidden
+                    tabIndex={-1}
+                    onTimeUpdate={(e) => capVideoPreview(e.currentTarget)}
+                  />
+                  <div className="mzaCard-scrim" aria-hidden />
                   <div className="mzaCard-shine" aria-hidden />
                   <div className="mzaCard-inner">
                     <span className="mzaCard-num" aria-hidden>
