@@ -360,6 +360,12 @@ class MzaCarousel {
     this.goTo(this._mod(this.state.index + 1, this.n));
   }
 
+  /** Avance disparado por el fin del video: solo si está en automático (sin drag/hover) */
+  autoNextFromVideo() {
+    if (this.state.dragging || this.state.hovering || this.state.animating) return;
+    this.next();
+  }
+
   goTo(i: number, animate = true) {
     const start = this.state.pos || this.state.index;
     const end = this._nearest(start, i);
@@ -461,10 +467,6 @@ const STEPS: Step[] = [
 /* Solo se muestran los primeros 6 segundos de cada video */
 const VIDEO_PREVIEW_SECONDS = 6;
 
-function capVideoPreview(v: HTMLVideoElement) {
-  if (v.currentTime >= VIDEO_PREVIEW_SECONDS) v.currentTime = 0;
-}
-
 export function HowItWorksCarousel() {
   const rootRef = useRef<HTMLDivElement>(null);
   const mzaRef = useRef<MzaCarousel | null>(null);
@@ -518,6 +520,19 @@ export function HowItWorksCarousel() {
     };
   }, []);
 
+  /* Al terminar el video (o a los 6s) avanza al siguiente al instante, sin repetición */
+  const handleVideoTime = (v: HTMLVideoElement) => {
+    const limit = Math.min(
+      Number.isFinite(v.duration) ? v.duration : VIDEO_PREVIEW_SECONDS,
+      VIDEO_PREVIEW_SECONDS
+    );
+    if (v.currentTime >= limit - 0.25) {
+      mzaRef.current?.autoNextFromVideo();
+    } else if (v.currentTime >= VIDEO_PREVIEW_SECONDS) {
+      v.currentTime = 0;
+    }
+  };
+
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
       <motion.div
@@ -568,7 +583,7 @@ export function HowItWorksCarousel() {
                     preload="metadata"
                     aria-hidden
                     tabIndex={-1}
-                    onTimeUpdate={(e) => capVideoPreview(e.currentTarget)}
+                    onTimeUpdate={(e) => handleVideoTime(e.currentTarget)}
                   />
                   <div className="mzaCard-scrim" aria-hidden />
                   <div className="mzaCard-shine" aria-hidden />
