@@ -687,18 +687,18 @@ export default function HomePage() {
       </section>
 
       {/* ============ TU IMPACTO ============ */}
-      <section className="relative overflow-hidden bg-[#0A0A0A] text-white">
+      <section className="relative overflow-hidden bg-white text-neutral-900 border-y border-neutral-100 dark:bg-[#0A0A0A] dark:text-white dark:border-neutral-800">
         <div className="absolute inset-0 bg-dots opacity-20" />
         <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
           <motion.div {...fadeUp} className="text-center mb-12">
-            <p className="text-accent text-xs font-bold tracking-[0.25em] uppercase">
+            <p className="text-accent-700 dark:text-accent text-xs font-bold tracking-[0.25em] uppercase">
               Tu impacto
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-white">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-neutral-900 dark:text-white">
               Cada compra transforma una comunidad
             </h2>
-            <p className="mt-3 max-w-2xl mx-auto text-sm leading-relaxed text-neutral-400">
+            <p className="mt-3 max-w-2xl mx-auto text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
               Ayni Crea impulsa los Objetivos de Desarrollo Sostenible 11 y 12:
               producción bajo pedido, comercio local y reducción de desperdicios.
             </p>
