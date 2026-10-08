@@ -401,30 +401,55 @@ export default function HomePage() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
+        {/* Mosaico masonry con animación de entrada por tarjeta */}
+        <div className="columns-2 md:columns-3 xl:columns-4 gap-5">
           {categories.map((c, i) => {
             const Icon = iconMap[c.icon] ?? Shirt;
+            const count = products.filter((p) => p.categoryId === c.id).length;
+            const visualH = ["h-40", "h-56", "h-32", "h-48", "h-52", "h-36", "h-44", "h-60"][i % 8];
             return (
               <motion.div
                 key={c.id}
-                initial={{ opacity: 0, y: 14 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -4, scale: 1.03 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: (i % 4) * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -5 }}
+                className="mb-5 break-inside-avoid"
               >
                 <Link
                   href={`/explorar?cat=${c.id}`}
                   style={{ "--cat-shadow": `${c.color}44` } as React.CSSProperties}
-                  className="group flex flex-col items-center gap-2.5 p-4 bg-white dark:bg-neutral-900 rounded-2xl border border-border dark:border-neutral-800 shadow-card hover:shadow-[0_12px_30px_-8px_var(--cat-shadow)] hover:-translate-y-1 hover:border-primary/30 transition-all duration-300"
+                  className="group block bg-white dark:bg-neutral-900 rounded-3xl border border-border dark:border-neutral-800 shadow-card hover:shadow-[0_16px_36px_-10px_var(--cat-shadow)] hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 overflow-hidden"
                 >
                   <div
-                    className="w-12 h-12 rounded-2xl grid place-items-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
-                    style={{ background: c.color + "14", color: c.color }}
+                    className={`relative overflow-hidden ${visualH}`}
+                    style={{ background: `linear-gradient(135deg, ${c.color}30, ${c.color}08)` }}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon
+                      aria-hidden
+                      className="absolute -right-5 -bottom-6 w-32 h-32 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
+                      style={{ color: c.color + "2e" }}
+                    />
+                    <div
+                      className="absolute left-4 top-4 w-12 h-12 rounded-2xl grid place-items-center shadow-soft transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: c.color + "1c", color: c.color }}
+                    >
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    {count > 0 && (
+                      <span className="absolute right-4 top-4 px-2.5 py-1 rounded-full bg-white/80 dark:bg-neutral-950/70 backdrop-blur text-[11px] font-bold text-secondary dark:text-neutral-200 border border-white/50 dark:border-white/10">
+                        {count} diseños
+                      </span>
+                    )}
                   </div>
-                  <span className="text-xs font-semibold text-center text-secondary dark:text-white">{c.name}</span>
+                  <div className="p-4 flex items-center justify-between gap-2">
+                    <span className="font-display font-bold text-secondary dark:text-white">{c.name}</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                      Explorar
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
                 </Link>
               </motion.div>
             );
