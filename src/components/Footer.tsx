@@ -6,6 +6,7 @@ import { Mail, MapPin, Phone, Instagram, Facebook, Twitter, Shield, Truck, Badge
 import { useState } from "react";
 import { Button } from "./Button";
 import { toast } from "./Toast";
+import { VantaBirds } from "./VantaBirds";
 
 const sections = {
   marketplace: [
@@ -59,11 +60,20 @@ export function Footer() {
 
   return (
     <footer className="bg-secondary text-neutral-100 relative overflow-hidden">
+      {/* Vanta BIRDS — bandada animada de fondo */}
+      <VantaBirds
+        backgroundColor={0x0a0a0a}
+        color1={0xff6b00}
+        color2={0xd4a843}
+        quantity={4}
+      />
+      {/* Overlay para legibilidad del contenido */}
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary/80 via-secondary/60 to-secondary/85 pointer-events-none" />
       {/* Background decoration */}
       <div className="absolute inset-0 bg-dots opacity-[0.05]" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
-      <div className="relative">
+      <div className="relative z-[1]">
         {/* Trust Signals Bar */}
         <div className="border-b border-neutral-800">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
