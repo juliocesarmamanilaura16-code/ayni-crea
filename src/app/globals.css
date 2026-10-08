@@ -594,17 +594,6 @@ body {
   padding: 30px 25px;
   color: #ffffff;
 }
-.impact-card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  color: #ff8a47;
-  background: rgba(255, 107, 0, 0.15);
-  border: 1px solid rgba(255, 107, 0, 0.35);
-  margin-bottom: 14px;
-}
 .impact-card-kicker {
   margin: 0 0 6px;
   font-size: 11px;
@@ -620,6 +609,7 @@ body {
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.2;
+  color: #ffffff;
 }
 .impact-card-content p {
   margin: 0;

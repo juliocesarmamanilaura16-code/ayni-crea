@@ -687,7 +687,7 @@ export default function HomePage() {
       </section>
 
       {/* ============ TU IMPACTO ============ */}
-      <section className="relative overflow-hidden bg-secondary text-white">
+      <section className="relative overflow-hidden bg-[#0A0A0A] text-white">
         <div className="absolute inset-0 bg-dots opacity-20" />
         <div className="absolute -top-32 right-0 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
@@ -695,7 +695,7 @@ export default function HomePage() {
             <p className="text-accent text-xs font-bold tracking-[0.25em] uppercase">
               Tu impacto
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mt-2">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mt-2 text-white">
               Cada compra transforma una comunidad
             </h2>
             <p className="mt-3 max-w-2xl mx-auto text-sm leading-relaxed text-neutral-400">
