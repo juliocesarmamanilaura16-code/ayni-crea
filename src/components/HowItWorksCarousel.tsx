@@ -459,6 +459,8 @@ const STEPS: Step[] = [
 
 export function HowItWorksCarousel() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const mzaRef = useRef<MzaCarousel | null>(null);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -468,7 +470,23 @@ export function HowItWorksCarousel() {
     } catch (e) {
       console.error("[MzaCarousel]", e);
     }
-    return () => mza?.destroy();
+    mzaRef.current = mza;
+    // Siempre empieza por el paso 1 cada vez que la sección se ve
+    const el = rootRef.current;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const vis = entries[0].isIntersecting;
+        if (vis && !visibleRef.current) mzaRef.current?.goTo(0);
+        visibleRef.current = vis;
+      },
+      { threshold: 0.35 }
+    );
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      mza?.destroy();
+      mzaRef.current = null;
+    };
   }, []);
 
   return (
