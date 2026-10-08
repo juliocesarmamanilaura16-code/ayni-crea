@@ -347,32 +347,33 @@ export default function HomePage() {
       </section>
 
       {/* ============ MARQUEE BENEFICIOS ============ */}
-      <div className="relative overflow-hidden border-y border-border/50 dark:border-neutral-800/60 bg-white/60 dark:bg-neutral-900/40 backdrop-blur-sm py-4">
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 z-10 bg-gradient-to-r from-white dark:from-neutral-950 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 z-10 bg-gradient-to-l from-white dark:from-neutral-950 to-transparent" />
-        <div className="marquee-track gap-10">
+      <div className="relative overflow-hidden border-y border-primary/20 dark:border-neutral-800/60 bg-gradient-to-r from-primary-50 via-white to-primary-50 dark:from-neutral-900 dark:via-neutral-900/70 dark:to-neutral-900 py-4">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-white via-white/70 dark:from-neutral-950 dark:via-neutral-950/70 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-white via-white/70 dark:from-neutral-950 dark:via-neutral-950/70 to-transparent" />
+        <div className="marquee-track gap-12">
           {[
-            "✦ Hecho a mano en Bolivia",
-            "✦ Diseño 100% personalizado",
-            "✦ Artesanos verificados",
-            "✦ Producción bajo pedido",
-            "✦ Envío en El Alto y La Paz",
-            "✦ Comercio justo y sostenible",
-            "✦ Piezas únicas garantizadas",
-            "✦ Materiales naturales de calidad",
-            "✦ Hecho a mano en Bolivia",
-            "✦ Diseño 100% personalizado",
-            "✦ Artesanos verificados",
-            "✦ Producción bajo pedido",
-            "✦ Envío en El Alto y La Paz",
-            "✦ Comercio justo y sostenible",
-            "✦ Piezas únicas garantizadas",
-            "✦ Materiales naturales de calidad",
+            "Hecho a mano en Bolivia",
+            "Diseño 100% personalizado",
+            "Artesanos verificados",
+            "Producción bajo pedido",
+            "Envío en El Alto y La Paz",
+            "Comercio justo y sostenible",
+            "Piezas únicas garantizadas",
+            "Materiales naturales de calidad",
+            "Hecho a mano en Bolivia",
+            "Diseño 100% personalizado",
+            "Artesanos verificados",
+            "Producción bajo pedido",
+            "Envío en El Alto y La Paz",
+            "Comercio justo y sostenible",
+            "Piezas únicas garantizadas",
+            "Materiales naturales de calidad",
           ].map((item, i) => (
             <span
               key={i}
-              className="shrink-0 text-xs font-semibold tracking-[0.15em] uppercase text-neutral-500 dark:text-neutral-400 hover:text-primary dark:hover:text-primary transition-colors"
+              className="shrink-0 inline-flex items-center gap-2.5 text-[13px] font-bold tracking-[0.12em] uppercase text-secondary/80 dark:text-neutral-200 hover:text-primary dark:hover:text-primary transition-colors"
             >
+              <span aria-hidden className="text-primary text-sm leading-none">✦</span>
               {item}
             </span>
           ))}

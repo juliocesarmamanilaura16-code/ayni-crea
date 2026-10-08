@@ -362,6 +362,14 @@ body {
   .marquee-track:hover {
     animation-play-state: paused;
   }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      width: auto;
+      justify-content: center;
+    }
+  }
 
   /* ===== Noise texture overlay ===== */
   .noise-overlay::before {
