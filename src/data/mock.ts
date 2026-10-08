@@ -407,8 +407,16 @@ function mk(
     basePrice: price,
     image: imageMap[name] ?? "/imagenes-web/poncho.jpg",
     productionDays: days,
+    likes: seedLikes(id),
     options: extra ? { ...defaultOptions, ...extra } : defaultOptions,
   };
+}
+
+/** Likes base deterministas (estable entre renders) para productos generados */
+function seedLikes(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997;
+  return 35 + (h % 200);
 }
 
 const textileDefs: [string, string, string, number, number][] = [
@@ -500,12 +508,12 @@ const culturalDefs: [string, string, string, number, number][] = [
 ];
 
 export const products: Product[] = [
-  { id: "p1", artisanId: "a1", categoryId: "textiles", name: "Aguayo personalizado", description: "Tela tradicional andina con franjas tejidas a mano. Puedes elegir colores y agregar un texto central.", basePrice: 80, image: "/aguayos-personalizados.jpg", productionDays: 5, options: defaultOptions },
-  { id: "p2", artisanId: "a2", categoryId: "cuero", name: "Mochila de cuero", description: "Mochila artesanal de cuero curtido. Costuras reforzadas, herrajes de alpaca y forro interior de tela.", basePrice: 150, image: "/mochilas.jpg", productionDays: 7, options: defaultOptions },
-  { id: "p3", artisanId: "a1", categoryId: "textiles", name: "Chullo andino", description: "Gorro tejido de lana de oveja con orejeras y diseños geométricos propios de la región.", basePrice: 60, image: "/chullo-andino.jpg", productionDays: 4, options: defaultOptions },
-  { id: "p4", artisanId: "a3", categoryId: "joyeria", name: "Collar de plata con chakana", description: "Collar hecho a mano en plata 950 con dije de chakana. Incluye cadena reforzada y cierre artesanal.", basePrice: 120, image: "/collar-chakana.jpg", productionDays: 4, options: { ...defaultOptions, materials: [{ name: "Plata 950", extra: 0 }, { name: "Plata con dorado", extra: 60 }] } },
-  { id: "p5", artisanId: "a4", categoryId: "madera", name: "Máscara tallada andina", description: "Máscara tallada a mano en madera de kalo, lijada y barnizada con tintes naturales.", basePrice: 90, image: "/mascara-tallado-andino.jpg", productionDays: 10, options: defaultOptions },
-  { id: "p6", artisanId: "a2", categoryId: "cuero", name: "Cartera artesanal", description: "Cartera compacta en cuero con múltiples compartimentos y cierre de alpaca.", basePrice: 110, image: "/carteras-artesanales.jpg", productionDays: 6, options: defaultOptions },
+  { id: "p1", artisanId: "a1", categoryId: "textiles", name: "Aguayo personalizado", description: "Tela tradicional andina con franjas tejidas a mano. Puedes elegir colores y agregar un texto central.", basePrice: 80, image: "/aguayos-personalizados.jpg", productionDays: 5, likes: 214, options: defaultOptions },
+  { id: "p2", artisanId: "a2", categoryId: "cuero", name: "Mochila de cuero", description: "Mochila artesanal de cuero curtido. Costuras reforzadas, herrajes de alpaca y forro interior de tela.", basePrice: 150, image: "/mochilas.jpg", productionDays: 7, likes: 187, options: defaultOptions },
+  { id: "p3", artisanId: "a1", categoryId: "textiles", name: "Chullo andino", description: "Gorro tejido de lana de oveja con orejeras y diseños geométricos propios de la región.", basePrice: 60, image: "/chullo-andino.jpg", productionDays: 4, likes: 156, options: defaultOptions },
+  { id: "p4", artisanId: "a3", categoryId: "joyeria", name: "Collar de plata con chakana", description: "Collar hecho a mano en plata 950 con dije de chakana. Incluye cadena reforzada y cierre artesanal.", basePrice: 120, image: "/collar-chakana.jpg", productionDays: 4, likes: 243, options: { ...defaultOptions, materials: [{ name: "Plata 950", extra: 0 }, { name: "Plata con dorado", extra: 60 }] } },
+  { id: "p5", artisanId: "a4", categoryId: "madera", name: "Máscara tallada andina", description: "Máscara tallada a mano en madera de kalo, lijada y barnizada con tintes naturales.", basePrice: 90, image: "/mascara-tallado-andino.jpg", productionDays: 10, likes: 98, options: defaultOptions },
+  { id: "p6", artisanId: "a2", categoryId: "cuero", name: "Cartera artesanal", description: "Cartera compacta en cuero con múltiples compartimentos y cierre de alpaca.", basePrice: 110, image: "/carteras-artesanales.jpg", productionDays: 6, likes: 132, options: defaultOptions },
   ...textileDefs.map((d) => mk(d[0], "a1", "textiles", d[1], d[2], d[3], d[4])),
   ...cueroDefs.map((d) => mk(d[0], "a2", "cuero", d[1], d[2], d[3], d[4])),
   ...joyeriaDefs.map((d) => mk(d[0], "a3", "joyeria", d[1], d[2], d[3], d[4], d[5])),

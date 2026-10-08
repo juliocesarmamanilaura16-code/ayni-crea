@@ -47,8 +47,21 @@ export type Product = {
   basePrice: number; // Bs
   image: string;
   productionDays: number;
+  likes: number; // likes base (semilla); el favorito del usuario suma +1
   options: ProductOptions;
 };
+
+/** Likes efectivos = base + 1 si el usuario lo marcó favorito */
+export function productLikes(p: Product, favorites: string[]): number {
+  return p.likes + (favorites.includes(p.id) ? 1 : 0);
+}
+
+/** Formato compacto: 999 -> "999", 1240 -> "1.2k" */
+export function formatLikes(n: number): string {
+  if (n < 1000) return String(n);
+  const v = n / 1000;
+  return `${v >= 100 ? Math.round(v) : v.toFixed(1).replace(/\.0$/, "")}k`;
+}
 
 export type ProductOptions = {
   colors: { name: string; hex: string; extra: number }[];

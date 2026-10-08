@@ -11,6 +11,7 @@ const mockProduct: Product = {
   basePrice: 100,
   image: '',
   productionDays: 5,
+  likes: 10,
   options: {
     colors: [
       { name: 'Azul', hex: '#1e3a8a', extra: 0 },

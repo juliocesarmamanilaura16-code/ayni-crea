@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { artisans } from "@/data/mock";
 import type { Product } from "@/types";
+import { formatLikes, productLikes } from "@/types";
 import { toast } from "./Toast";
 import { cn } from "@/lib/cn";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const fav = mounted && favorites.includes(product.id);
+  const likes = productLikes(product, mounted ? favorites : []);
 
   return (
     <motion.article
@@ -40,9 +42,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-secondary/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
-        {/* Botón de favoritos con animación elástica */}
+        {/* Botón de likes con contador y animación elástica */}
         <motion.button
-          whileHover={{ scale: 1.12 }}
+          whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.85 }}
           onClick={(e) => {
             e.preventDefault();
@@ -50,8 +52,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             toggleFavorite(product.id);
             toast(fav ? "Eliminado de favoritos" : "Agregado a favoritos");
           }}
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md grid place-items-center shadow-card border border-white/60 dark:border-neutral-700/60 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none z-20"
-          aria-label={fav ? "Quitar de favoritos" : "Agregar a favoritos"}
+          className="absolute top-3 right-3 h-9 min-w-9 px-2.5 rounded-full bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md inline-flex items-center gap-1.5 shadow-card border border-white/60 dark:border-neutral-700/60 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none z-20"
+          aria-label={fav ? `Quitar de favoritos (${formatLikes(likes)} me gusta)` : `Me gusta (${formatLikes(likes)} me gusta)`}
         >
           <motion.div
             key={fav ? "fav" : "not-fav"}
@@ -66,6 +68,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
               )}
             />
           </motion.div>
+          <span className={cn("text-xs font-bold tabular-nums", fav ? "text-primary" : "text-secondary dark:text-neutral-300")}>
+            {formatLikes(likes)}
+          </span>
         </motion.button>
 
         {/* Badge tiempo de producción */}

@@ -27,6 +27,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/Button";
 import { useStore } from "@/lib/store";
 import { useIsDark } from "@/lib/useIsDark";
+import { productLikes } from "@/types";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
 import { useEffect, useRef, useState } from "react";
 import { VantaWaves } from "@/components/VantaWaves";
@@ -73,7 +74,7 @@ function AnimatedCounter({ value }: { value: string }) {
 }
 
 export default function HomePage() {
-  const { user } = useStore();
+  const { user, favorites } = useStore();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const level = mounted && user ? getAynLevel(user.points) : null;
@@ -91,6 +92,11 @@ export default function HomePage() {
   }, [heroArtisans.length]);
   const heroArtisan = heroArtisans[heroIndex % heroArtisans.length];
   const heroImage = heroArtisan.portfolio?.[0] ?? heroArtisan.photo;
+
+  /* Destacados: los 6 con más likes (tu favorito suma +1 en vivo) */
+  const featuredProducts = [...products]
+    .sort((a, b) => productLikes(b, favorites) - productLikes(a, favorites))
+    .slice(0, 6);
 
   /* Fondo del hero según tema: 0x5b4d44 en claro, 0x4c2300 en oscuro */
   const heroDark = useIsDark();
@@ -471,7 +477,7 @@ export default function HomePage() {
           </Link>
         </motion.div>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {products.slice(0, 6).map((p, i) => (
+          {featuredProducts.map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
