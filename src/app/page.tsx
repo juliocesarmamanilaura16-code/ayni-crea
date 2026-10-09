@@ -379,23 +379,17 @@ export default function HomePage() {
                           alt={c.name}
                           fill
                           sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10 pointer-events-none" />
                       </>
                     ) : (
                       <Icon
                         aria-hidden
-                        className="absolute -right-5 -bottom-6 w-32 h-32 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
+                        className="absolute -right-5 -bottom-6 w-32 h-32 transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-6"
                         style={{ color: c.color + "2e" }}
                       />
                     )}
-                    <div
-                      className="absolute left-4 top-4 w-12 h-12 rounded-2xl grid place-items-center shadow-soft transition-transform duration-300 group-hover:scale-110"
-                      style={{ background: c.color + "1c", color: c.color }}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
                     {count > 0 && (
                       <span className="absolute right-4 top-4 px-2.5 py-1 rounded-full bg-white/80 dark:bg-neutral-950/70 backdrop-blur text-[11px] font-bold text-secondary dark:text-neutral-200 border border-white/50 dark:border-white/10">
                         {count} diseños
