@@ -370,13 +370,26 @@ export default function HomePage() {
                 >
                   <div
                     className={`relative overflow-hidden ${visualH}`}
-                    style={{ background: `linear-gradient(135deg, ${c.color}30, ${c.color}08)` }}
+                    style={c.image ? undefined : { background: `linear-gradient(135deg, ${c.color}30, ${c.color}08)` }}
                   >
-                    <Icon
-                      aria-hidden
-                      className="absolute -right-5 -bottom-6 w-32 h-32 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
-                      style={{ color: c.color + "2e" }}
-                    />
+                    {c.image ? (
+                      <>
+                        <Image
+                          src={c.image}
+                          alt={c.name}
+                          fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10 pointer-events-none" />
+                      </>
+                    ) : (
+                      <Icon
+                        aria-hidden
+                        className="absolute -right-5 -bottom-6 w-32 h-32 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
+                        style={{ color: c.color + "2e" }}
+                      />
+                    )}
                     <div
                       className="absolute left-4 top-4 w-12 h-12 rounded-2xl grid place-items-center shadow-soft transition-transform duration-300 group-hover:scale-110"
                       style={{ background: c.color + "1c", color: c.color }}

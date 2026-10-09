@@ -36,6 +36,7 @@ export type Category = {
   name: string;
   icon: string; // nombre de icono Lucide
   color: string;
+  image?: string; // foto de la categoría (opcional)
 };
 
 export type Product = {

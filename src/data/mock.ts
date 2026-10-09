@@ -1,14 +1,14 @@
 import type { Category, Artisan, Product } from "@/types";
 
 export const categories: Category[] = [
-  { id: "textiles", name: "Textiles", icon: "Shirt", color: "#B5532A" },
-  { id: "cuero", name: "Cuero", icon: "Briefcase", color: "#0F2A47" },
-  { id: "joyeria", name: "Joyería", icon: "Gem", color: "#C9A24A" },
-  { id: "madera", name: "Madera", icon: "TreePine", color: "#3E7C5E" },
-  { id: "decoracion", name: "Decoración", icon: "Home", color: "#B5532A" },
-  { id: "regalos", name: "Regalos", icon: "Gift", color: "#C9A24A" },
-  { id: "crochet", name: "Crochet y tejidos", icon: "Package", color: "#D4A843" },
-  { id: "cultural", name: "Cultura boliviana", icon: "Sun", color: "#0F2A47" },
+  { id: "textiles", name: "Textiles", icon: "Shirt", color: "#B5532A", image: "/cat-textiles.jpg" },
+  { id: "cuero", name: "Cuero", icon: "Briefcase", color: "#0F2A47", image: "/cat-cuero.png" },
+  { id: "joyeria", name: "Joyería", icon: "Gem", color: "#C9A24A", image: "/cat-joyeria.png" },
+  { id: "madera", name: "Madera", icon: "TreePine", color: "#3E7C5E", image: "/cat-madera.png" },
+  { id: "decoracion", name: "Decoración", icon: "Home", color: "#B5532A", image: "/cat-decoracion.png" },
+  { id: "regalos", name: "Regalos", icon: "Gift", color: "#C9A24A", image: "/cat-regalos.png" },
+  { id: "crochet", name: "Crochet y tejidos", icon: "Package", color: "#D4A843", image: "/cat-crochet.jpg" },
+  { id: "cultural", name: "Cultura boliviana", icon: "Sun", color: "#0F2A47", image: "/cat-cultural.jpg" },
 ];
 
 export const artisans: Artisan[] = [
