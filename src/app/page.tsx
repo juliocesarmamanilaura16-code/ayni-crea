@@ -638,7 +638,7 @@ export default function HomePage() {
                   </Button>
                 </Link>
                 <Link
-                  href="/registro"
+                  href="/artesanos"
                   className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/20 backdrop-blur border border-white/50 text-white font-bold hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none transition-all duration-200"
                 >
                   Ver artesanos

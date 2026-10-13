@@ -34,7 +34,7 @@ type State = {
   setAgreed: (index: number) => void;
   markPaid: (artisanId: string, amount: number) => void;
   clearCart: () => void;
-  placeOrder: () => Order | null;
+  placeOrder: (paymentMethod?: "qr" | "contra-entrega") => Order | null;
   advanceOrder: (orderId: string) => void;
   rateOrder: (orderId: string, rating: number, comment: string) => void;
   toggleFavorite: (productId: string) => void;
@@ -106,7 +106,7 @@ export const useStore = create<State>()(
       markPaid: (artisanId, amount) =>
         set((s) => ({ paidAmounts: { ...s.paidAmounts, [artisanId]: amount } })),
       clearCart: () => set({ cart: [] }),
-      placeOrder: () => {
+      placeOrder: (paymentMethod = "qr") => {
         const { user, cart } = get();
         if (!user || cart.length === 0) return null;
         const newOrders: Order[] = cart.map((c, i) => ({
@@ -123,6 +123,7 @@ export const useStore = create<State>()(
           total: c.customization.price + c.shipping,
           status: "realizado",
           createdAt: new Date().toISOString(),
+          paymentMethod,
         }));
         const orderedArtisans = [...new Set(cart.map((c) => c.artisanId))];
         resetChatsForNewPurchase();

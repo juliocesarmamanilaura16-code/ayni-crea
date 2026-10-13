@@ -150,6 +150,7 @@ export default function PedidosPage() {
                             {o.shippingMethod
                               ? ` · ${o.shippingMethod === "personal" ? "Entrega personal" : o.shippingMethod === "paqueteria" ? "Paquetería" : o.shippingMethod}`
                               : ""}
+                            {o.paymentMethod === "contra-entrega" ? " · Pago contra entrega" : ""}
                           </p>
                           {o.notes && (
                             <>

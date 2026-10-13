@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowUpDown, Search, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -201,9 +202,9 @@ function ExplorarInner() {
           <p className="font-display font-bold text-white text-lg">¿No sabes diseñar?</p>
           <p className="text-sm text-white/85">Un artesano te ayuda gratis por chat a crear tu pieza.</p>
         </div>
-        <a href="/artesanos" className="px-4 py-2.5 bg-white text-secondary text-sm font-bold rounded-xl hover:bg-neutral-100 transition shrink-0">
+        <Link href="/artesanos" className="px-4 py-2.5 bg-white text-secondary text-sm font-bold rounded-xl hover:bg-neutral-100 transition shrink-0">
           Pedir ayuda
-        </a>
+        </Link>
       </motion.div>
 
       {/* Resultados */}

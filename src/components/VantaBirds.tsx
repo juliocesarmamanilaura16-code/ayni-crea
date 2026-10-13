@@ -1,6 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/* Solo desktop: evita descargar three.js en móvil o con ahorro de datos */
+function shouldAnimate(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  if (window.innerWidth < 768) return false;
+  const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (conn?.saveData) return false;
+  return true;
+}
 
 interface VantaBirdsProps {
   backgroundColor?: number;
@@ -38,6 +48,7 @@ export function VantaBirds({
   className = "",
 }: VantaBirdsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
   const vantaRef = useRef<{
     destroy: () => void;
     setOptions: (opts: Record<string, number | boolean | string>) => void;
@@ -56,16 +67,15 @@ export function VantaBirds({
   };
 
   useEffect(() => {
+    setEnabled(shouldAnimate());
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
 
     async function init() {
       if (!containerRef.current || vantaRef.current) return;
-      if (
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      ) {
-        return;
-      }
 
       const THREE = await import("three");
       const VANTA = (await import("vanta/dist/vanta.birds.min")).default;
@@ -93,7 +103,7 @@ export function VantaBirds({
         vantaRef.current = null;
       }
     };
-  }, []);
+  }, [enabled]);
 
   /* Actualiza el efecto en vivo cuando cambian los props */
   useEffect(() => {
@@ -103,6 +113,20 @@ export function VantaBirds({
     speedLimit, separation, alignment, cohesion, quantity,
     mouseControls, touchControls, backgroundAlpha,
   ]);
+
+  /* Fallback CSS en móvil / reduced-motion: sin descargar three.js */
+  if (!enabled) {
+    const accent = `#${color1.toString(16).padStart(6, "0")}`;
+    return (
+      <div
+        className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
+        aria-hidden="true"
+        style={{
+          background: `radial-gradient(ellipse 70% 55% at 80% 15%, ${accent}44, transparent 60%), radial-gradient(ellipse 55% 45% at 15% 85%, ${accent}28, transparent 60%)`,
+        }}
+      />
+    );
+  }
 
   return (
     <div

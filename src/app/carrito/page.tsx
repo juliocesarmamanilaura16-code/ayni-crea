@@ -23,6 +23,7 @@ export default function CarritoPage() {
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
   const [useRedeem, setUseRedeem] = useState(false);
+  const [payMethod, setPayMethod] = useState<"qr" | "contra-entrega">("qr");
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
   const redeem = redeemInfo(user?.points ?? 0, subtotal);
@@ -43,7 +44,7 @@ export default function CarritoPage() {
       .reduce((acc, c) => acc + c.customization.price + c.shipping, 0);
 
   const isPaid = (artisanId: string) => paidAmounts[artisanId] === artisanAmount(artisanId);
-  const missingPayment = artisanIds.some((id) => !isPaid(id));
+  const missingPayment = payMethod === "qr" && artisanIds.some((id) => !isPaid(id));
 
   const openChat = (artisan: Artisan | undefined, itemIndex: number) => {
     if (!artisan) {
@@ -102,7 +103,7 @@ export default function CarritoPage() {
         return;
       }
     }
-    const order = placeOrder();
+    const order = placeOrder(payMethod);
     if (order) {
       toast("¡Pedido realizado! +30 puntos Ayni");
       router.push("/pedidos");
@@ -285,9 +286,43 @@ export default function CarritoPage() {
           <div className="mt-4 rounded-2xl border border-border bg-neutral-50 p-4">
             <p className="font-display font-bold text-secondary text-sm flex items-center gap-1.5">
               <QrCode className="w-4 h-4 text-primary" />
-              Pago al artesano *
+              Método de pago *
             </p>
-            <p className="text-[11px] text-neutral-500 mt-0.5">
+            <div className="mt-2 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Método de pago">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={payMethod === "qr"}
+                onClick={() => setPayMethod("qr")}
+                className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition ${
+                  payMethod === "qr"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-white text-neutral-500 hover:border-primary/40"
+                }`}
+              >
+                QR ahora
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={payMethod === "contra-entrega"}
+                onClick={() => setPayMethod("contra-entrega")}
+                className={`px-3 py-2.5 rounded-xl border text-xs font-bold transition ${
+                  payMethod === "contra-entrega"
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-white text-neutral-500 hover:border-primary/40"
+                }`}
+              >
+                Contra entrega
+              </button>
+            </div>
+            {payMethod === "contra-entrega" ? (
+              <p className="text-[11px] text-neutral-500 mt-2">
+                Pagas en efectivo al recibir tu pedido. El artesano confirma por chat antes de empezar.
+              </p>
+            ) : (
+              <>
+            <p className="text-[11px] text-neutral-500 mt-2">
               Escaneá el QR de cada artesano para pagar. Recién después se habilita confirmar.
             </p>
             <div className="mt-3 space-y-3">
@@ -335,6 +370,8 @@ export default function CarritoPage() {
                 );
               })}
             </div>
+              </>
+            )}
           </div>
           <Button
             onClick={handleConfirm}

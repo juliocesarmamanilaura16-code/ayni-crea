@@ -105,6 +105,7 @@ export type Order = {
   createdAt: string;
   rating?: number;
   comment?: string;
+  paymentMethod?: "qr" | "contra-entrega";
 };
 
 export type Review = {

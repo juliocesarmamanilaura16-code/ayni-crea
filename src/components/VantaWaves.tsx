@@ -1,6 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/* Solo desktop: evita descargar three.js (~600kb) en móvil, reduced-motion o ahorro de datos */
+function shouldAnimate(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  if (window.innerWidth < 768) return false;
+  const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  if (conn?.saveData) return false;
+  return true;
+}
 
 interface VantaWavesProps {
   color?: number;
@@ -28,6 +38,7 @@ export function VantaWaves({
   className = "",
 }: VantaWavesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
   const vantaRef = useRef<{
     destroy: () => void;
     setOptions: (opts: Record<string, number | boolean>) => void;
@@ -38,6 +49,11 @@ export function VantaWaves({
   optsRef.current = { color, shininess, waveHeight, waveSpeed, zoom, mouseControls, touchControls, backgroundAlpha, backgroundColor };
 
   useEffect(() => {
+    setEnabled(shouldAnimate());
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
 
     async function init() {
@@ -69,7 +85,7 @@ export function VantaWaves({
         vantaRef.current = null;
       }
     };
-  }, []);
+  }, [enabled]);
 
   /* Actualiza el efecto en vivo cuando cambian los props (ej. tema claro/oscuro) */
   useEffect(() => {
@@ -83,6 +99,20 @@ export function VantaWaves({
       backgroundColor,
     });
   }, [color, shininess, waveHeight, waveSpeed, zoom, backgroundAlpha, backgroundColor]);
+
+  /* Fallback CSS en móvil / reduced-motion: sin descargar three.js */
+  if (!enabled) {
+    const accent = `#${color.toString(16).padStart(6, "0")}`;
+    return (
+      <div
+        className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
+        aria-hidden="true"
+        style={{
+          background: `radial-gradient(ellipse 80% 60% at 70% 20%, ${accent}55, transparent 65%), radial-gradient(ellipse 60% 50% at 20% 80%, ${accent}33, transparent 60%)`,
+        }}
+      />
+    );
+  }
 
   return (
     <div

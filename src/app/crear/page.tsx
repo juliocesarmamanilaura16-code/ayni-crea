@@ -97,6 +97,23 @@ export default function CrearPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+      {/* Stepper del funnel */}
+      <ol aria-label="Progreso de creación" className="flex items-center gap-2 text-xs font-semibold mb-6">
+        {["Diseña tu pieza", "Elige artesano", "Confirma pedido"].map((s, i) => (
+          <li key={s} className="flex items-center gap-2">
+            <span
+              className={`w-6 h-6 rounded-full grid place-items-center text-[11px] ${
+                i === 0 ? "bg-primary text-white" : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400"
+              }`}
+              aria-current={i === 0 ? "step" : undefined}
+            >
+              {i === 0 ? "1" : i + 1}
+            </span>
+            <span className={i === 0 ? "text-secondary dark:text-white" : "text-neutral-400"}>{s}</span>
+            {i < 2 && <span aria-hidden className="w-6 h-px bg-neutral-200 dark:bg-neutral-700 mx-1" />}
+          </li>
+        ))}
+      </ol>
       <p className="text-primary text-sm font-semibold tracking-widest uppercase">Paso 1</p>
       <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">¿Qué quieres crear?</h1>
       <p className="text-neutral-500 mt-1">Elegí una categoría y diseñá tu pieza en el lienzo de edición.</p>
@@ -240,13 +257,46 @@ export default function CrearPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-16 text-center py-20"
+          className="mt-10"
         >
-          <div className="inline-flex flex-col items-center gap-4">
-            <div className="w-24 h-24 rounded-3xl bg-neutral-100 flex items-center justify-center">
-              <span className="text-4xl">🎨</span>
+          <h2 className="font-display text-lg font-bold text-secondary dark:text-white">
+            O empieza con una plantilla popular
+          </h2>
+          <p className="text-sm text-neutral-500 mt-0.5 mb-4">
+            Toca una plantilla para elegir su categoría y personalizarla en el lienzo.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[...products].sort((a, b) => b.likes - a.likes).slice(0, 4).map((p) => (
+              <button
+                key={p.id}
+                onClick={() => handleCatClick(p.categoryId)}
+                className="group text-left bg-white dark:bg-neutral-900 rounded-2xl border border-border dark:border-neutral-800 overflow-hidden hover:border-primary/50 hover:shadow-card transition-all"
+              >
+                <span className="relative block aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </span>
+                <span className="block p-3">
+                  <span className="block text-sm font-bold text-secondary dark:text-white truncate">{p.name}</span>
+                  <span className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-primary">
+                    Usar plantilla <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-10 text-center py-10 border-t border-border/60 dark:border-neutral-800">
+            <div className="inline-flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                <span className="text-3xl" aria-hidden>🎨</span>
+              </div>
+              <p className="text-neutral-400 text-sm">O seleccioná una categoría arriba para un lienzo en blanco</p>
             </div>
-            <p className="text-neutral-400 text-sm">Seleccioná una categoría para comenzar a diseñar</p>
           </div>
         </motion.div>
       )}
