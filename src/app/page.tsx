@@ -17,7 +17,7 @@ import {
   Star,
   Package,
 } from "lucide-react";
-import { artisans, categories, products } from "@/data/mock";
+import { artisans, categories, products, testimonials } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/Button";
 import { useStore } from "@/lib/store";
@@ -62,6 +62,12 @@ export default function HomePage() {
   const featuredProducts = [...products]
     .sort((a, b) => productLikes(b, favorites) - productLikes(a, favorites))
     .slice(0, 6);
+
+  /* Prueba social real desde mock (no números fijos) */
+  const totalReviews = artisans.reduce((acc, a) => acc + a.reviewsCount, 0);
+  const totalOrders = artisans.reduce((acc, a) => acc + a.ordersCompleted, 0);
+  const avgRating =
+    artisans.reduce((acc, a) => acc + a.rating, 0) / Math.max(1, artisans.length);
 
   /* Fondo del hero según tema: 0x5b4d44 en claro, 0x4c2300 en oscuro */
   const heroDark = useIsDark();
@@ -204,14 +210,7 @@ export default function HomePage() {
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
               className="relative aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-secondary/10 dark:ring-white/10 group cursor-default"
             >
-              <Image
-                src="/aguayo-tegido-a-mano.jpg"
-                alt="Aguayo artesanal"
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              {/* Foto rotativa del artesano destacado */}
+              {/* Foto rotativa del artesano destacado (única imagen para mejorar LCP) */}
               <AnimatePresence>
                 <motion.div
                   key={heroArtisan.id}
@@ -261,6 +260,7 @@ export default function HomePage() {
                       type="button"
                       onClick={() => setHeroIndex(i)}
                       aria-label={`Ver a ${a.name}`}
+                      aria-pressed={i === heroIndex % heroArtisans.length}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
                         i === heroIndex % heroArtisans.length
                           ? "w-6 bg-white"
@@ -453,46 +453,18 @@ export default function HomePage() {
               <span className="text-shimmer-animate">ya lo vivieron</span>
             </h2>
             <p className="mt-3 text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto text-sm leading-relaxed">
-              Más de 200 personas ya tienen su pieza única. Esto es lo que nos comparten.
+              Más de {totalOrders.toLocaleString("es-BO")} piezas entregadas por {artisans.length} artesanos verificados. Esto es lo que nos comparten.
             </p>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-            {[
-              {
-                name: "Valentina R.",
-                city: "La Paz",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&q=80&auto=format&fit=crop",
-                rating: 5,
-                text: "Encargué un aguayo personalizado con los colores de nuestra boda. María lo entregó en 5 días y quedó absolutamente perfecto. ¡Lloramos de la emoción!",
-                product: "Aguayo personalizado",
-                delay: 0,
-              },
-              {
-                name: "Carlos M.",
-                city: "El Alto",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80&auto=format&fit=crop",
-                rating: 5,
-                text: "La mochila de cuero que pedí superó todas mis expectativas. Roberto entiende exactamente lo que quieres y lo ejecuta con maestría. ¡100% recomendado!",
-                product: "Mochila de cuero artesanal",
-                delay: 0.08,
-              },
-              {
-                name: "Sofía T.",
-                city: "La Paz",
-                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&q=80&auto=format&fit=crop",
-                rating: 5,
-                text: "Pedí un chullo para mi hijo con su nombre bordado. La calidad de la lana y el acabado son increíbles. El proceso de diseño en la plataforma fue muy sencillo.",
-                product: "Chullo personalizado",
-                delay: 0.16,
-              },
-            ].map((t) => (
+            {testimonials.map((t, idx) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: t.delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: idx * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 whileHover={{ y: -5 }}
                 className="group relative bg-white dark:bg-neutral-900 rounded-3xl p-6 border border-border dark:border-neutral-800 shadow-card testimonial-glow transition-all duration-300 flex flex-col gap-4"
               >
@@ -522,10 +494,14 @@ export default function HomePage() {
                   {t.product}
                 </span>
 
-                {/* Avatar */}
+                {/* Avatar por inicial (sin foto externa) */}
                 <div className="flex items-center gap-3 pt-2 border-t border-border/50 dark:border-neutral-800/60">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-accent/40 group-hover:ring-primary/50 transition-all">
-                    <Image src={t.avatar} alt={t.name} fill sizes="40px" className="object-cover" />
+                  <div
+                    aria-hidden
+                    className="w-10 h-10 rounded-full grid place-items-center text-white text-sm font-bold ring-2 ring-accent/40 group-hover:ring-primary/50 transition-all shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}99)` }}
+                  >
+                    {t.name.charAt(0)}
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-secondary dark:text-white">{t.name}</p>
@@ -546,7 +522,7 @@ export default function HomePage() {
             className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 py-6 px-8 rounded-2xl bg-white/70 dark:bg-neutral-900/70 backdrop-blur-sm border border-border dark:border-neutral-800 max-w-2xl mx-auto shadow-card"
           >
             <div className="text-center sm:text-left">
-              <p className="font-display text-5xl font-extrabold text-secondary dark:text-white tracking-tight">4.9</p>
+              <p className="font-display text-5xl font-extrabold text-secondary dark:text-white tracking-tight">{avgRating.toFixed(1)}</p>
               <div className="flex gap-0.5 mt-1 justify-center sm:justify-start">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-accent text-accent" />
@@ -556,7 +532,7 @@ export default function HomePage() {
             <div className="h-12 w-px bg-border dark:bg-neutral-800 hidden sm:block" />
             <div className="text-sm text-center sm:text-left">
               <p className="font-semibold text-secondary dark:text-white">Valoración media de nuestros clientes</p>
-              <p className="text-neutral-500 dark:text-neutral-400 mt-0.5">Basado en más de 325 reseñas verificadas</p>
+              <p className="text-neutral-500 dark:text-neutral-400 mt-0.5">Basado en {totalReviews.toLocaleString("es-BO")} reseñas verificadas</p>
             </div>
           </motion.div>
         </div>
@@ -640,7 +616,7 @@ export default function HomePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
                 </span>
-                <span>47 personas diseñando ahora mismo</span>
+                <span>Únete a quienes ya crearon {totalOrders.toLocaleString("es-BO")} piezas únicas con artesanos</span>
               </div>
 
               <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
@@ -663,10 +639,10 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/registro"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 backdrop-blur border border-white/30 font-semibold hover:bg-white/20 transition-all duration-200"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/20 backdrop-blur border border-white/50 text-white font-bold hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none transition-all duration-200"
                 >
                   Ver artesanos
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4" aria-hidden />
                 </Link>
               </div>
             </div>
@@ -674,19 +650,29 @@ export default function HomePage() {
             {/* Social proof avatars */}
             <div className="flex flex-col items-center gap-4 shrink-0">
               <div className="flex -space-x-3">
-                {[
-                  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&q=80&auto=format&fit=crop",
-                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&q=80&auto=format&fit=crop",
-                  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&q=80&auto=format&fit=crop",
-                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&q=80&auto=format&fit=crop",
-                  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=60&q=80&auto=format&fit=crop",
-                ].map((src, i) => (
-                  <div key={i} className="relative w-11 h-11 rounded-full ring-2 ring-primary overflow-hidden">
-                    <Image src={src} alt="Cliente" fill sizes="44px" className="object-cover" />
+                {testimonials.map((t) => (
+                  <div
+                    key={t.name}
+                    title={t.name}
+                    aria-hidden
+                    className="w-11 h-11 rounded-full ring-2 ring-white/80 grid place-items-center text-white text-sm font-bold"
+                    style={{ background: `linear-gradient(135deg, ${t.color}, ${t.color}AA)` }}
+                  >
+                    {t.name.charAt(0)}
+                  </div>
+                ))}
+                {artisans.slice(0, 2).map((a) => (
+                  <div
+                    key={a.id}
+                    title={a.name}
+                    aria-hidden
+                    className="w-11 h-11 rounded-full ring-2 ring-white/80 grid place-items-center text-white text-sm font-bold bg-secondary"
+                  >
+                    {a.name.charAt(0)}
                   </div>
                 ))}
                 <div className="relative w-11 h-11 rounded-full ring-2 ring-primary bg-white/20 backdrop-blur grid place-items-center text-xs font-bold">
-                  +200
+                  +{(totalOrders / 1000).toFixed(1)}k
                 </div>
               </div>
               <div className="text-center">
@@ -695,7 +681,7 @@ export default function HomePage() {
                     <Star key={i} className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
                   ))}
                 </div>
-                <p className="text-xs text-white/80 font-medium">+325 clientes felices</p>
+                <p className="text-xs text-white/80 font-medium">{totalOrders.toLocaleString("es-BO")} pedidos entregados</p>
               </div>
             </div>
           </div>

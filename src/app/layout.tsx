@@ -21,9 +21,13 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Ayni Crea — Marketplace artesanal",
+  metadataBase: new URL("https://ayni-crea.vercel.app"),
+  title: {
+    default: "Ayni Crea — Marketplace artesanal",
+    template: "%s · Ayni Crea",
+  },
   description:
-    "Prototipo funcional de marketplace artesanal. Conecta clientes con artesanos de El Alto y La Paz. Datos demostrativos.",
+    "Diseña productos únicos y conéctate con artesanos verificados de El Alto y La Paz. Hecho a mano en Bolivia, producción bajo pedido.",
   keywords: [
     "marketplace artesanal",
     "artesanos Bolivia",
@@ -31,20 +35,36 @@ export const metadata: Metadata = {
     "La Paz",
     "productos personalizados",
     "hecho a mano",
+    "aguayo",
+    "cuero",
+    "joyería andina",
   ],
   authors: [{ name: "Ayni Crea" }],
   openGraph: {
     title: "Ayni Crea — Marketplace artesanal",
     description:
-      "Prototipo funcional de marketplace artesanal. Conecta clientes con artesanos de El Alto y La Paz.",
+      "Diseña productos únicos con artesanos verificados de El Alto y La Paz.",
     type: "website",
     locale: "es_BO",
+    siteName: "Ayni Crea",
+    images: [{ url: "/logo-ayni-crea.png", width: 1200, height: 630, alt: "Ayni Crea" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ayni Crea",
-    description: "Prototipo de marketplace artesanal hecho en Bolivia",
+    description: "Marketplace artesanal hecho en Bolivia",
+    images: ["/logo-ayni-crea.png"],
   },
+  robots: { index: true, follow: true },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Marketplace",
+  name: "Ayni Crea",
+  description: "Marketplace de productos personalizados de El Alto y La Paz.",
+  areaServed: ["El Alto", "La Paz", "Bolivia"],
+  inLanguage: "es-BO",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -58,6 +78,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-background font-sans text-secondary antialiased flex flex-col dark:bg-neutral-950 dark:text-neutral-100">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <SplashScreen />
         <Navbar />
         <main className="flex-1 pb-24 md:pb-12">{children}</main>

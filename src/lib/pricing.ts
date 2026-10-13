@@ -24,3 +24,25 @@ export function progressToNext(points: number): { pct: number; next?: string } {
   const next = AYN_LEVELS.find((l) => l.min > level.max);
   return { pct, next: next?.name };
 }
+
+/* Canje: 100 pts = Bs 10 de descuento */
+export const AYN_POINTS_PER_BLOCK = 100;
+export const AYN_BS_PER_BLOCK = 10;
+
+export function redeemInfo(points: number, subtotal: number): {
+  blocks: number;
+  discount: number;
+  pointsCost: number;
+} {
+  if (points < AYN_POINTS_PER_BLOCK || subtotal <= 0) {
+    return { blocks: 0, discount: 0, pointsCost: 0 };
+  }
+  const maxBlocksByPoints = Math.floor(points / AYN_POINTS_PER_BLOCK);
+  const maxBlocksByTotal = Math.floor(subtotal / AYN_BS_PER_BLOCK);
+  const blocks = Math.min(maxBlocksByPoints, maxBlocksByTotal);
+  return {
+    blocks,
+    discount: blocks * AYN_BS_PER_BLOCK,
+    pointsCost: blocks * AYN_POINTS_PER_BLOCK,
+  };
+}

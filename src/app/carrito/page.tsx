@@ -13,17 +13,21 @@ import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { methodLabel } from "@/lib/design";
+import { redeemInfo } from "@/lib/pricing";
 import type { Artisan } from "@/types";
 
 export default function CarritoPage() {
   const router = useRouter();
-  const { cart, removeFromCart, updateNotes, updateSize, updateAgreedPrice, setAgreed, paidAmounts, markPaid, placeOrder, user } = useStore();
+  const { cart, removeFromCart, updateNotes, updateSize, updateAgreedPrice, setAgreed, paidAmounts, markPaid, placeOrder, user, redeemPoints } = useStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
   const [chatItemIndex, setChatItemIndex] = useState<number | null>(null);
+  const [useRedeem, setUseRedeem] = useState(false);
   const subtotal = cart.reduce((acc, c) => acc + c.customization.price, 0);
   const shipping = cart.reduce((acc, c) => acc + c.shipping, 0);
-  const total = subtotal + shipping;
+  const redeem = redeemInfo(user?.points ?? 0, subtotal);
+  const discount = useRedeem ? redeem.discount : 0;
+  const total = Math.max(0, subtotal + shipping - discount);
   const maxProductionDays = cart.reduce((acc, c) => {
     const days = products.find((p) => p.id === c.productId)?.productionDays ?? 0;
     return Math.max(acc, days);
@@ -90,6 +94,13 @@ export default function CarritoPage() {
     if (missingPayment) {
       toast("Pagá con el QR de cada artesano antes de confirmar", "error");
       return;
+    }
+    if (useRedeem && redeem.pointsCost > 0) {
+      const ok = redeemPoints(redeem.pointsCost);
+      if (!ok) {
+        toast("No tienes puntos suficientes", "error");
+        return;
+      }
     }
     const order = placeOrder();
     if (order) {
@@ -236,6 +247,23 @@ export default function CarritoPage() {
           )}
           <Row label="Subtotal" value={`Bs ${subtotal}`} />
           <Row label="Envío" value={shipping === 0 ? "Gratis" : `Bs ${shipping}`} />
+          {user && redeem.blocks > 0 && (
+            <label className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 cursor-pointer">
+              <span className="text-xs font-semibold text-secondary">
+                Usar {redeem.pointsCost} pts (−Bs {redeem.discount})
+                <span className="block text-[11px] font-normal text-neutral-500">
+                  Tienes {user.points} pts · 100 pts = Bs 10
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={useRedeem}
+                onChange={(e) => setUseRedeem(e.target.checked)}
+                className="w-4 h-4 accent-orange-600"
+              />
+            </label>
+          )}
+          {discount > 0 && <Row label="Descuento Ayni" value={`−Bs ${discount}`} />}
           {maxProductionDays > 0 && (
             <Row label="Duración de confección" value={`~${maxProductionDays} días`} />
           )}

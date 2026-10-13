@@ -118,6 +118,10 @@ body {
   body {
     animation: none;
   }
+  .animate-shimmer::after {
+    animation: none;
+    display: none;
+  }
 }
 
 /* ======= DARK MODE — overrides globales ======= */

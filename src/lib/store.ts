@@ -39,6 +39,7 @@ type State = {
   rateOrder: (orderId: string, rating: number, comment: string) => void;
   toggleFavorite: (productId: string) => void;
   addPoints: (n: number) => void;
+  redeemPoints: (cost: number) => boolean;
 };
 
 const shippingFor = (total: number) => (total >= 200 ? 0 : 15);
@@ -159,6 +160,12 @@ export const useStore = create<State>()(
             : [...s.favorites, productId],
         })),
       addPoints: (n) => set((s) => (s.user ? { user: { ...s.user, points: s.user.points + n } } : {})),
+      redeemPoints: (cost) => {
+        const { user } = get();
+        if (!user || user.points < cost || cost <= 0) return false;
+        set((s) => (s.user ? { user: { ...s.user, points: s.user.points - cost } } : {}));
+        return true;
+      },
     }),
     {
       name: "ayni-crea-store",

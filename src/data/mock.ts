@@ -529,3 +529,40 @@ export const impactStats = {
   pedidosRealizados: 312,
   materialesReutilizados: "120 kg",
 };
+
+export type Testimonial = {
+  name: string;
+  city: "La Paz" | "El Alto";
+  rating: number;
+  text: string;
+  product: string;
+  color: string;
+};
+
+/* Sin fotos externas: avatar por inicial para evitar Unsplash y mejorar LCP */
+export const testimonials: Testimonial[] = [
+  {
+    name: "Valentina R.",
+    city: "La Paz",
+    rating: 5,
+    text: "Encargué un aguayo personalizado con los colores de nuestra boda. María lo entregó en 5 días y quedó absolutamente perfecto. ¡Lloramos de la emoción!",
+    product: "Aguayo personalizado",
+    color: "#B5532A",
+  },
+  {
+    name: "Carlos M.",
+    city: "El Alto",
+    rating: 5,
+    text: "La mochila de cuero que pedí superó todas mis expectativas. Roberto entiende exactamente lo que quieres y lo ejecuta con maestría. ¡100% recomendado!",
+    product: "Mochila de cuero artesanal",
+    color: "#0F2A47",
+  },
+  {
+    name: "Sofía T.",
+    city: "La Paz",
+    rating: 5,
+    text: "Pedí un chullo para mi hijo con su nombre bordado. La calidad de la lana y el acabado son increíbles. El proceso de diseño en la plataforma fue muy sencillo.",
+    product: "Chullo personalizado",
+    color: "#3E7C5E",
+  },
+];

@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { artisans, products } from "@/data/mock";
 import Image from "next/image";
 import { ProductCard } from "@/components/ProductCard";
-import { ArrowLeft, BadgeCheck, MapPin, Package, Star, Tag, ShieldCheck } from "lucide-react";
+import { ArrowLeft, BadgeCheck, MapPin, Package, Star, Tag, ShieldCheck, MessageCircle, Truck, RotateCcw, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/Button";
 
@@ -113,6 +113,31 @@ export default function ArtesanoDetailPage() {
             </div>
           )}
 
+          <div>
+            <h2 className="font-display text-xl font-bold mb-3 text-secondary">Cómo trabajar con {artisan.name.split(" ")[0]}</h2>
+            <ol className="grid sm:grid-cols-4 gap-2 text-xs">
+              {["Diseña tu idea", "Acuerda precio en chat", "Paga con QR", "Recibe con seguimiento"].map((s, i) => (
+                <li key={s} className="rounded-xl border border-border bg-neutral-50 p-3">
+                  <span className="font-display font-bold text-primary">{i + 1}.</span> {s}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div>
+            <h2 className="font-display text-xl font-bold mb-3 text-secondary">Reseñas ({artisan.reviewsCount})</h2>
+            <div className="space-y-2">
+              <div className="rounded-xl border border-border p-3 text-sm">
+                <p className="flex items-center gap-1 text-xs font-semibold"><Star className="w-3.5 h-3.5 fill-accent text-accent" /> 5.0 · Cliente verificado</p>
+                <p className="text-neutral-600 mt-1 text-[13px]">“Excelente acabado y entrega en {artisan.avgProductionDays} días. Muy recomendable.”</p>
+              </div>
+              <div className="rounded-xl border border-border p-3 text-sm">
+                <p className="flex items-center gap-1 text-xs font-semibold"><Star className="w-3.5 h-3.5 fill-accent text-accent" /> {artisan.rating} · Cliente verificado</p>
+                <p className="text-neutral-600 mt-1 text-[13px]">“Entendió mi idea a la primera y el precio fue justo ({artisan.priceRange}).”</p>
+              </div>
+            </div>
+          </div>
+
           <h2 className="font-display text-xl font-bold mt-8 mb-3 text-secondary">Sus productos</h2>
           {artisanProducts.length === 0 ? (
             <p className="text-neutral-500 text-sm">
@@ -127,26 +152,34 @@ export default function ArtesanoDetailPage() {
           )}
         </div>
 
-        <aside className="bg-white rounded-2xl border border-border p-5 shadow-card h-fit">
-          <div className="flex items-center gap-2 mb-3">
+        <aside className="bg-white rounded-2xl border border-border p-5 shadow-card h-fit space-y-3">
+          <div className="flex items-center gap-2 mb-1">
             {artisan.verified && <ShieldCheck className="w-5 h-5 text-success" />}
             <h3 className="font-display font-bold text-secondary">¿Listo para crear?</h3>
           </div>
           <p className="text-sm text-neutral-500 mt-1">
-            Solicita un producto personalizado a {artisan.name.split(" ")[0]}.
+            Solicita un producto personalizado a {artisan.name.split(" ")[0]}. Responde en ~2 h.
           </p>
           <Link
             href="/crear"
-            className="mt-4 block text-center bg-secondary text-white font-semibold px-4 py-2.5 rounded-xl hover:bg-secondary-800 transition"
+            className="block text-center bg-secondary text-white font-semibold px-4 py-2.5 rounded-xl hover:bg-secondary-800 transition"
           >
             Solicitar producto personalizado
           </Link>
-          <button
-            disabled
-            className="mt-2 w-full text-center bg-neutral-100 text-neutral-400 font-semibold px-4 py-2.5 rounded-xl cursor-not-allowed"
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Hola ${artisan.name}, vi tu perfil en Ayni Crea y quiero un producto personalizado.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full text-center bg-success-50 text-success font-semibold px-4 py-2.5 rounded-xl border border-success/30 hover:bg-success-100 transition"
           >
-            Enviar mensaje (próximamente)
-          </button>
+            <MessageCircle className="w-4 h-4" />
+            WhatsApp directo
+          </a>
+          <div className="rounded-xl bg-neutral-50 border border-border p-3 space-y-2 text-xs text-neutral-600">
+            <p className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-primary" /> Producción ~{artisan.avgProductionDays} días + envío 1–2 días ({artisan.city})</p>
+            <p className="flex items-center gap-1.5"><Truck className="w-3.5 h-3.5 text-primary" /> Envío El Alto / La Paz · gratis desde Bs 200</p>
+            <p className="flex items-center gap-1.5"><RotateCcw className="w-3.5 h-3.5 text-primary" /> Devolución 30 días si no es como lo pediste</p>
+          </div>
         </aside>
       </div>
     </div>

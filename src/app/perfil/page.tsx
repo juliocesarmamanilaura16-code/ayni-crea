@@ -7,7 +7,7 @@ import { products } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { getAynLevel, progressToNext, AYN_LEVELS } from "@/lib/pricing";
+import { getAynLevel, progressToNext, AYN_LEVELS, redeemInfo } from "@/lib/pricing";
 import { useIsDark } from "@/lib/useIsDark";
 
 export default function PerfilPage() {
@@ -82,6 +82,14 @@ export default function PerfilPage() {
           {progress.next
             ? `Te faltan puntos para ser ${progress.next}`
             : "¡Nivel máximo!"}
+        </p>
+        <p className="mt-2 text-xs font-semibold text-primary">
+          {(() => {
+            const r = redeemInfo(user.points, 999999);
+            return r.blocks > 0
+              ? `Puedes canjear ${r.pointsCost} pts por Bs ${r.discount} de descuento en tu carrito (100 pts = Bs 10).`
+              : "Junta 100 pts para canjear Bs 10 en tu carrito (100 pts = Bs 10).";
+          })()}
         </p>
 
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
