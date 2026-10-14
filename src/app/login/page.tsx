@@ -19,16 +19,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [role, setRole] = useState<"client" | "artisan">("client");
+  const [username, setUsername] = useState("");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !pwd) {
-      toast("Completa email y contraseña", "error");
+    if (!email || !pwd || !username) {
+      toast("Completa email, contraseña y nombre de usuario", "error");
       return;
     }
     login({
       id: `u-${Date.now()}`,
-      name: email.split("@")[0].replace(/\./g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "Usuario",
+      name: username,
+      username,
       email,
       role,
       points: 0,
@@ -59,15 +61,23 @@ export default function LoginPage() {
         <form onSubmit={submit} className="mt-6 space-y-3">
           <Field icon={Mail} type="email" placeholder="tu@correo.com" value={email} onChange={setEmail} />
           <Field icon={Lock} type="password" placeholder="Contraseña" value={pwd} onChange={setPwd} />
-
+          <div className="mt-3">
+            <label className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Nombre de usuario</label>
+            <Input
+              placeholder="Nombre de usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+          </div>
           <div className="flex gap-2 pt-2">
             <button
               type="button"
               onClick={() => setRole("client")}
               className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
                 role === "client"
-                  ? "border-primary bg-primary-50 text-secondary shadow-soft dark:bg-neutral-800 dark:text-white"
-                  : "border-border bg-white text-neutral-600 hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
+                  ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
+                  : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
               }`}
             >
               Soy cliente
@@ -77,8 +87,8 @@ export default function LoginPage() {
               onClick={() => setRole("artisan")}
               className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
                 role === "artisan"
-                  ? "border-primary bg-primary-50 text-secondary shadow-soft dark:bg-neutral-800 dark:text-white"
-                  : "border-border bg-white text-neutral-600 hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
+                  ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
+                  : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
               }`}
             >
               Soy artesano
@@ -129,7 +139,7 @@ function Field({
       <Input
         type={type}
         placeholder={placeholder}
-        value={value}
+        value=""
         onChange={(e) => onChange(e.target.value)}
         className="pl-10"
       />

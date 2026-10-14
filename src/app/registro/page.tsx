@@ -15,19 +15,21 @@ export default function RegistroPage() {
   const { login } = useStore();
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [role, setRole] = useState<"client" | "artisan">("client");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !pwd) {
-      toast("Completa todos los campos", "error");
+    if (!name || !username || !email || !pwd) {
+      toast("Completa todos los campos incluyendo el nombre de usuario", "error");
       return;
     }
     login({
       id: `u-${Date.now()}`,
       name,
+      username,
       email,
       role,
       points: 20,
@@ -62,7 +64,7 @@ export default function RegistroPage() {
             className={`p-4 rounded-xl border text-left transition-all ${
               role === "client"
                 ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900"
+                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
             }`}
           >
             <p className="font-display font-bold text-secondary">Quiero crear y comprar</p>
@@ -74,7 +76,57 @@ export default function RegistroPage() {
             className={`p-4 rounded-xl border text-left transition-all ${
               role === "artisan"
                 ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900"
+                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
+            }`}
+          >
+            <p className="font-display font-bold text-secondary">Soy artesano</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">Recibe pedidos personalizados</p>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <div>
+            <label className="text-[10px] font-medium text-neutral-700 dark:text-neutral-300">Nombre completo</label>
+            <Input
+              type="text"
+              placeholder="Nombre completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-medium text-neutral-700 dark:text-neutral-300">Nombre de usuario</label>
+            <Input
+              type="text"
+              placeholder="Nombre de usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-4">
+          <button
+            type="button"
+            onClick={() => setRole("client")}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              role === "client"
+                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
+                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
+            }`}
+          >
+            <p className="font-display font-bold text-secondary">Quiero crear y comprar</p>
+            <p className="text-[11px] text-neutral-500 mt-0.5">Diseña productos únicos</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("artisan")}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              role === "artisan"
+                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
+                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
             }`}
           >
             <p className="font-display font-bold text-secondary">Soy artesano</p>
