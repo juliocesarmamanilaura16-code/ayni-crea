@@ -10,6 +10,7 @@ export type User = {
   role: Role;
   points: number;
   createdAt: string;
+  artisanId?: string;
 };
 
 export type Artisan = {

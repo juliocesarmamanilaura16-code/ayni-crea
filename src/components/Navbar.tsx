@@ -23,7 +23,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const links = [
   { href: "/", label: "Inicio" },
   { href: "/explorar", label: "Explorar" },
-  { href: "/artesanos", label: "Artesanos" },
   { href: "/crear", label: "Crear" },
 ];
 
@@ -38,7 +37,7 @@ export function Navbar() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -58,8 +57,8 @@ export function Navbar() {
       <div className={cn("flex items-center justify-between gap-2", scrolled ? "h-14" : "max-w-7xl mx-auto px-4 md:px-8 h-16")}>
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-soft group-hover:shadow-glow transition-shadow duration-300">
-              <Image src="/logo-ayni-crea.png" alt="Ayni Crea" fill className="object-cover" />
-            </div>
+            <Image src="/logo-ayni-crea.png" alt="Ayni Crea" fill className="object-cover" />
+          </div>
           <span className="font-display font-bold text-lg tracking-tight">
             Ayni <span className="text-primary">Crea</span>
           </span>
@@ -89,6 +88,36 @@ export function Navbar() {
               </Link>
             );
           })}
+          {user?.role === "artisan" ? (
+            <a
+              href="/dashboard"
+              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-primary"
+            >
+              <span className="relative z-10">Panel</span>
+            </a>
+          ) : user?.role === "client" && (
+            <a
+              href="/perfil"
+              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
+            >
+              <span className="relative z-10">Mi cuenta</span>
+            </a>
+          )}
+          {user?.role === "artisan" ? (
+            <a
+              href="/pedidos"
+              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
+            >
+              <span className="relative z-10">Pedidos</span>
+            </a>
+          ) : (
+            <a
+              href="/carrito"
+              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
+            >
+              <span className="relative z-10">Carrito</span>
+            </a>
+          )}
         </nav>
 
         <div className="flex items-center gap-1.5">
