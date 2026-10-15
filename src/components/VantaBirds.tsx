@@ -114,25 +114,34 @@ export function VantaBirds({
     mouseControls, touchControls, backgroundAlpha,
   ]);
 
-  /* Fallback CSS en móvil / reduced-motion: sin descargar three.js */
+/* Fallback CSS en móvil / reduced-motion: sin descargar three.js */
   if (!enabled) {
     const accent = `#${color1.toString(16).padStart(6, "0")}`;
-    /* Fondo sólido base + gradiales transparentes sobre él para visibilidad garantizada */
+    /* Fondo con unidades viewport que se adaptan al zoom del navegador.
+       Usamos background-size: 200% 200% combined con posicionamiento
+       para que los gradiales se rendericen completos sin importar el zoom. */
     return (
       <div
         className={`absolute inset-0 w-full pointer-events-none ${className}`}
         aria-hidden="true"
         style={{
-          /* Fondo sólido naranja base (visible incluso si los gradiales no se renderizan) */
+          /* Fondo sólido base que SEMPRE aparece, visible incluso si el zoom desplaza los gradiales */
           backgroundColor: `#${accent}`,
-          /* Dos gradiales centrados que se adaptan a cualquier tamaño */
+          /* Gradiales con unidades absolutas pero posicionamiento relativo:
+             background-size: 200% 200% hace que los gradiales se "repitan" y cubran
+             cualquier zona del canvas cuando el usuario hace zoom. */
           background: `
             radial-gradient(circle at 30% 30%, rgba(255, 107, 0, 0.4), transparent 50%),
             radial-gradient(circle at 70% 70%, rgba(255, 107, 0, 0.2), transparent 50%),
             radial-gradient(circle at 50% 50%, rgba(255, 107, 0, 0.1), transparent 50%
           `,
-          minHeight: "100vh",
+          /* Este es el key: hacer que los gradiales se adapten al zoom */
+          backgroundSize: "200% 200%",
+          backgroundRepeat: "no-repeat",
+          /* Asegurar cobertura completa independientemente del zoom */
           width: "100vw",
+          minHeight: "100vh",
+          height: "100vh",
         }}
       />
     );
