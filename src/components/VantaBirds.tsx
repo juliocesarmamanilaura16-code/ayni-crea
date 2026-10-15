@@ -122,7 +122,7 @@ export function VantaBirds({
         className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
         aria-hidden="true"
         style={{
-          background: `radial-gradient(ellipse 70% 55% at 80% 15%, ${accent}44, transparent 60%), radial-gradient(ellipse 55% 45% at 15% 85%, ${accent}28, transparent 60%)`,
+          background: `radial-gradient(ellipse at 50% 50%, ${accent}40, transparent 50%), radial-gradient(ellipse at 50% 50%, ${accent}20, transparent 50%)`,
         }}
       />
     );
