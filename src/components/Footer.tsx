@@ -63,7 +63,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[#FAFAFA] text-neutral-900 dark:bg-secondary dark:text-neutral-100 relative overflow-hidden">
+    <footer className="bg-[#FAFAFA] text-neutral-900 dark:bg-secondary dark:text-neutral-100 relative overflow-hidden min-h-screen">
       {/* Vanta BIRDS — bandada animada de fondo (cambia con el tema) */}
       <VantaBirds
         backgroundColor={footerDark ? 0x0a0a0a : 0xfafafa}
