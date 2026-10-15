@@ -117,15 +117,22 @@ export function VantaBirds({
   /* Fallback CSS en móvil / reduced-motion: sin descargar three.js */
   if (!enabled) {
     const accent = `#${color1.toString(16).padStart(6, "0")}`;
-    /* Siempre aseguramos altura mínima completa para cubrir el área */
-    const minHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+    /* Fondo sólido base + gradiales transparentes sobre él para visibilidad garantizada */
     return (
       <div
-        className={`absolute inset-0 w-full h-full min-h-[${minHeight}px] pointer-events-none ${className}`}
+        className={`absolute inset-0 w-full pointer-events-none ${className}`}
         aria-hidden="true"
         style={{
-          background: `radial-gradient(ellipse at 50% 50%, ${accent}40, transparent 50%), radial-gradient(ellipse at 50% 50%, ${accent}20, transparent 50)`,
+          /* Fondo sólido naranja base (visible incluso si los gradiales no se renderizan) */
+          backgroundColor: `#${accent}`,
+          /* Dos gradiales centrados que se adaptan a cualquier tamaño */
+          background: `
+            radial-gradient(circle at 30% 30%, rgba(255, 107, 0, 0.4), transparent 50%),
+            radial-gradient(circle at 70% 70%, rgba(255, 107, 0, 0.2), transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255, 107, 0, 0.1), transparent 50%
+          `,
           minHeight: "100vh",
+          width: "100vw",
         }}
       />
     );
