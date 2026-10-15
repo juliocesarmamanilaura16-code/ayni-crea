@@ -165,23 +165,7 @@ export function Footer() {
               </ul>
             </div>
 
-            <div>
-              <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white mb-4 uppercase tracking-wider">
-                Mi cuenta
-              </h4>
-              <ul className="space-y-2.5">
-                {sections.cuenta.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors duration-200"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            
 
             <div>
               <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white mb-4 uppercase tracking-wider">

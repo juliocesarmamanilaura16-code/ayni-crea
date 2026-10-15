@@ -6,11 +6,9 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   ShoppingCart,
-  User,
   LogOut,
   Menu,
   Package,
-  LayoutDashboard,
   ChevronDown,
   X,
 } from "lucide-react";
@@ -95,14 +93,7 @@ export function Navbar() {
             >
               <span className="relative z-10">Panel</span>
             </a>
-          ) : user?.role === "client" && (
-            <a
-              href="/perfil"
-              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
-            >
-              <span className="relative z-10">Mi cuenta</span>
-            </a>
-          )}
+          ) : null}
           {user?.role === "artisan" ? (
             <a
               href="/pedidos"
@@ -154,19 +145,6 @@ export function Navbar() {
                     <p className="text-sm font-semibold truncate">{user.name}</p>
                     <p className="text-xs text-neutral-500 truncate">{user.email}</p>
                   </div>
-                  <DropdownMenu.Item asChild>
-                    <Link
-                      href={user.role === "artisan" ? "/dashboard" : "/perfil"}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-sm outline-none cursor-pointer transition-colors"
-                    >
-                      {user.role === "artisan" ? (
-                        <LayoutDashboard className="w-4 h-4 text-neutral-500" />
-                      ) : (
-                        <User className="w-4 h-4 text-neutral-500" />
-                      )}
-                      {user.role === "artisan" ? "Mi panel" : "Mi cuenta"}
-                    </Link>
-                  </DropdownMenu.Item>
                   <DropdownMenu.Item asChild>
                     <Link
                       href="/pedidos"
