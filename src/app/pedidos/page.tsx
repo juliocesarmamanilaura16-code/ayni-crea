@@ -14,11 +14,32 @@ import { toast } from "@/components/Toast";
 import { ORDER_STEPS } from "@/types";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import type { Artisan } from "@/types";
+import { Sparkles } from "lucide-react";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1606293459339-aa5d34a7b0e1?w=200&q=80&auto=format&fit=crop";
 
 export default function PedidosPage() {
-  const { orders, rateOrder } = useStore();
+  const { user, orders, rateOrder } = useStore();
+  if (!user) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-10">
+        <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-border">
+          <div className="w-20 h-20 mx-auto rounded-full bg-primary-50 grid place-items-center mb-4">
+            <Sparkles className="w-8 h-8 text-primary" />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-secondary">Por favor, inicia sesión</h1>
+          <p className="text-neutral-500 mt-1 text-sm max-w-md mx-auto">
+            Necesitas iniciar sesión para ver y gestionar tus pedidos.
+          </p>
+          <Link href="/login" className="inline-block mt-6">
+            <Button variant="primary" size="lg">
+              Iniciar sesión
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
   const [expanded, setExpanded] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);

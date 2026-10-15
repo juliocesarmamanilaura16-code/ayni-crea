@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useStore } from "@/lib/store";
 import { categories, products } from "@/data/mock";
 import { ArrowRight, Compass, Upload, Palette, Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -17,6 +18,12 @@ const iconMap: Record<string, typeof Shirt> = {
 
 export default function CrearPage() {
   const router = useRouter();
+  const { user } = useStore();
+  if (!user) {
+    toast("Por favor, inicia sesión para crear productos", "error");
+    router.push("/login");
+    return null;
+  }
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [showDropZone, setShowDropZone] = useState(false);
