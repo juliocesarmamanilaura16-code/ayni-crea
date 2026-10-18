@@ -20,6 +20,25 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1606293459339-aa5d34a7
 
 export default function PedidosPage() {
   const { user, orders, rateOrder } = useStore();
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
+  const [chatOrderId, setChatOrderId] = useState<string | null>(null);
+  const chatOrder = chatOrderId ? orders.find((o) => o.id === chatOrderId) ?? null : null;
+  const [ratingMap, setRatingMap] = useState<Record<string, { rating: number; comment: string }>>(
+    {}
+  );
+
+  const openChat = (orderId: string, artisan: Artisan | undefined) => {
+    if (!artisan) {
+      toast("Artesano no disponible", "error");
+      return;
+    }
+    setChatOrderId(orderId);
+    setChatArtisan(artisan);
+    setChatOpen(true);
+  };
+
   if (!user) {
     return (
       <div className="max-w-3xl mx-auto px-4 md:px-8 py-10">
@@ -40,24 +59,6 @@ export default function PedidosPage() {
       </div>
     );
   }
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatArtisan, setChatArtisan] = useState<Artisan | null>(null);
-  const [chatOrderId, setChatOrderId] = useState<string | null>(null);
-  const chatOrder = chatOrderId ? orders.find((o) => o.id === chatOrderId) ?? null : null;
-  const [ratingMap, setRatingMap] = useState<Record<string, { rating: number; comment: string }>>(
-    {}
-  );
-
-  const openChat = (orderId: string, artisan: Artisan | undefined) => {
-    if (!artisan) {
-      toast("Artesano no disponible", "error");
-      return;
-    }
-    setChatOrderId(orderId);
-    setChatArtisan(artisan);
-    setChatOpen(true);
-  };
 
   if (orders.length === 0) {
     return (

@@ -127,20 +127,20 @@ const TEMPLATES: Record<string, TemplateItem[]> = {
 
 const DEFAULT_TEMPLATES = [...TEMPLATES.Textiles, ...TEMPLATES.Cuero, ...TEMPLATES.Joyería, ...TEMPLATES.Accesorios];
 
-export function DesignCanvas({ uploadedImage, onDesignChange, exportRef }: { uploadedImage?: string | null; onDesignChange?: (hasDesign: boolean) => void; exportRef?: React.MutableRefObject<{ toImage: () => string | null } | null> }) {
+export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: string | null; onDesignChange?: (hasDesign: boolean) => void; exportRef?: React.MutableRefObject<{ toImage: () => string | null } | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tool, setTool] = useState<Tool>("brush");
   const [brushColor, setBrushColor] = useState("#000000");
   const [brushSize, setBrushSize] = useState(4);
-  const [bgColor, setBgColor] = useState("#f5f5f5");
+  const [bgColor] = useState("#f5f5f5");
   const [text, setText] = useState("");
   const [textFont, setTextFont] = useState("Arial");
   const [textStyle, setTextStyle] = useState<"normal" | "bold" | "italic">("normal");
   const [textSize, setTextSize] = useState(24);
   const [showTextInput, setShowTextInput] = useState(false);
   const [showLayers, setShowLayers] = useState(false);
-  const [showPresets, setShowPresets] = useState(false);
+  const [, setShowPresets] = useState(false);
   const [showPatterns, setShowPatterns] = useState(false);
   const [showSymbols, setShowSymbols] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -166,7 +166,6 @@ export function DesignCanvas({ uploadedImage, onDesignChange, exportRef }: { upl
   const [measureEnd, setMeasureEnd] = useState<{ x: number; y: number } | null>(null);
   const [measureDistance, setMeasureDistance] = useState<string | null>(null);
   const [canvasSize] = useState({ w: 600, h: 600 });
-  const [showRulers, setShowRulers] = useState(true);
   const [snapToGrid, setSnapToGrid] = useState(true);
   const [gradientColors, setGradientColors] = useState(["#DC2626", "#2563EB"]);
 
@@ -821,8 +820,6 @@ export function DesignCanvas({ uploadedImage, onDesignChange, exportRef }: { upl
     return "#888";
   };
 
-  const snap = (val: number) => snapToGrid ? Math.round(val / 20) * 20 : val;
-
   const canvasStyle = useMemo(() => ({
     width: "100%",
     height: "auto",
@@ -1027,7 +1024,7 @@ export function DesignCanvas({ uploadedImage, onDesignChange, exportRef }: { upl
             {layers.length === 0 ? (
               <p className="text-[10px] text-neutral-400">Dibujá algo para ver las capas.</p>
             ) : (
-              [...layers].reverse().map((layer, i) => (
+              [...layers].reverse().map((layer) => (
                 <div key={layer.id} className="flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-neutral-50 border border-border mb-1">
                   <button onClick={() => toggleLayerVisibility(layer.id)} className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 text-[9px] flex items-center justify-center">
                     {layer.visible ? "👁" : "🚫"}

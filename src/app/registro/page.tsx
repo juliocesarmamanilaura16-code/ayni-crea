@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, User, Mail, Lock } from "lucide-react";
+import { Sparkles, ArrowRight, Mail, Lock } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/Button";
@@ -107,35 +107,7 @@ export default function RegistroPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          <button
-            type="button"
-            onClick={() => setRole("client")}
-            className={`p-4 rounded-xl border text-left transition-all ${
-              role === "client"
-                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
-            }`}
-          >
-            <p className="font-display font-bold text-secondary">Quiero crear y comprar</p>
-            <p className="text-[11px] text-neutral-500 mt-0.5">Diseña productos únicos</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole("artisan")}
-            className={`p-4 rounded-xl border text-left transition-all ${
-              role === "artisan"
-                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
-            }`}
-          >
-            <p className="font-display font-bold text-secondary">Soy artesano</p>
-            <p className="text-[11px] text-neutral-500 mt-0.5">Recibe pedidos personalizados</p>
-          </button>
-        </div>
-
         <form onSubmit={submit} className="mt-5 space-y-3">
-          <Field icon={User} type="text" placeholder="Nombre completo" value={name} onChange={setName} />
           <Field icon={Mail} type="email" placeholder="Correo electrónico" value={email} onChange={setEmail} />
           <Field icon={Lock} type="password" placeholder="Contraseña" value={pwd} onChange={setPwd} />
 

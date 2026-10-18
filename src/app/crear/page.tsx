@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
@@ -19,11 +19,6 @@ const iconMap: Record<string, typeof Shirt> = {
 export default function CrearPage() {
   const router = useRouter();
   const { user } = useStore();
-  if (!user) {
-    toast("Por favor, inicia sesión para crear productos", "error");
-    router.push("/login");
-    return null;
-  }
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [showDropZone, setShowDropZone] = useState(false);
@@ -31,6 +26,15 @@ export default function CrearPage() {
   const [hasCanvasDesign, setHasCanvasDesign] = useState(false);
   const [productName, setProductName] = useState("");
   const exportRef = useRef<{ toImage: () => string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      toast("Por favor, inicia sesión para crear productos", "error");
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  if (!user) return null;
 
   const template = selectedCat ? products.filter((p) => p.categoryId === selectedCat)[0] : null;
   const hasDesign = hasCanvasDesign || !!uploadedImage;
@@ -204,6 +208,7 @@ export default function CrearPage() {
                   </label>
                   {uploadedImage && (
                     <div className="mt-3 flex items-center gap-3 bg-neutral-900 rounded-xl p-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={uploadedImage} alt="Preview" className="w-14 h-14 object-cover rounded-lg border-2 border-orange-500" />
                       <button onClick={() => setUploadedImage(null)} className="text-xs text-white bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded-lg font-bold transition">Eliminar</button>
                     </div>

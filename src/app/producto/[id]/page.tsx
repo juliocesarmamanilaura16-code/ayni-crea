@@ -18,6 +18,16 @@ export default function ProductoDetailPage() {
   const router = useRouter();
   const { favorites, toggleFavorite } = useStore();
   const product = products.find((p) => p.id === params.id);
+  const artisan = product ? artisans.find((a) => a.id === product.artisanId) : undefined;
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const [color, setColor] = useState(product?.options.colors[0]?.name ?? "");
+  const [material, setMaterial] = useState(product?.options.materials[0]?.name ?? "");
+  const [size, setSize] = useState(
+    product ? (product.options.sizes[1] ?? product.options.sizes[0])?.name ?? "" : ""
+  );
+  const [text, setText] = useState("");
 
   if (!product) {
     return (
@@ -32,20 +42,7 @@ export default function ProductoDetailPage() {
     );
   }
 
-  const artisan = artisans.find((a) => a.id === product.artisanId);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
   const fav = mounted && favorites.includes(product.id);
-
-  const defaultColor = product.options.colors[0];
-  const defaultMaterial = product.options.materials[0];
-  const defaultSize = product.options.sizes[1] ?? product.options.sizes[0];
-
-  const [color, setColor] = useState(defaultColor.name);
-  const [material, setMaterial] = useState(defaultMaterial.name);
-  const [size, setSize] = useState(defaultSize.name);
-  const [text, setText] = useState("");
-
   const selectedColor = product.options.colors.find((c) => c.name === color)!;
 
   return (

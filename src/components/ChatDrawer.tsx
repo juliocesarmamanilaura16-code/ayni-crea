@@ -42,10 +42,6 @@ const totalOf = (p: PriceProposal) => p.price + p.shipping;
 
 const DELIVERY_OPTIONS = ["🤝 Entrega personal", "📦 Paquetería"];
 
-function proposalMessage(p: PriceProposal): string {
-  return `¡Hola! Te propongo lo siguiente: Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.size ? `, tamaño ${p.size}` : ""}${p.days ? `, con confección de ~${p.days} días` : ""}. Si estás de acuerdo, apretá "Confirmar montos" aquí abajo. ¿Querés ajustar algo?`;
-}
-
 function amountsLine(p: PriceProposal): string {
   return `Producto Bs ${p.price} + Envío Bs ${p.shipping} = Total Bs ${totalOf(p)}${p.size ? `, tamaño ${p.size}` : ""}${p.days ? `, confección ~${p.days} días` : ""}`;
 }
@@ -504,6 +500,7 @@ export function ChatDrawer({
                       }`}
                     >
                       {m.image && (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={m.image}
                           alt="Imagen compartida en el chat"

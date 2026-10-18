@@ -139,7 +139,7 @@ function Field({
       <Input
         type={type}
         placeholder={placeholder}
-        value=""
+        value={value}
         onChange={(e) => onChange(e.target.value)}
         className="pl-10"
       />

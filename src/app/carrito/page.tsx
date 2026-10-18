@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Trash2, ArrowRight, ShoppingBag, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck, QrCode } from "lucide-react";
+import { Trash2, ArrowRight, Lock, Truck, RotateCcw, BadgeCheck, MessageCircle, CheckCheck, QrCode } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { artisans, products } from "@/data/mock";
 import { toast } from "@/components/Toast";
@@ -29,6 +29,7 @@ export default function CarritoPage() {
   const redeem = redeemInfo(user?.points ?? 0, subtotal);
   const discount = useRedeem ? redeem.discount : 0;
   const total = Math.max(0, subtotal + shipping - discount);
+  const pointsEarned = 10 + cart.length * 20;
   const maxProductionDays = cart.reduce((acc, c) => {
     const days = products.find((p) => p.id === c.productId)?.productionDays ?? 0;
     return Math.max(acc, days);
@@ -105,7 +106,7 @@ export default function CarritoPage() {
     }
     const order = placeOrder(payMethod);
     if (order) {
-      toast("¡Pedido realizado! +30 puntos Ayni");
+      toast(`¡Pedido realizado! +${pointsEarned} puntos Ayni`);
       router.push("/pedidos");
     }
   };
@@ -411,7 +412,7 @@ export default function CarritoPage() {
             </div>
           </div>
           <p className="text-[10px] text-neutral-500 text-center mt-3">
-            Ganarás 30 puntos Ayni con esta compra.
+            Ganarás {pointsEarned} puntos Ayni con esta compra.
           </p>
         </aside>
       </div>

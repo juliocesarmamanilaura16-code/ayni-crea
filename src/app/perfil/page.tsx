@@ -12,6 +12,7 @@ import { useIsDark } from "@/lib/useIsDark";
 
 export default function PerfilPage() {
   const { user, favorites, logout } = useStore();
+  const isDark = useIsDark();
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
@@ -28,7 +29,6 @@ export default function PerfilPage() {
   const level = getAynLevel(user.points);
   const progress = progressToNext(user.points);
   const favProducts = products.filter((p) => favorites.includes(p.id));
-  const isDark = useIsDark();
   const lvlColor = isDark ? level.colorDark : level.color;
 
   return (
