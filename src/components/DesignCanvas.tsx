@@ -170,6 +170,8 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
   const [gradientColors, setGradientColors] = useState(["#DC2626", "#2563EB"]);
 
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
+  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+  const panRef = useRef<{ x: number; y: number } | null>(null);
 
   const redraw = useCallback(() => {
     const c = canvasRef.current;
@@ -194,7 +196,7 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
     if (!c || !container) return;
     const rect = container.getBoundingClientRect();
     c.width = Math.max(rect.width, 600);
-    c.height = Math.max(rect.width, 600);
+    c.height = Math.max(rect.height, 600);
     ctx.current = c.getContext("2d");
     redraw();
   }, []);
@@ -339,9 +341,9 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
         break;
       }
       case "star": {
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2;
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2;
         if (layer.data.fill) { c.fillStyle = layer.data.color; }
-        const sx = layer.data.x; const sy = layer.data.y; const sr = layer.data.size || 30;
+        const sx = layer.data.x; const sy = layer.data.y; const sr = layer.data.radius || 30;
         c.beginPath();
         for (let i = 0; i < 5; i++) {
           const angle = (i * 72 - 90) * Math.PI / 180;
@@ -358,9 +360,9 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
         break;
       }
       case "heart": {
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2;
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2;
         if (layer.data.fill) { c.fillStyle = layer.data.color; }
-        const hx = layer.data.x; const hy = layer.data.y; const hr = layer.data.size || 30;
+        const hx = layer.data.x; const hy = layer.data.y; const hr = layer.data.radius || 30;
         c.beginPath();
         c.moveTo(hx, hy + hr * 0.3);
         c.bezierCurveTo(hx - hr, hy - hr * 0.5, hx - hr * 0.5, hy - hr, hx, hy - hr * 0.5);
@@ -370,27 +372,27 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
         break;
       }
       case "diamond": {
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2;
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2;
         if (layer.data.fill) { c.fillStyle = layer.data.color; }
-        const dx = layer.data.x; const dy = layer.data.y; const dr = layer.data.size || 30;
+        const dx = layer.data.x; const dy = layer.data.y; const dr = layer.data.radius || 30;
         c.beginPath();
         c.moveTo(dx, dy - dr); c.lineTo(dx + dr, dy); c.lineTo(dx, dy + dr); c.lineTo(dx - dr, dy); c.closePath();
         if (layer.data.fill) c.fill(); else c.stroke();
         break;
       }
       case "triangle": {
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2;
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2;
         if (layer.data.fill) { c.fillStyle = layer.data.color; }
-        const tx = layer.data.x; const ty = layer.data.y; const tr = layer.data.size || 30;
+        const tx = layer.data.x; const ty = layer.data.y; const tr = layer.data.radius || 30;
         c.beginPath();
         c.moveTo(tx, ty - tr); c.lineTo(tx - tr * 0.866, ty + tr * 0.5); c.lineTo(tx + tr * 0.866, ty + tr * 0.5); c.closePath();
         if (layer.data.fill) c.fill(); else c.stroke();
         break;
       }
       case "hexagon": {
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2;
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2;
         if (layer.data.fill) { c.fillStyle = layer.data.color; }
-        const hx2 = layer.data.x; const hy2 = layer.data.y; const hr2 = layer.data.size || 30;
+        const hx2 = layer.data.x; const hy2 = layer.data.y; const hr2 = layer.data.radius || 30;
         c.beginPath();
         for (let i = 0; i < 6; i++) {
           const angle = (i * 60 - 30) * Math.PI / 180;
@@ -416,13 +418,32 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
         break;
       }
       case "eraser": {
-        c.clearRect(layer.data.x - layer.data.size / 2, layer.data.y - layer.data.size / 2, layer.data.size, layer.data.size);
+        const pts = layer.data.points;
+        if (pts && pts.length >= 2) {
+          c.strokeStyle = bgColor; c.lineWidth = layer.data.size; c.lineCap = "round"; c.lineJoin = "round";
+          c.setLineDash([]);
+          c.beginPath(); c.moveTo(pts[0].x, pts[0].y);
+          pts.forEach((p: { x: number; y: number }) => c.lineTo(p.x, p.y));
+          c.stroke();
+        }
+        break;
+      }
+      case "measure": {
+        const s = { x: layer.data.x1, y: layer.data.y1 };
+        const e = { x: layer.data.x2, y: layer.data.y2 };
+        const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2);
+        const inCm = (dist / canvasSize.w * 30).toFixed(1);
+        c.strokeStyle = "#DC2626"; c.lineWidth = 1; c.setLineDash([4, 4]);
+        c.beginPath(); c.moveTo(s.x, s.y); c.lineTo(e.x, e.y); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle = "#DC2626"; c.font = "12px Arial";
+        c.fillText(`${inCm} cm`, (s.x + e.x) / 2, (s.y + e.y) / 2 - 8);
         break;
       }
       case "template": {
         const tplName = layer.data.templateName || "";
         const { x, y, w, h } = layer.data;
-        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.size || 2; c.setLineDash([]);
+        c.strokeStyle = layer.data.color; c.lineWidth = layer.data.strokeWidth || 2; c.setLineDash([]);
         c.beginPath();
         if (tplName === "Camiseta") {
           c.moveTo(x + w * 0.3, y); c.lineTo(x + w * 0.5, y);
@@ -535,7 +556,7 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
     const scaleY = c.height / rect.height;
     const clientX = e.clientX;
     const clientY = e.clientY;
-    return { x: (clientX - rect.left) * scaleX + panOffset.x, y: (clientY - rect.top) * scaleY + panOffset.y };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   };
 
   const getTouchPos = (e: React.TouchEvent) => {
@@ -546,13 +567,14 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
     const touch = e.touches[0];
     const clientX = touch.clientX;
     const clientY = touch.clientY;
-    return { x: (clientX - rect.left) * scaleX + panOffset.x, y: (clientY - rect.top) * scaleY + panOffset.y };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     const pos = getTouchPos(e);
-    if (tool === "hand") { setIsPanning(true); setStartPos(pos); return; }
+    lastPosRef.current = pos;
+    if (tool === "hand") { setIsPanning(true); setStartPos(pos); panRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; return; }
     if (tool === "measure") { setMeasureStart(pos); setMeasureEnd(pos); setIsDrawing(true); return; }
     setIsDrawing(true);
     setStartPos(pos);
@@ -561,10 +583,12 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
 
   const handleTouchMove = (e: React.TouchEvent) => {
     e.preventDefault();
-    if (!isDrawing || !startPos || tool === "hand" || tool === "measure") return;
+    if (!isDrawing || !startPos || tool === "hand") return;
     const pos = getTouchPos(e);
-    if (tool === "brush") {
-      setCurrentDraw([...currentDraw, pos]);
+    lastPosRef.current = pos;
+    if (tool === "measure") { setMeasureEnd(pos); redraw(); return; }
+    if (tool === "brush" || tool === "eraser") {
+      setCurrentDraw((prev) => [...prev, pos]);
       redraw();
       drawPreview(pos);
     }
@@ -578,7 +602,8 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const pos = getPos(e);
-    if (tool === "hand") { setIsPanning(true); setStartPos(pos); return; }
+    lastPosRef.current = pos;
+    if (tool === "hand") { setIsPanning(true); setStartPos(pos); panRef.current = { x: e.clientX, y: e.clientY }; return; }
     if (tool === "measure") { setMeasureStart(pos); setMeasureEnd(pos); setIsDrawing(true); return; }
     setIsDrawing(true);
     setStartPos(pos);
@@ -590,7 +615,7 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
     if (!c || !ctx.current || !startPos) return;
     const s = startPos;
     const e = endPos;
-    const color = brushColor;
+    const color = tool === "eraser" ? bgColor : brushColor;
     const size = brushSize;
     const style = strokeStyle;
     const dashed = style === "dashed" ? [8, 4] : style === "dotted" ? [2, 4] : [];
@@ -601,6 +626,7 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
 
     switch (tool) {
       case "brush":
+      case "eraser":
         if (currentDraw.length > 1) {
           ctx.current.beginPath();
           ctx.current.moveTo(currentDraw[0].x, currentDraw[0].y);
@@ -690,17 +716,19 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDrawing || !startPos || tool === "hand" || tool === "measure") return;
+    if (!isDrawing || !startPos || tool === "hand") return;
     const pos = getPos(e);
+    lastPosRef.current = pos;
+    if (tool === "measure") { setMeasureEnd(pos); redraw(); return; }
     redraw();
     drawPreview(pos);
-    if (tool === "brush") setCurrentDraw([...currentDraw, pos]);
+    if (tool === "brush" || tool === "eraser") setCurrentDraw((prev) => [...prev, pos]);
     if (tool === "gradient") setMeasureEnd(pos);
   };
 
   const handleMouseUp = () => {
     if (!isDrawing || !startPos) { setIsDrawing(false); setIsPanning(false); return; }
-    const endPos = currentDraw.length > 0 ? currentDraw[currentDraw.length - 1] : startPos;
+    const endPos = lastPosRef.current ?? startPos;
     setIsDrawing(false); setIsPanning(false);
     switch (tool) {
       case "brush":
@@ -728,23 +756,29 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
       case "arrow":
         addLayer({ type: "arrow", id: Date.now().toString(), data: { x1: startPos.x, y1: startPos.y, x2: endPos.x, y2: endPos.y, color: brushColor, size: brushSize }, opacity, name: "Flecha", visible: true, locked: false }); break;
       case "eraser":
-        addLayer({ type: "eraser", id: Date.now().toString(), data: { x: startPos.x, y: startPos.y, size: brushSize }, opacity, name: "Borrador", visible: true, locked: false }); break;
+        if (currentDraw.length > 1) addLayer({ type: "eraser", id: Date.now().toString(), data: { points: currentDraw, size: brushSize }, opacity, name: "Borrador", visible: true, locked: false });
+        break;
       case "fill":
         addLayer({ type: "fill", id: Date.now().toString(), data: { x: startPos.x, y: startPos.y, w: endPos.x - startPos.x, h: endPos.y - startPos.y, color: brushColor }, opacity, name: "Relleno", visible: true, locked: false }); break;
       case "gradient":
         addLayer({ type: "gradient", id: Date.now().toString(), data: { x1: startPos.x, y1: startPos.y, x2: endPos.x, y2: endPos.y, colors: gradientColors }, opacity, name: "Gradiente", visible: true, locked: false }); break;
       case "pattern": {
         const p = PATTERNS[selectedPattern];
-        addLayer({ type: "pattern", id: Date.now().toString(), data: { patternName: p.name, patternIndex: selectedPattern, x: startPos.x, y: startPos.y, w: 120, h: 120 }, opacity, name: `Patrón: ${p.name}`, visible: true, locked: false }); break;
+        const w = Math.abs(endPos.x - startPos.x) || 120;
+        const h = Math.abs(endPos.y - startPos.y) || 120;
+        addLayer({ type: "pattern", id: Date.now().toString(), data: { patternName: p.name, patternIndex: selectedPattern, x: Math.min(startPos.x, endPos.x), y: Math.min(startPos.y, endPos.y), w, h }, opacity, name: `Patrón: ${p.name}`, visible: true, locked: false }); break;
       }
       case "symbol": {
         const sym = SYMBOLS[selectedSymbol];
-        addLayer({ type: "symbol", id: Date.now().toString(), data: { symbolIndex: selectedSymbol, x: startPos.x - 30, y: startPos.y - 30, size: 60, color: brushColor }, opacity, name: `Símbolo: ${sym.name}`, visible: true, locked: false }); break;
+        const size = Math.max(Math.abs(endPos.x - startPos.x), Math.abs(endPos.y - startPos.y)) || 60;
+        addLayer({ type: "symbol", id: Date.now().toString(), data: { symbolIndex: selectedSymbol, x: (startPos.x + endPos.x) / 2 - size / 2, y: (startPos.y + endPos.y) / 2 - size / 2, size, color: brushColor }, opacity, name: `Símbolo: ${sym.name}`, visible: true, locked: false }); break;
       }
       case "templateShape": {
         const templatesInCat = TEMPLATES[selectedTemplateCategory] || DEFAULT_TEMPLATES;
         const tpl = templatesInCat[selectedTemplateIndex];
-        addLayer({ type: "template", id: Date.now().toString(), data: { templateName: tpl.name, templateCategory: selectedTemplateCategory, x: startPos.x - 80, y: startPos.y - 80, w: 160, h: 200, color: brushColor, strokeWidth: 2 }, opacity, name: `Molde: ${tpl.name}`, visible: true, locked: false }); break;
+        const w = Math.abs(endPos.x - startPos.x) || 160;
+        const h = Math.abs(endPos.y - startPos.y) || 200;
+        addLayer({ type: "template", id: Date.now().toString(), data: { templateName: tpl.name, templateCategory: selectedTemplateCategory, x: Math.min(startPos.x, endPos.x), y: Math.min(startPos.y, endPos.y), w, h, color: brushColor, strokeWidth: 2 }, opacity, name: `Molde: ${tpl.name}`, visible: true, locked: false }); break;
       }
       case "measure":
         setMeasureEnd(endPos);
@@ -756,6 +790,7 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
     }
     setCurrentDraw([]);
     setStartPos(null);
+    lastPosRef.current = null;
     setMeasureStart(null);
     setMeasureEnd(null);
   };
@@ -823,11 +858,11 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
   const canvasStyle = useMemo(() => ({
     width: "100%",
     height: "auto",
-    transform: `scale(${zoom})`,
+    transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
     transformOrigin: "center center",
     display: "block" as const,
     touchAction: "none" as const,
-  }), [zoom]);
+  }), [zoom, panOffset]);
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -985,11 +1020,11 @@ export function DesignCanvas({ onDesignChange, exportRef }: { uploadedImage?: st
       </AnimatePresence>
 
       {/* Canvas */}
-      <div ref={containerRef} className="relative rounded-2xl overflow-hidden border-2 border-border shadow-card bg-neutral-100" style={{ cursor: tool === "hand" ? "grab" : "crosshair", touchAction: "none" }} onMouseDown={(e) => { if (tool === "hand") { e.preventDefault(); handleMouseDown(e); } }} onMouseMove={(e) => { if (tool === "hand" && isPanning) { const pos = getPos(e); const dx = pos.x - startPos!.x; const dy = pos.y - startPos!.y; setPanOffset({ x: panOffset.x + dx, y: panOffset.y + dy }); setStartPos(pos); } }} onMouseUp={() => { setIsPanning(false); }} onMouseLeave={() => { setIsPanning(false); }} onTouchStart={(e) => { if (tool === "hand") { e.preventDefault(); handleTouchStart(e); } }} onTouchMove={(e) => { if (tool === "hand" && isPanning) { e.preventDefault(); const pos = getTouchPos(e); const dx = pos.x - startPos!.x; const dy = pos.y - startPos!.y; setPanOffset({ x: panOffset.x + dx, y: panOffset.y + dy }); setStartPos(pos); } }} onTouchEnd={() => { setIsPanning(false); }} onTouchCancel={() => { setIsPanning(false); }}>
+      <div ref={containerRef} className="relative rounded-2xl overflow-hidden border-2 border-border shadow-card bg-neutral-100" style={{ cursor: tool === "hand" ? "grab" : "crosshair", touchAction: "none" }} onMouseDown={(e) => { if (tool === "hand") { e.preventDefault(); handleMouseDown(e); } }} onMouseMove={(e) => { if (tool === "hand" && isPanning && panRef.current) { const dx = e.clientX - panRef.current.x; const dy = e.clientY - panRef.current.y; setPanOffset((p) => ({ x: p.x + dx, y: p.y + dy })); panRef.current = { x: e.clientX, y: e.clientY }; } }} onMouseUp={() => { setIsPanning(false); panRef.current = null; }} onMouseLeave={() => { setIsPanning(false); panRef.current = null; }} onTouchStart={(e) => { if (tool === "hand") { e.preventDefault(); handleTouchStart(e); } }} onTouchMove={(e) => { if (tool === "hand" && isPanning && panRef.current) { e.preventDefault(); const t = e.touches[0]; const dx = t.clientX - panRef.current.x; const dy = t.clientY - panRef.current.y; setPanOffset((p) => ({ x: p.x + dx, y: p.y + dy })); panRef.current = { x: t.clientX, y: t.clientY }; } }} onTouchEnd={() => { setIsPanning(false); panRef.current = null; }} onTouchCancel={() => { setIsPanning(false); panRef.current = null; }}>
         <canvas
           ref={canvasRef}
           onMouseDown={(e) => { if (tool !== "hand") handleMouseDown(e); }}
-          onMouseMove={(e) => { if (tool !== "hand" && tool !== "measure") handleMouseMove(e); }}
+          onMouseMove={(e) => { if (tool !== "hand") handleMouseMove(e); }}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           onTouchStart={handleTouchStart}

@@ -17,6 +17,7 @@ export function ProductPreview({
   text: string;
 }) {
   const sizeScale = size === "Grande" ? 1.15 : size === "Pequeño" ? 0.85 : 1;
+  const hasColor = !!color && color !== "transparent";
 
   return (
     <div className="relative w-full aspect-square rounded-3xl overflow-hidden bg-neutral-100 shadow-soft">
@@ -35,12 +36,14 @@ export function ProductPreview({
           style={{ filter: "saturate(1.05)" }}
         />
       </motion.div>
-      <motion.div
-        className="absolute inset-0 mix-blend-multiply"
-        animate={{ backgroundColor: color }}
-        transition={{ duration: 0.4 }}
-        style={{ opacity: 0.55 }}
-      />
+      {hasColor && (
+        <motion.div
+          className="absolute inset-0 mix-blend-multiply"
+          animate={{ backgroundColor: color }}
+          transition={{ duration: 0.4 }}
+          style={{ opacity: 0.55 }}
+        />
+      )}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -60,12 +63,16 @@ export function ProductPreview({
         </motion.div>
       )}
       <div className="absolute bottom-3 left-3 right-3 flex gap-2 flex-wrap">
-        <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10px] font-medium text-secondary dark:text-neutral-900">
-          {material}
-        </span>
-        <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10px] font-medium text-secondary dark:text-neutral-900">
-          Tamaño {size}
-        </span>
+        {material && (
+          <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10px] font-medium text-secondary dark:text-neutral-900">
+            {material}
+          </span>
+        )}
+        {size && (
+          <span className="px-2.5 py-1 rounded-full bg-white/90 backdrop-blur text-[10px] font-medium text-secondary dark:text-neutral-900">
+            Tamaño {size}
+          </span>
+        )}
       </div>
     </div>
   );

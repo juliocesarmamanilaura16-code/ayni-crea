@@ -1,17 +1,28 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, Compass } from "lucide-react";
 import { products, artisans } from "@/data/mock";
 import { ProductPreview } from "@/components/ProductPreview";
 import { Button } from "@/components/Button";
+import { DESIGN_IMAGE_KEY, DESIGN_NAME_KEY } from "@/lib/design";
 
 export default function CustomizerPage() {
   const params = useParams<{ productId: string }>();
   const router = useRouter();
   const product = products.find((p) => p.id === params.productId);
+
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem(DESIGN_IMAGE_KEY);
+      sessionStorage.removeItem(DESIGN_NAME_KEY);
+    } catch {
+      /* noop */
+    }
+  }, []);
 
   if (!product) {
     return (
@@ -51,7 +62,7 @@ export default function CustomizerPage() {
           <div className="mt-6">
             <ProductPreview
               image={product.image}
-              color="#000000"
+              color=""
               material=""
               size=""
               text=""
