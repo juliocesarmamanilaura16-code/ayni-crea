@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
-import styles from "./login.module.css";
+import styles from "@/components/auth.module.css";
 
 export default function LoginPage() {
   const router = useRouter();

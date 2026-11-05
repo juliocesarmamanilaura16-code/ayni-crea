@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Mail, Lock } from "lucide-react";
+import { ArrowRight, AtSign, Lock, Mail, User } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
-import { Button } from "@/components/Button";
-import { Input } from "@/components/ui/Input";
+import styles from "@/components/auth.module.css";
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -40,125 +39,143 @@ export default function RegistroPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-10">
-      <motion.div
+    <div className="max-w-lg mx-auto px-4 py-10">
+      <motion.form
+        onSubmit={submit}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl border border-border p-7 shadow-soft"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className={styles.form}
       >
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-secondary grid place-items-center shadow-soft">
-            <Sparkles className="w-4 h-4 text-primary" />
-          </div>
-          <span className="font-display font-bold text-secondary">Ayni Crea</span>
-        </div>
-        <h1 className="font-display text-2xl font-extrabold mt-3 text-secondary">Crear cuenta</h1>
-        <p className="text-sm text-neutral-500">
-          ¿Cómo quieres usar Ayni Crea?
-        </p>
-
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          <button
-            type="button"
-            onClick={() => setRole("client")}
-            className={`p-4 rounded-xl border text-left transition-all ${
-              role === "client"
-                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
-            }`}
-          >
-            <p className="font-display font-bold text-secondary">Quiero crear y comprar</p>
-            <p className="text-[11px] text-neutral-500 mt-0.5">Diseña productos únicos</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole("artisan")}
-            className={`p-4 rounded-xl border text-left transition-all ${
-              role === "artisan"
-                ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                : "border-border bg-white hover:border-primary/40 dark:bg-neutral-800"
-            }`}
-          >
-            <p className="font-display font-bold text-secondary">Soy artesano</p>
-            <p className="text-[11px] text-neutral-500 mt-0.5">Recibe pedidos personalizados</p>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mt-4">
-          <div>
-            <label className="text-[10px] font-medium text-neutral-700 dark:text-neutral-300">Nombre completo</label>
-            <Input
-              type="text"
-              placeholder="Nombre completo"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-medium text-neutral-700 dark:text-neutral-300">Nombre de usuario</label>
-            <Input
-              type="text"
-              placeholder="Nombre de usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-          </div>
-        </div>
-
-        <form onSubmit={submit} className="mt-5 space-y-3">
-          <Field icon={Mail} type="email" placeholder="Correo electrónico" value={email} onChange={setEmail} />
-          <Field icon={Lock} type="password" placeholder="Contraseña" value={pwd} onChange={setPwd} />
-
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            fullWidth
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
+        <div className="text-center">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#151717]/60">
+            Únete a Ayni Crea
+          </span>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-[#151717]">
             Crear cuenta
-          </Button>
-        </form>
+          </h1>
+          <p className="mt-1 text-sm leading-relaxed text-[#151717]/70">
+            Elige cómo quieres usar Ayni Crea.
+          </p>
+          <span className="mx-auto mt-3 block h-1 w-12 rounded-full bg-[#151717]/80" />
+        </div>
 
-        <p className="text-xs text-neutral-500 mt-5 text-center">
+        <div className={styles.field}>
+          <span className={styles.label}>Quiero usar Ayni Crea como</span>
+          <div className={styles.roleRow}>
+            <button
+              type="button"
+              onClick={() => setRole("client")}
+              aria-pressed={role === "client"}
+              className={`${styles.roleCard} ${role === "client" ? styles.roleCardActive : ""}`}
+            >
+              <span className={styles.roleTitle}>Cliente</span>
+              <span className={styles.roleSubtitle}>Diseña y compra</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("artisan")}
+              aria-pressed={role === "artisan"}
+              className={`${styles.roleCard} ${role === "artisan" ? styles.roleCardActive : ""}`}
+            >
+              <span className={styles.roleTitle}>Artesano</span>
+              <span className={styles.roleSubtitle}>Recibe pedidos</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className={styles.field}>
+            <label htmlFor="reg-name" className={styles.label}>
+              Nombre completo
+            </label>
+            <div className={styles.inputForm}>
+              <User className={styles.icon} />
+              <input
+                id="reg-name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                placeholder="Nombre completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+          </div>
+          <div className={styles.field}>
+            <label htmlFor="reg-username" className={styles.label}>
+              Nombre de usuario
+            </label>
+            <div className={styles.inputForm}>
+              <AtSign className={styles.icon} />
+              <input
+                id="reg-username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                placeholder="Nombre de usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={styles.input}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="reg-email" className={styles.label}>
+            Correo electrónico
+          </label>
+          <div className={styles.inputForm}>
+            <Mail className={styles.icon} />
+            <input
+              id="reg-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.input}
+            />
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="reg-password" className={styles.label}>
+            Contraseña
+          </label>
+          <div className={styles.inputForm}>
+            <Lock className={styles.icon} />
+            <input
+              id="reg-password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Contraseña"
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
+              className={styles.input}
+            />
+          </div>
+        </div>
+
+        <button type="submit" className={styles.submit}>
+          Crear cuenta
+          <ArrowRight className="w-4 h-4" />
+        </button>
+
+        <p className={styles.footerText}>
           ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-primary font-semibold hover:underline">
+          <Link href="/login" className={styles.footerLink}>
             Iniciar sesión
           </Link>
         </p>
-        <p className="text-[10px] text-neutral-400 text-center mt-2">
+        <p className={styles.disclaimer}>
           Prototipo: la autenticación es simulada (no se envía información a ningún servidor).
         </p>
-      </motion.div>
-    </div>
-  );
-}
-
-function Field({
-  icon: Icon,
-  type,
-  placeholder,
-  value,
-  onChange,
-}: {
-  icon: typeof Sparkles;
-  type: string;
-  placeholder: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-      <Input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="pl-10"
-      />
+      </motion.form>
     </div>
   );
 }

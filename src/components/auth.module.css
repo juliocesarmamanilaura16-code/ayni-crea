@@ -77,7 +77,7 @@
 .roleRow {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   gap: 10px;
 }
 
@@ -102,6 +102,42 @@
   border-color: #ffffff;
   background: #ffffff;
   box-shadow: 0 6px 18px rgba(21, 23, 23, 0.14);
+}
+
+.roleCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.28);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.roleCard:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.roleCardActive {
+  border-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(21, 23, 23, 0.14);
+}
+
+.roleTitle {
+  color: #151717;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.roleSubtitle {
+  color: rgba(21, 23, 23, 0.65);
+  font-size: 11px;
 }
 
 .submit {
@@ -163,12 +199,17 @@
   .form {
     padding: 22px;
   }
+
+  .roleCard {
+    padding: 10px 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .form,
   .submit,
-  .roleButton {
+  .roleButton,
+  .roleCard {
     transition: none;
   }
 }
