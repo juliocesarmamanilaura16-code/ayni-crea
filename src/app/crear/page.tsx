@@ -10,7 +10,7 @@ import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { DesignCanvas } from "@/components/DesignCanvas";
 import { toast } from "@/components/Toast";
-import { DESIGN_IMAGE_KEY, DESIGN_NAME_KEY } from "@/lib/design";
+import { DESIGN_IMAGE_KEY, DESIGN_NAME_KEY, MAX_IMAGE_LABEL, validateImageDataUrl, validateImageFile } from "@/lib/design";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun,
@@ -51,7 +51,8 @@ export default function CrearPage() {
       }
       sessionStorage.setItem(DESIGN_NAME_KEY, productName.trim());
     } catch {
-      /* noop */
+      toast("No se pudo guardar el diseño: la imagen es demasiado grande.", "error");
+      return;
     }
     router.push(`/crear/${template.id}/elegir-artesano`);
   };
@@ -60,6 +61,11 @@ export default function CrearPage() {
     const image = exportRef.current?.toImage() ?? null;
     if (!image) {
       toast("Dibujá algo en el lienzo antes de subir tu diseño");
+      return;
+    }
+    const error = validateImageDataUrl(image);
+    if (error) {
+      toast(error, "error");
       return;
     }
     setUploadedImage(image);
@@ -83,6 +89,12 @@ export default function CrearPage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const error = validateImageFile(file);
+    if (error) {
+      toast(error, "error");
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       setUploadedImage(ev.target?.result as string);
@@ -96,11 +108,15 @@ export default function CrearPage() {
     setDragOver(false);
     setShowDropZone(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (ev) => { setUploadedImage(ev.target?.result as string); };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    const error = validateImageFile(file);
+    if (error) {
+      toast(error, "error");
+      return;
     }
+    const reader = new FileReader();
+    reader.onload = (ev) => { setUploadedImage(ev.target?.result as string); };
+    reader.readAsDataURL(file);
   };
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragOver(true); };
@@ -233,7 +249,7 @@ export default function CrearPage() {
                         <p className={`font-bold text-sm ${dragOver ? "text-orange-600" : "text-neutral-900"}`}>
                           {dragOver ? "¡Suelta el diseño aquí!" : "Arrastrá tu diseño aquí"}
                         </p>
-                        <p className="text-[10px] text-neutral-500 mt-1">JPG, PNG, WEBP hasta 10MB</p>
+                        <p className="text-[10px] text-neutral-500 mt-1">JPG, PNG, WEBP hasta {MAX_IMAGE_LABEL}</p>
                       </div>
                     </motion.div>
                   )}

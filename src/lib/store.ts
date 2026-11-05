@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Customization, Order, User } from "@/types";
 import { nextOrderStatus } from "@/types";
+import { pointsForPurchase } from "@/lib/pricing";
 
 type CartItem = {
   productId: string;
@@ -34,7 +35,7 @@ type State = {
   setAgreed: (index: number) => void;
   markPaid: (artisanId: string, amount: number) => void;
   clearCart: () => void;
-  placeOrder: (paymentMethod?: "qr" | "contra-entrega") => Order | null;
+  placeOrder: (paymentMethod?: "qr" | "contra-entrega", discount?: number) => Order | null;
   advanceOrder: (orderId: string) => void;
   rateOrder: (orderId: string, rating: number, comment: string) => void;
   toggleFavorite: (productId: string) => void;
@@ -51,7 +52,7 @@ function resetChatsForNewPurchase() {
     const keys: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && (k.startsWith("ayni-chat-") || k === "ayni-agreed-prices" || k === "ayni-paid-artisans")) {
+      if (k && k.startsWith("ayni-chat-")) {
         keys.push(k);
       }
     }
@@ -106,25 +107,34 @@ export const useStore = create<State>()(
       markPaid: (artisanId, amount) =>
         set((s) => ({ paidAmounts: { ...s.paidAmounts, [artisanId]: amount } })),
       clearCart: () => set({ cart: [] }),
-      placeOrder: (paymentMethod = "qr") => {
+      placeOrder: (paymentMethod = "qr", discount = 0) => {
         const { user, cart } = get();
         if (!user || cart.length === 0) return null;
-        const newOrders: Order[] = cart.map((c, i) => ({
-          id: `o-${Date.now()}-${i}`,
-          clientId: user.id,
-          artisanId: c.artisanId,
-          productId: c.productId,
-          productName: c.productName,
-          productImage: c.productImage,
-          shippingMethod: c.shippingMethod ?? "",
-          notes: c.notes,
-          customization: c.customization,
-          shipping: c.shipping,
-          total: c.customization.price + c.shipping,
-          status: "realizado",
-          createdAt: new Date().toISOString(),
-          paymentMethod,
-        }));
+        // El descuento es a nivel de carrito: se reparte entre los pedidos
+        // para que la suma de `total` coincida con el total mostrado.
+        let remainingDiscount = Math.max(0, discount);
+        const newOrders: Order[] = cart.map((c, i) => {
+          const subtotal = c.customization.price + c.shipping;
+          const orderDiscount = Math.min(remainingDiscount, subtotal);
+          remainingDiscount -= orderDiscount;
+          return {
+            id: `o-${Date.now()}-${i}`,
+            clientId: user.id,
+            artisanId: c.artisanId,
+            productId: c.productId,
+            productName: c.productName,
+            productImage: c.productImage,
+            shippingMethod: c.shippingMethod ?? "",
+            notes: c.notes,
+            customization: c.customization,
+            shipping: c.shipping,
+            discount: orderDiscount,
+            total: subtotal - orderDiscount,
+            status: "realizado",
+            createdAt: new Date().toISOString(),
+            paymentMethod,
+          };
+        });
         const orderedArtisans = [...new Set(cart.map((c) => c.artisanId))];
         resetChatsForNewPurchase();
         set((s) => {
@@ -136,7 +146,10 @@ export const useStore = create<State>()(
             orders: [...newOrders, ...s.orders],
             cart: [],
             paidAmounts,
-            user: { ...s.user!, points: s.user!.points + 10 + newOrders.length * 20 },
+            user: {
+              ...s.user!,
+              points: s.user!.points + pointsForPurchase(newOrders.length),
+            },
           };
         });
         return newOrders[0];

@@ -10,8 +10,6 @@ import { OrderTimeline } from "@/components/OrderTimeline";
 import { Button } from "@/components/Button";
 import { toast } from "@/components/Toast";
 
-export const dynamic = "force-dynamic";
-
 const STAT_COLORS = ["#0A0A0A", "#FF6B00", "#10B981", "#D4A843"];
 
 export default function DashboardPage() {

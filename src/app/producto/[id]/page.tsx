@@ -45,6 +45,26 @@ export default function ProductoDetailPage() {
   const fav = mounted && favorites.includes(product.id);
   const selectedColor = product.options.colors.find((c) => c.name === color)!;
 
+  const share = async () => {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share({
+          title: product.name,
+          text: product.description,
+          url,
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast("Enlace copiado al portapapeles");
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      toast("No se pudo compartir el enlace", "error");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
       <button
@@ -240,7 +260,10 @@ export default function ProductoDetailPage() {
               <Heart className={cn("w-5 h-5 transition-colors", fav ? "fill-primary text-primary" : "text-neutral-600")} />
               <span className="text-sm font-medium text-secondary">{fav ? "Guardado" : "Guardar"}</span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border hover:shadow-card transition">
+            <button
+              onClick={share}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border hover:shadow-card transition"
+            >
               <Package className="w-5 h-5 text-neutral-600" />
               <span className="text-sm font-medium text-secondary">Compartir</span>
             </button>

@@ -31,6 +31,7 @@ create table if not exists orders (
   product_image text,
   customization jsonb not null default '{}',
   shipping numeric not null default 0,
+  discount numeric not null default 0,
   total numeric not null default 0,
   shipping_method text default '',
   payment_method text default 'qr' check (payment_method in ('qr', 'contra-entrega')),

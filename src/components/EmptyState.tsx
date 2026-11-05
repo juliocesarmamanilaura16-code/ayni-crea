@@ -73,7 +73,13 @@ export function EmptyState({
   className,
   preset,
 }: EmptyStateProps & { preset?: keyof typeof presets }) {
-  const config = preset ? presets[preset] : { icon: Icon, title, description, action };
+  const presetConfig = preset ? presets[preset] : undefined;
+  const config = {
+    icon: Icon ?? presetConfig?.icon,
+    title: title ?? presetConfig?.title,
+    description: description ?? presetConfig?.description,
+    action: action ?? presetConfig?.action,
+  };
   const IconComp = config.icon || Inbox;
 
   if (variant === "compact") {

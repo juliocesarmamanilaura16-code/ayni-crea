@@ -29,6 +29,11 @@ export function progressToNext(points: number): { pct: number; next?: string } {
 export const AYN_POINTS_PER_BLOCK = 100;
 export const AYN_BS_PER_BLOCK = 10;
 
+/* Puntos otorgados por compra: base + bono por cada pieza */
+export function pointsForPurchase(itemCount: number): number {
+  return 10 + itemCount * 20;
+}
+
 export function redeemInfo(points: number, subtotal: number): {
   blocks: number;
   discount: number;

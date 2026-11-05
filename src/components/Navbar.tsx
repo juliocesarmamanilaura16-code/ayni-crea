@@ -87,27 +87,27 @@ export function Navbar() {
             );
           })}
           {user?.role === "artisan" ? (
-            <a
+            <Link
               href="/dashboard"
               className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-primary"
             >
               <span className="relative z-10">Panel</span>
-            </a>
+            </Link>
           ) : null}
           {user?.role === "artisan" ? (
-            <a
+            <Link
               href="/pedidos"
               className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
             >
               <span className="relative z-10">Pedidos</span>
-            </a>
+            </Link>
           ) : (
-            <a
+            <Link
               href="/carrito"
               className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
             >
               <span className="relative z-10">Carrito</span>
-            </a>
+            </Link>
           )}
         </nav>
 

@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { MessageCircle, Send, X, ImagePlus } from "lucide-react";
 import type { Artisan } from "@/types";
+import { validateImageFile } from "@/lib/design";
+import { toast } from "./Toast";
 
 type ChatMessage = {
   id: string;
@@ -17,6 +19,22 @@ type ChatMessage = {
 
 function storageKey(artisanId: string, threadId?: string | null) {
   return threadId ? `ayni-chat-${threadId}` : `ayni-chat-${artisanId}`;
+}
+
+function isReadyText(text: string): boolean {
+  const lower = text.toLowerCase();
+  return (
+    lower.includes("listo") ||
+    lower.includes("de acuerdo") ||
+    lower.includes("confirmo") ||
+    lower.includes("acepto") ||
+    lower.includes("dale") ||
+    lower.includes("perfecto") ||
+    lower.includes("genial") ||
+    lower === "ok" ||
+    lower === "sí" ||
+    lower === "si"
+  );
 }
 
 export function chatDoneKey(artisanId: string) {
@@ -140,6 +158,8 @@ export function ChatDrawer({
   const proposalSentRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const replyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const quotaWarnedRef = useRef(false);
 
   const proposalPrice = proposal?.price;
   const proposalShipping = proposal?.shipping;
@@ -147,6 +167,10 @@ export function ChatDrawer({
 
   useEffect(() => {
     if (open && artisan) {
+      if (replyTimerRef.current) {
+        clearTimeout(replyTimerRef.current);
+        replyTimerRef.current = null;
+      }
       const initialProposal = proposal ? { ...proposal } : null;
       setLiveProposal(initialProposal);
       setArtisanReplied(false);
@@ -163,16 +187,27 @@ export function ChatDrawer({
           if (stored.some((m) => m.from === "artisan" && m.text.includes("10% de descuento"))) {
             discountGivenRef.current = true;
           }
-          if (stored.some((m) => m.from === "artisan" && m.text.includes("Te propongo"))) {
-            proposalSentRef.current = true;
-            setProposalSent(true);
-          }
           const clientChoice = stored.find(
             (m) => m.from === "client" && (m.text.toLowerCase().includes("personal") || m.text.toLowerCase().includes("paquet"))
           );
           if (clientChoice) {
             methodRef.current = clientChoice.text.toLowerCase().includes("personal") ? "personal" : "paqueteria";
           }
+          const proposalWasSent =
+            Boolean(methodRef.current) ||
+            stored.some(
+              (m) =>
+                m.from === "artisan" &&
+                (m.text.includes("Te propongo") ||
+                  m.text.includes("quedamos en") ||
+                  m.text.includes("Mi propuesta"))
+            );
+          proposalSentRef.current = proposalWasSent;
+          setProposalSent(proposalWasSent);
+          setArtisanReplied(stored.some((m) => m.from === "artisan"));
+          setClientReady(
+            stored.some((m) => m.from === "client" && isReadyText(m.text))
+          );
           setMessages(stored);
         } else {
           // Saludo inicial + el diseño ya recibido + pedido de detalles (sin costos todavía)
@@ -215,17 +250,45 @@ export function ChatDrawer({
         setMessages([]);
       }
     }
-  }, [open, artisan?.id, threadId, proposalPrice, proposalShipping, proposalDays]);
+  }, [
+    open,
+    artisan?.id,
+    threadId,
+    proposalPrice,
+    proposalShipping,
+    proposalDays,
+    designImage,
+    productName,
+    askDelivery,
+  ]);
 
   useEffect(() => {
     if (open && artisan && messages.length > 0) {
       try {
         localStorage.setItem(storageKey(artisan.id, threadId), JSON.stringify(messages));
+        quotaWarnedRef.current = false;
       } catch {
-        /* noop */
+        if (!quotaWarnedRef.current) {
+          quotaWarnedRef.current = true;
+          toast("No se pudo guardar el chat: se alcanzó el límite de almacenamiento.", "error");
+        }
       }
     }
   }, [messages, open, artisan, threadId]);
+
+  useEffect(() => {
+    if (!open && replyTimerRef.current) {
+      clearTimeout(replyTimerRef.current);
+      replyTimerRef.current = null;
+    }
+  }, [open]);
+
+  useEffect(
+    () => () => {
+      if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
+    },
+    []
+  );
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -250,15 +313,10 @@ export function ChatDrawer({
     const hasAny = (...words: string[]) => words.some((w) => lower.includes(w));
     const wantsMethod = !!snapshot && (lower.includes("personal") || lower.includes("paquet"));
     const wantsDiscount = !!snapshot && hasAny("descuento", "rebaja", "barato", "oferta");
-    const saysReady =
-      lower.includes("listo") ||
-      lower.includes("de acuerdo") ||
-      lower.includes("confirmo") ||
-      lower.includes("acepto") ||
-      lower.includes("dale") ||
-      lower.includes("perfecto") ||
-      lower.includes("genial");
-    setTimeout(() => {
+    const saysReady = isReadyText(inputText);
+    if (replyTimerRef.current) clearTimeout(replyTimerRef.current);
+    replyTimerRef.current = setTimeout(() => {
+      replyTimerRef.current = null;
       setArtisanReplied(true);
 
       // 1) Imagen: celebrar y encaminar la charla (todavía sin costos)
@@ -378,21 +436,7 @@ export function ChatDrawer({
 
   const sendClientText = (text: string) => {
     if (!artisan) return;
-    const lower = text.toLowerCase();
-    if (
-      lower.includes("listo") ||
-      lower.includes("de acuerdo") ||
-      lower.includes("confirmo") ||
-      lower.includes("acepto") ||
-      lower.includes("dale") ||
-      lower.includes("perfecto") ||
-      lower.includes("genial") ||
-      lower === "ok" ||
-      lower === "sí" ||
-      lower === "si"
-    ) {
-      setClientReady(true);
-    }
+    if (isReadyText(text)) setClientReady(true);
     const userMsg: ChatMessage = {
       id: `m-${Date.now()}`,
       from: "client",
@@ -411,6 +455,12 @@ export function ChatDrawer({
   const sendImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !artisan) return;
+    const error = validateImageFile(file);
+    if (error) {
+      toast(error, "error");
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const image = ev.target?.result as string;

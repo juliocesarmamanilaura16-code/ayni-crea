@@ -165,7 +165,8 @@ export default function PedidosPage() {
                             Resumen
                           </p>
                           <p className="text-secondary">
-                            Producto Bs {o.customization.price} + Envío Bs {o.shipping} = Bs {o.total}
+                            Producto Bs {o.customization.price} + Envío Bs {o.shipping}
+                            {o.discount ? ` − Descuento Bs ${o.discount}` : ""} = Bs {o.total}
                           </p>
                           <p className="text-secondary mt-1 text-[13px]">
                             Tamaño: {o.customization.size || "A convenir"}

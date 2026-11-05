@@ -13,7 +13,7 @@ import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { methodLabel } from "@/lib/design";
-import { redeemInfo } from "@/lib/pricing";
+import { pointsForPurchase, redeemInfo } from "@/lib/pricing";
 import type { Artisan } from "@/types";
 
 export default function CarritoPage() {
@@ -29,7 +29,7 @@ export default function CarritoPage() {
   const redeem = redeemInfo(user?.points ?? 0, subtotal);
   const discount = useRedeem ? redeem.discount : 0;
   const total = Math.max(0, subtotal + shipping - discount);
-  const pointsEarned = 10 + cart.length * 20;
+  const pointsEarned = pointsForPurchase(cart.length);
   const maxProductionDays = cart.reduce((acc, c) => {
     const days = products.find((p) => p.id === c.productId)?.productionDays ?? 0;
     return Math.max(acc, days);
@@ -104,7 +104,7 @@ export default function CarritoPage() {
         return;
       }
     }
-    const order = placeOrder(payMethod);
+    const order = placeOrder(payMethod, useRedeem ? redeem.discount : 0);
     if (order) {
       toast(`¡Pedido realizado! +${pointsEarned} puntos Ayni`);
       router.push("/pedidos");
@@ -145,7 +145,7 @@ export default function CarritoPage() {
             const sizeOptions = products.find((p) => p.id === item.productId)?.options.sizes ?? [];
             return (
               <div
-                key={i}
+                key={item.chatThread || `${item.artisanId}-${item.productId}-${i}`}
                 className="bg-white rounded-2xl border border-border p-4 shadow-card flex gap-4 hover:shadow-lift transition-shadow"
               >
                 <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0">
@@ -271,7 +271,10 @@ export default function CarritoPage() {
           )}
           <div className="mt-2 space-y-1">
             {cart.map((c, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs">
+              <div
+                key={c.chatThread || `${c.artisanId}-${c.productId}-${idx}`}
+                className="flex items-center justify-between text-xs"
+              >
                 <span className="text-neutral-500 truncate">
                   Tamaño · {c.productName}
                   {c.shippingMethod ? ` · ${methodLabel(c.shippingMethod)}` : ""}

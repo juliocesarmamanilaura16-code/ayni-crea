@@ -102,6 +102,7 @@ export type Order = {
   notes: string;
   customization: Customization;
   shipping: number;
+  discount?: number;
   total: number;
   status: OrderStatus;
   createdAt: string;
