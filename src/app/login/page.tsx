@@ -49,7 +49,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4 py-12 text-white font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] px-4 py-12 text-[var(--color-text-primary)] font-sans">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,20 +57,21 @@ export default function AuthPage() {
         className={styles.form}
       >
         <div className="text-center mb-8">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] rgba(255,255,255,0.6)">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--color-text-muted)]">
             Ayni Crea
           </span>
-          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-white">
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
             {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
           </h1>
-          <p className="mt-1 text-sm leading-relaxed rgba(255,255,255,0.7)">
+          <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
             {mode === "login"
               ? "Ingresa para personalizar y seguir tus pedidos."
               : "Únete y comienza a comprar o vender artesanías."}
           </p>
+          <span className="mx-auto mt-3 block h-1 w-12 rounded-full bg-[var(--color-text-primary)]/20" />
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-6">
+        <div className={styles.toggleWrapper}>
           <button
             type="button"
             onClick={() => setMode("login")}
