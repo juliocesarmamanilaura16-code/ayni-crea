@@ -156,11 +156,6 @@ export default function HomePage() {
                   Crear mi producto
                 </Button>
               </Link>
-              <Link href="/artesanos">
-                <Button variant="glass" size="lg">
-                  Explorar artesanos
-                </Button>
-              </Link>
             </motion.div>
 
             {/* Puntos Ayni si está logueado */}
