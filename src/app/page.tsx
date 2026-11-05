@@ -69,20 +69,20 @@ export default function HomePage() {
   const avgRating =
     artisans.reduce((acc, a) => acc + a.rating, 0) / Math.max(1, artisans.length);
 
-  /* Fondo del hero según tema: 0x5b4d44 en claro, 0x4c2300 en oscuro */
+  /* Fondo del hero según tema: 0x5b4d44 en claro, 0x472000 en oscuro */
   const heroDark = useIsDark();
-  const heroBg = heroDark ? 0x4c2300 : 0x5b4d44;
+  const heroBg = heroDark ? 0x472000 : 0x5b4d44;
 
   return (
     <>
       {/* ============ HERO ============ */}
       <section
         className="relative overflow-hidden"
-        style={{ backgroundColor: heroDark ? "#4c2300" : "#5b4d44" }}
+        style={{ backgroundColor: heroDark ? "#472000" : "#5b4d44" }}
       >
         {/* Vanta WAVES — fondo 3D animado (cambia con el tema) */}
         <VantaWaves
-          color={0xff6b00}
+          color={0x472000}
           shininess={55}
           waveHeight={14}
           waveSpeed={0.7}
@@ -90,10 +90,6 @@ export default function HomePage() {
           backgroundAlpha={1}
           backgroundColor={heroBg}
         />
-        {/* Overlay gradiente para legibilidad del texto (también cambia con el tema) */}
-        <div className={`absolute inset-0 bg-gradient-to-r pointer-events-none z-[1] ${heroDark ? "from-[#331a00]/95 via-[#331a00]/70" : "from-[#443a31]/95 via-[#443a31]/60"} to-transparent`} />
-        <div className={`absolute inset-0 bg-gradient-to-t pointer-events-none z-[1] ${heroDark ? "from-[#331a00]/85" : "from-[#443a31]/85"} via-transparent to-transparent`} />
-
         <div className="relative z-[2] max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <motion.div
@@ -356,10 +352,9 @@ export default function HomePage() {
         </motion.div>
         {/* Mosaico masonry con animación de entrada por tarjeta */}
         <div className="columns-2 md:columns-3 xl:columns-4 gap-5">
-          {categories.map((c, i) => {
+          {categories.map((c) => {
             const Icon = iconMap[c.icon] ?? Shirt;
             const count = products.filter((p) => p.categoryId === c.id).length;
-            const visualH = ["h-40", "h-56", "h-32", "h-48", "h-52", "h-36", "h-44", "h-60"][i % 8];
             return (
               <div key={c.id} className="cat-animation-layer mb-5 break-inside-avoid">
               <motion.div whileHover={{ y: -5 }}>
@@ -369,7 +364,7 @@ export default function HomePage() {
                   className="group block bg-white dark:bg-neutral-900 rounded-3xl border border-border dark:border-neutral-800 shadow-card hover:shadow-[0_16px_36px_-10px_var(--cat-shadow)] hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300 overflow-hidden"
                 >
                   <div
-                    className={`relative overflow-hidden ${visualH}`}
+                    className="relative overflow-hidden h-48"
                     style={c.image ? undefined : { background: `linear-gradient(135deg, ${c.color}30, ${c.color}08)` }}
                   >
                     {c.image ? (

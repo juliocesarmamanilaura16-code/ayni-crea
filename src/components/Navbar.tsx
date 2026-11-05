@@ -101,14 +101,7 @@ export function Navbar() {
             >
               <span className="relative z-10">Pedidos</span>
             </Link>
-          ) : (
-            <Link
-              href="/carrito"
-              className="relative px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-200 text-neutral-500 dark:text-neutral-400"
-            >
-              <span className="relative z-10">Carrito</span>
-            </Link>
-          )}
+          ) : null}
         </nav>
 
         <div className="flex items-center gap-1.5">
