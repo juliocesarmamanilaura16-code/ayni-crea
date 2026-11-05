@@ -1,0 +1,174 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  border-radius: 20px;
+  background: linear-gradient(45deg, #ff6b00, #d4a843);
+  box-shadow: 0 24px 60px -20px rgba(255, 107, 0, 0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.form:hover {
+  background: linear-gradient(45deg, #d4a843, #ff6b00);
+  box-shadow: 0 28px 65px -20px rgba(255, 107, 0, 0.6);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  color: #151717;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.inputForm {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding-left: 14px;
+  border: 1.5px solid #ecedec;
+  border-radius: 10em;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputForm:focus-within {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.18);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #a3a3a3;
+}
+
+.input {
+  width: 100%;
+  height: 100%;
+  margin-left: 10px;
+  border: none;
+  border-radius: 10rem;
+  background: transparent;
+  color: #151717;
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.input::placeholder {
+  color: #a3a3a3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.roleRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.roleButton {
+  flex: 1;
+  height: 44px;
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  border-radius: 10em;
+  background: rgba(255, 255, 255, 0.28);
+  color: #151717;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.roleButton:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.roleActive {
+  border-color: #ffffff;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(21, 23, 23, 0.14);
+}
+
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 50px;
+  margin: 18px 0 6px;
+  padding: 15px 30px;
+  border: 2px solid #ffffff;
+  border-radius: 10em;
+  background: transparent;
+  box-shadow: inset 0 0 0 0 #4a1d00;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: box-shadow 0.5s ease-out, color 0.5s ease-out;
+}
+
+.submit:hover {
+  color: #ffffff;
+  box-shadow: inset 0 -100px 0 0 #4a1d00;
+}
+
+.submit:active {
+  transform: scale(0.97);
+}
+
+.footerText {
+  margin: 4px 0 0;
+  color: #151717;
+  font-size: 14px;
+  text-align: center;
+}
+
+.footerLink {
+  color: #151717;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footerLink:hover {
+  color: #4a1d00;
+}
+
+.disclaimer {
+  margin: 0;
+  color: rgba(21, 23, 23, 0.65);
+  font-size: 10px;
+  text-align: center;
+}
+
+@media (max-width: 400px) {
+  .form {
+    padding: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form,
+  .submit,
+  .roleButton {
+    transition: none;
+  }
+}

@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Lock, ArrowRight } from "lucide-react";
+import { Sparkles, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
-import { Button } from "@/components/Button";
-import { Input } from "@/components/ui/Input";
+import styles from "./login.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,108 +40,124 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-10">
-      <motion.div
+    <div className="max-w-lg mx-auto px-4 py-10">
+      <motion.form
+        onSubmit={submit}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl border border-border p-7 shadow-soft"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className={styles.form}
       >
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-secondary grid place-items-center shadow-soft">
-            <Sparkles className="w-4 h-4 text-primary" />
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-white/40 grid place-items-center shadow-sm">
+            <Sparkles className="w-4 h-4 text-[#151717]" />
           </div>
-          <span className="font-display font-bold text-secondary">Ayni Crea</span>
+          <span className="font-display font-bold text-[#151717]">Ayni Crea</span>
         </div>
-        <h1 className="font-display text-2xl font-extrabold mt-3 text-secondary">Iniciar sesión</h1>
-        <p className="text-sm text-neutral-500">
-          Ingresa para personalizar y seguir tus pedidos.
-        </p>
 
-        <form onSubmit={submit} className="mt-6 space-y-3">
-          <Field icon={Mail} type="email" placeholder="tu@correo.com" value={email} onChange={setEmail} />
-          <Field icon={Lock} type="password" placeholder="Contraseña" value={pwd} onChange={setPwd} />
-          <div className="mt-3">
-            <label className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Nombre de usuario</label>
-            <Input
+        <div>
+          <h1 className="font-display text-2xl font-extrabold text-[#151717]">
+            Iniciar sesión
+          </h1>
+          <p className="text-sm text-[#151717]/70">
+            Ingresa para personalizar y seguir tus pedidos.
+          </p>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="login-email" className={styles.label}>
+            Correo electrónico
+          </label>
+          <div className={styles.inputForm}>
+            <Mail className={styles.icon} />
+            <input
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="tu@correo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={styles.input}
+            />
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="login-password" className={styles.label}>
+            Contraseña
+          </label>
+          <div className={styles.inputForm}>
+            <Lock className={styles.icon} />
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Contraseña"
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
+              className={styles.input}
+            />
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="login-username" className={styles.label}>
+            Nombre de usuario
+          </label>
+          <div className={styles.inputForm}>
+            <User className={styles.icon} />
+            <input
+              id="login-username"
+              name="username"
+              type="text"
+              autoComplete="username"
               placeholder="Nombre de usuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-border bg-white dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className={styles.input}
             />
           </div>
-          <div className="flex gap-2 pt-2">
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.label}>Ingresa como</span>
+          <div className={styles.roleRow}>
             <button
               type="button"
               onClick={() => setRole("client")}
-              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
-                role === "client"
-                  ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                  : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
-              }`}
+              aria-pressed={role === "client"}
+              className={`${styles.roleButton} ${role === "client" ? styles.roleActive : ""}`}
             >
               Soy cliente
             </button>
             <button
               type="button"
               onClick={() => setRole("artisan")}
-              className={`flex-1 p-3 rounded-xl border text-sm font-medium text-center transition-all ${
-                role === "artisan"
-                  ? "border-primary bg-primary-50 shadow-soft dark:bg-neutral-800"
-                  : "border-border bg-white hover:border-primary/40 dark:bg-neutral-900 dark:text-neutral-300"
-              }`}
+              aria-pressed={role === "artisan"}
+              className={`${styles.roleButton} ${role === "artisan" ? styles.roleActive : ""}`}
             >
               Soy artesano
             </button>
           </div>
+        </div>
 
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            fullWidth
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
-            Entrar
-          </Button>
-        </form>
+        <button type="submit" className={styles.submit}>
+          Entrar
+          <ArrowRight className="w-4 h-4" />
+        </button>
 
-        <p className="text-xs text-neutral-500 mt-5 text-center">
+        <p className={styles.footerText}>
           ¿No tienes cuenta?{" "}
-          <Link href="/registro" className="text-primary font-semibold hover:underline">
+          <Link href="/registro" className={styles.footerLink}>
             Crear cuenta
           </Link>
         </p>
-        <p className="text-[10px] text-neutral-400 text-center mt-2">
+        <p className={styles.disclaimer}>
           Prototipo: la autenticación es simulada (no se envía información a ningún servidor).
         </p>
-      </motion.div>
-    </div>
-  );
-}
-
-function Field({
-  icon: Icon,
-  type,
-  placeholder,
-  value,
-  onChange,
-}: {
-  icon: typeof Sparkles;
-  type: string;
-  placeholder: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-      <Input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="pl-10"
-      />
+      </motion.form>
     </div>
   );
 }
