@@ -165,15 +165,9 @@ export function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="hidden md:inline-block text-sm font-medium px-3.5 py-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+                  className="hidden md:inline-block text-sm font-medium px-3.5 py-2 rounded-xl bg-secondary text-white shadow-soft hover:bg-secondary-800 hover:shadow-lift transition-all duration-200 active:scale-[0.98]"
                 >
                   Iniciar sesión
-                </Link>
-                <Link
-                  href="/registro"
-                  className="hidden md:inline-block text-sm font-semibold px-4 py-2.5 rounded-xl bg-secondary text-white shadow-soft hover:bg-secondary-800 hover:shadow-lift transition-all duration-200 active:scale-[0.98]"
-                >
-                  Crear cuenta
                 </Link>
               </>
             )
@@ -227,16 +221,9 @@ export function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setOpen(false)}
-                    className="flex-1 text-center px-4 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                  >
-                    Iniciar sesión
-                  </Link>
-                  <Link
-                    href="/registro"
-                    onClick={() => setOpen(false)}
                     className="flex-1 text-center px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-semibold hover:bg-secondary-800 transition-colors"
                   >
-                    Crear cuenta
+                    Iniciar sesión
                   </Link>
                 </div>
               )}
