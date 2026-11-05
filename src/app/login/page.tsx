@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { toast } from "@/components/Toast";
 import styles from "./login.module.css";
@@ -48,20 +48,17 @@ export default function LoginPage() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={styles.form}
       >
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-white/40 grid place-items-center shadow-sm">
-            <Sparkles className="w-4 h-4 text-[#151717]" />
-          </div>
-          <span className="font-display font-bold text-[#151717]">Ayni Crea</span>
-        </div>
-
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-[#151717]">
+        <div className="text-center">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#151717]/60">
+            Bienvenido de vuelta
+          </span>
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-[#151717]">
             Iniciar sesión
           </h1>
-          <p className="text-sm text-[#151717]/70">
+          <p className="mt-1 text-sm leading-relaxed text-[#151717]/70">
             Ingresa para personalizar y seguir tus pedidos.
           </p>
+          <span className="mx-auto mt-3 block h-1 w-12 rounded-full bg-[#151717]/80" />
         </div>
 
         <div className={styles.field}>
