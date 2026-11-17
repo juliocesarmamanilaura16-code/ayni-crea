@@ -48,16 +48,16 @@ export default function RegistroPage() {
         className={styles.form}
       >
         <div className="text-center">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#151717]/60">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--color-text-muted)]">
             Únete a Ayni Crea
           </span>
-          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-[#151717]">
+          <h1 className="mt-1 font-display text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)]">
             Crear cuenta
           </h1>
-          <p className="mt-1 text-sm leading-relaxed text-[#151717]/70">
+          <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
             Elige cómo quieres usar Ayni Crea.
           </p>
-          <span className="mx-auto mt-3 block h-1 w-12 rounded-full bg-[#151717]/80" />
+          <span className="mx-auto mt-3 block h-1 w-12 rounded-full bg-[var(--color-text-primary)]/20" />
         </div>
 
         <div className={styles.field}>

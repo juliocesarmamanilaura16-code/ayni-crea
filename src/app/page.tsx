@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
@@ -16,6 +22,9 @@ import {
   BadgeCheck,
   Star,
   Package,
+  Search,
+  ShieldCheck,
+  Truck,
 } from "lucide-react";
 import { artisans, categories, products, testimonials } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
@@ -24,9 +33,11 @@ import { useStore } from "@/lib/store";
 import { useIsDark } from "@/lib/useIsDark";
 import { productLikes } from "@/types";
 import { progressToNext, getAynLevel } from "@/lib/pricing";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { VantaWaves } from "@/components/VantaWaves";
 import { HowItWorksCarousel } from "@/components/HowItWorksCarousel";
+import { ScrollStory } from "@/components/ScrollStory";
 
 const iconMap: Record<string, typeof Shirt> = {
   Shirt, Briefcase, Gem, TreePine, Home, Gift, Sun, Package,
@@ -39,8 +50,10 @@ const fadeUp = {
 } as const;
 
 export default function HomePage() {
+  const router = useRouter();
   const { user, favorites } = useStore();
   const [mounted, setMounted] = useState(false);
+  const [heroQuery, setHeroQuery] = useState("");
   useEffect(() => setMounted(true), []);
   const level = mounted && user ? getAynLevel(user.points) : null;
   const progress = mounted && user ? progressToNext(user.points) : null;
@@ -73,10 +86,35 @@ export default function HomePage() {
   const heroDark = useIsDark();
   const heroBg = heroDark ? 0x472000 : 0x5b4d44;
 
+  /* Progreso de lectura + parallax del hero */
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: pageScroll } = useScroll();
+  const pageProgress = useSpring(pageScroll, {
+    stiffness: 160,
+    damping: 30,
+    mass: 0.3,
+  });
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroTextY = useTransform(heroScroll, [0, 1], [0, -70]);
+  const heroTextOpacity = useTransform(heroScroll, [0, 0.75], [1, 0]);
+  const heroVisualY = useTransform(heroScroll, [0, 1], [0, 90]);
+  const heroVisualScale = useTransform(heroScroll, [0, 1], [1, 0.9]);
+
   return (
     <>
+      {/* Barra de progreso de lectura */}
+      <motion.div
+        aria-hidden
+        style={{ scaleX: pageProgress }}
+        className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-gradient-to-r from-primary via-accent to-primary"
+      />
+
       {/* ============ HERO ============ */}
       <section
+        ref={heroRef}
         className="relative overflow-hidden"
         style={{ backgroundColor: heroDark ? "#472000" : "#5b4d44" }}
       >
@@ -91,7 +129,7 @@ export default function HomePage() {
           backgroundColor={heroBg}
         />
         <div className="relative z-[2] max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-14 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-12 items-center">
-          <div>
+          <motion.div style={{ y: heroTextY, opacity: heroTextOpacity }}>
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -108,16 +146,17 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-5xl md:text-7xl font-extrabold leading-[1.04] tracking-tight text-white"
+              className="font-display text-[2.6rem] font-extrabold leading-[1.03] tracking-[-0.045em] text-white sm:text-5xl md:text-6xl lg:text-[4.15rem]"
             >
               No encuentres el producto que imaginas.{" "}
-              <span className="relative inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary via-orange-500 to-amber-500">
+              <span className="relative inline-block bg-clip-text text-transparent bg-gradient-to-r from-primary via-orange-400 to-amber-400">
                 Créalo.
                 <svg
                   className="absolute -bottom-2 left-0 w-full"
                   viewBox="0 0 120 12"
                   fill="none"
                   preserveAspectRatio="none"
+                  aria-hidden
                 >
                   <path
                     d="M2 9C30 3 90 3 118 9"
@@ -133,7 +172,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              className="mt-5 text-neutral-200 text-base md:text-lg max-w-xl leading-relaxed"
+              className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/80 md:text-lg"
             >
               Diseña productos únicos y conecta con artesanos de El Alto y La Paz
               que pueden hacerlos realidad, pieza por pieza.
@@ -156,7 +195,63 @@ export default function HomePage() {
                   Crear mi producto
                 </Button>
               </Link>
+              <Link
+                href="/explorar"
+                className="inline-flex h-12 items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
+              >
+                Explorar catálogo
+              </Link>
             </motion.div>
+
+            {/* Buscador del hero */}
+            <motion.form
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.34 }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = heroQuery.trim();
+                router.push(q ? `/explorar?q=${encodeURIComponent(q)}` : "/explorar");
+              }}
+              role="search"
+              className="mt-6 flex max-w-xl items-center gap-2 rounded-2xl border border-white/20 bg-white/10 p-1.5 backdrop-blur-md focus-within:border-primary/60 focus-within:bg-white/15 transition-colors"
+            >
+              <Search className="ml-2 h-4 w-4 shrink-0 text-white/70" aria-hidden />
+              <input
+                value={heroQuery}
+                onChange={(e) => setHeroQuery(e.target.value)}
+                placeholder="Buscar aguayo, cuero, joyería…"
+                aria-label="Buscar productos"
+                className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-white/55 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-xl bg-white px-4 py-2 text-xs font-bold text-secondary transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              >
+                Buscar
+              </button>
+            </motion.form>
+
+            {/* Señales de confianza */}
+            <motion.ul
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 }}
+              className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-medium text-white/70"
+            >
+              <li className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" aria-hidden />
+                Artesanos verificados
+              </li>
+              <li className="inline-flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-amber-300" aria-hidden />
+                Producción bajo pedido
+              </li>
+              <li className="inline-flex items-center gap-1.5">
+                <Truck className="h-3.5 w-3.5 text-sky-300" aria-hidden />
+                Envío en El Alto y La Paz
+              </li>
+            </motion.ul>
 
             {/* Puntos Ayni si está logueado */}
             {mounted && user && level && progress && (
@@ -187,15 +282,19 @@ export default function HomePage() {
                 </p>
               </motion.div>
             )}
-          </div>
+          </motion.div>
 
           {/* Visual del hero */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            style={{ y: heroVisualY, scale: heroVisualScale }}
             className="relative"
           >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="relative"
+            >
             <motion.div
               whileHover={{ y: -6, scale: 1.01 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
@@ -286,9 +385,30 @@ export default function HomePage() {
               </div>
             </motion.div>
           </motion.div>
+          </motion.div>
         </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1, duration: 0.6 }}
+          className="relative z-[2] hidden sm:flex flex-col items-center gap-2 pb-8 text-white/60"
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-[0.3em]">
+            Desliza para descubrir la historia
+          </span>
+          <motion.span
+            aria-hidden
+            animate={{ y: [0, 7, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="grid h-9 w-6 place-items-start justify-center rounded-full border border-white/40 pt-1.5"
+          >
+            <span className="h-1.5 w-1 rounded-full bg-white/80" />
+          </motion.span>
+        </motion.div>
         <div className="divider-brand max-w-7xl mx-auto opacity-70" />
       </section>
+
+      <ScrollStory />
 
       {/* ============ MARQUEE BENEFICIOS ============ */}
       <div className="relative overflow-hidden border-y border-primary/20 dark:border-neutral-800/60 bg-gradient-to-r from-primary-50 via-white to-primary-50 dark:from-neutral-900 dark:via-neutral-900/70 dark:to-neutral-900 py-4">

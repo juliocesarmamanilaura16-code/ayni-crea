@@ -63,7 +63,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[#FAFAFA] text-neutral-900 dark:bg-secondary dark:text-neutral-100 relative overflow-hidden min-h-screen">
+    <footer className="relative overflow-hidden border-t border-border bg-background text-neutral-900 dark:bg-secondary dark:text-neutral-100">
       {/* Vanta BIRDS — bandada animada de fondo (cambia con el tema) */}
       <VantaBirds
         backgroundColor={footerDark ? 0x0a0a0a : 0xfafafa}
@@ -72,7 +72,7 @@ export function Footer() {
         quantity={4}
       />
       {/* Overlay para legibilidad del contenido (también cambia con el tema) */}
-      <div className={`absolute inset-0 bg-gradient-to-b pointer-events-none ${footerDark ? "from-secondary/80 via-secondary/60 to-secondary/85" : "from-[#FAFAFA]/85 via-[#FAFAFA]/65 to-[#FAFAFA]/90"}`} />
+      <div className={`absolute inset-0 bg-gradient-to-b pointer-events-none ${footerDark ? "from-secondary/85 via-secondary/70 to-secondary/90" : "from-background/90 via-background/75 to-background/95"}`} />
       {/* Background decoration */}
       <div className="absolute inset-0 bg-dots opacity-[0.05]" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
@@ -128,7 +128,8 @@ export function Footer() {
                     placeholder="tu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-neutral-200 text-neutral-900 placeholder:text-neutral-400 dark:bg-neutral-900 dark:border-neutral-800 dark:text-white dark:placeholder:text-neutral-500 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all"
+                    aria-label="Correo electrónico"
+                    className="min-w-0 flex-1 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 dark:border-neutral-800 dark:bg-neutral-900 dark:text-white dark:placeholder:text-neutral-500"
                   />
                   <Button
                     type="submit"
@@ -166,6 +167,23 @@ export function Footer() {
             </div>
 
             
+            <div>
+              <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white mb-4 uppercase tracking-wider">
+                Cuenta
+              </h4>
+              <ul className="space-y-2.5">
+                {sections.cuenta.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <div>
               <h4 className="font-display font-bold text-sm text-neutral-900 dark:text-white mb-4 uppercase tracking-wider">

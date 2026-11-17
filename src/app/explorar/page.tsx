@@ -2,29 +2,38 @@
 
 import { useEffect, useRef, useState, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { ArrowUpDown, Search, Sparkles } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowUpDown, ChevronDown, Search, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { products, categories, artisans } from "@/data/mock";
 import { ProductCard } from "@/components/ProductCard";
 import { EmptyState } from "@/components/EmptyState";
 import { cn } from "@/lib/cn";
 
+const PAGE_SIZE = 12;
+
 function ExplorarInner() {
   const params = useSearchParams();
+  const router = useRouter();
   const initialCat = params.get("cat") ?? "all";
+  const initialQuery = params.get("q") ?? "";
 
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
   const [cat, setCat] = useState<string>(initialCat);
   const [sort, setSort] = useState<"recent" | "price-asc" | "price-desc">("recent");
   const [city, setCity] = useState<"all" | "El Alto" | "La Paz">("all");
   const [minRating, setMinRating] = useState(0);
   const [maxDays, setMaxDays] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
+  const [visible, setVisible] = useState(PAGE_SIZE);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const norm = (s: string) =>
     s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  useEffect(() => {
+    setQ(params.get("q") ?? "");
+  }, [params]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -67,7 +76,18 @@ function ExplorarInner() {
     setMinRating(0);
     setMaxDays(0);
     setMaxPrice(0);
+    router.replace("/explorar", { scroll: false });
   };
+
+  const filtersActive =
+    q.trim() !== "" || cat !== "all" || city !== "all" || minRating > 0 || maxDays > 0 || maxPrice > 0;
+
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [q, cat, city, minRating, maxDays, maxPrice]);
+
+  const visibleProducts = filtered.slice(0, visible);
+  const remaining = filtered.length - visibleProducts.length;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-12">
@@ -75,8 +95,8 @@ function ExplorarInner() {
         <p className="text-primary text-xs font-bold tracking-[0.25em] uppercase">
           Catálogo
         </p>
-        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary">Explorar</h1>
-        <p className="text-neutral-500 mt-1.5">
+        <h1 className="font-display text-3xl md:text-4xl font-extrabold mt-1 text-secondary dark:text-white">Explorar</h1>
+        <p className="text-neutral-500 dark:text-neutral-400 mt-1.5">
           Productos personalizados listos para crear a tu manera.
         </p>
       </motion.div>
@@ -86,7 +106,7 @@ function ExplorarInner() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mt-7 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-3xl border border-neutral-200/80 dark:border-neutral-800 shadow-card p-4 md:p-5"
+        className="mt-7 md:sticky md:top-24 z-30 bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl rounded-3xl border border-neutral-200/80 dark:border-neutral-800 shadow-card p-4 md:p-5"
       >
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
@@ -193,24 +213,41 @@ function ExplorarInner() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 bg-gradient-to-r from-secondary to-primary border border-secondary rounded-2xl p-5 md:p-6 flex items-center gap-4 shadow-soft"
+        className="mt-6 flex flex-col items-start gap-4 rounded-2xl border border-secondary bg-gradient-to-r from-secondary to-primary p-5 shadow-soft sm:flex-row sm:items-center md:p-6"
       >
-        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-          <Sparkles className="w-6 h-6 text-white" />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
+          <Sparkles className="h-6 w-6 text-white" />
         </div>
-        <div className="flex-1">
-          <p className="font-display font-bold text-white text-lg">¿No sabes diseñar?</p>
-          <p className="text-sm text-white/85">Un artesano te ayuda gratis por chat a crear tu pieza.</p>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg font-bold text-white">¿No sabes diseñar?</p>
+          <p className="mt-0.5 text-sm leading-relaxed text-white/85">
+            Un artesano te ayuda gratis por chat a crear tu pieza.
+          </p>
         </div>
-        <Link href="/artesanos" className="px-4 py-2.5 bg-white text-secondary text-sm font-bold rounded-xl hover:bg-neutral-100 transition shrink-0">
+        <Link
+          href="/artesanos"
+          className="w-full shrink-0 rounded-xl bg-white px-4 py-2.5 text-center text-sm font-bold text-secondary transition hover:bg-neutral-100 sm:w-auto"
+        >
           Pedir ayuda
         </Link>
       </motion.div>
 
       {/* Resultados */}
-      <p className="text-xs text-neutral-500 font-medium mt-6 mb-4">
-        {filtered.length} producto{filtered.length !== 1 && "s"} encontrado{filtered.length !== 1 && "s"}
-      </p>
+      <div className="mt-6 mb-4 flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+          <span className="font-display text-sm font-bold text-secondary dark:text-white tabular-nums">{filtered.length}</span>{" "}
+          producto{filtered.length !== 1 && "s"} encontrado{filtered.length !== 1 && "s"}
+        </p>
+        {filtersActive && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="text-xs font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            Limpiar filtros
+          </button>
+        )}
+      </div>
       <motion.div layout className="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
         <AnimatePresence mode="popLayout">
           {filtered.length === 0 ? (
@@ -228,7 +265,7 @@ function ExplorarInner() {
               />
             </motion.div>
           ) : (
-            filtered.map((p, i) => (
+            visibleProducts.map((p, i) => (
               <motion.div
                 key={p.id}
                 layout
@@ -243,6 +280,22 @@ function ExplorarInner() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {remaining > 0 && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-6 py-3 text-sm font-semibold text-secondary shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft dark:text-white"
+          >
+            Cargar más
+            <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[11px] font-bold tabular-nums text-primary dark:bg-primary-950/50">
+              {remaining}
+            </span>
+            <ChevronDown className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

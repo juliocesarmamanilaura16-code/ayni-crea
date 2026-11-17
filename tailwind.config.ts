@@ -172,12 +172,21 @@ const config: Config = {
         display: ["var(--font-display)", "system-ui", "sans-serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
+      fontSize: {
+        "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.04em" }],
+      },
+      letterSpacing: {
+        tightest: "-0.04em",
+        kicker: "0.22em",
+      },
       boxShadow: {
         soft: "0 2px 8px rgba(10, 10, 10, 0.06)",
         card: "0 1px 3px rgba(10, 10, 10, 0.05), 0 4px 12px rgba(10, 10, 10, 0.04)",
         lift: "0 12px 32px -8px rgba(10, 10, 10, 0.12)",
         glow: "0 0 0 1px rgba(255, 107, 0, 0.2), 0 8px 32px rgba(255, 107, 0, 0.15)",
         "glow-accent": "0 0 0 1px rgba(212, 168, 67, 0.2), 0 8px 32px rgba(212, 168, 67, 0.12)",
+        elevated: "0 2px 6px rgba(10, 10, 10, 0.05), 0 24px 56px -20px rgba(10, 10, 10, 0.22)",
+        inset: "inset 0 1px 0 rgba(255, 255, 255, 0.08)",
       },
       borderRadius: {
         xl: "1rem",
